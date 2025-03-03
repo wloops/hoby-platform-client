@@ -11,7 +11,7 @@ export default defineConfig(async () => {
             rewrite: (path) => path.replace(/^\/api/, ''),
             // mock代理目标地址
             target:
-              'http://795tg1082ff7.vicp.fun/java-cloud-cipher-service-enterprise-service-plug-plat/',
+              'http://795tg1082ff7.vicp.fun/java-hoby-member-service-plug-plat/',
             ws: true,
           },
         },
