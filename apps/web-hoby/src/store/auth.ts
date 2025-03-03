@@ -173,8 +173,8 @@ export const useAuthStore = defineStore('auth', () => {
       path: '/',
       query: redirect
         ? {
-            redirect: encodeURIComponent(router.currentRoute.value.fullPath),
-          }
+          redirect: encodeURIComponent(router.currentRoute.value.fullPath),
+        }
         : {},
     });
   }
