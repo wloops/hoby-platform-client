@@ -7,7 +7,6 @@ import { useAppConfig } from '@vben/hooks';
 import { preferences } from '@vben/preferences';
 import {
   authenticateResponseInterceptor,
-  defaultResponseInterceptor,
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
@@ -67,18 +66,38 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
 
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
+      // post 默认x-www-form-urlencoded
+      config.headers['content-type'] = 'application/x-www-form-urlencoded';
       return config;
     },
   });
 
   // 处理返回的响应数据格式
-  client.addResponseInterceptor(
-    defaultResponseInterceptor({
-      codeField: 'code',
-      dataField: 'data',
-      successCode: 0,
-    }),
-  );
+  // client.addResponseInterceptor(
+  //   defaultResponseInterceptor({
+  //     codeField: 'code',
+  //     dataField: 'data',
+  //     successCode: 0,
+  //   }),
+  // );
+
+  // response数据解构
+  client.addResponseInterceptor<any>({
+    fulfilled: (response) => {
+      const { data: responseData, status } = response;
+      const code = 0;
+      // const { code, data, message: msg } = responseData;
+      const { rs: msg } = responseData;
+      if (responseData.statusCode && responseData.statusCode === 301) {
+        doReAuthenticate();
+        throw new Error(`Error ${status}: ${msg}`);
+      }
+      if (status >= 200 && status < 400 && code === 0 && msg === 1) {
+        return responseData;
+      }
+      throw new Error(`${status}: ${msg}`);
+    },
+  });
 
   // token过期的处理
   client.addResponseInterceptor(
@@ -96,10 +115,11 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     errorMessageResponseInterceptor((msg: string, error) => {
       // 这里可以根据业务进行定制,你可以拿到 error 内的信息进行定制化处理，根据不同的 code 做不同的提示，而不是直接使用 message.error 提示 msg
       // 当前mock接口返回的错误字段是 error 或者 message
-      const responseData = error?.response?.data ?? {};
-      const errorMessage = responseData?.error ?? responseData?.message ?? '';
+      // console.log('error', error);
+      // const responseData = error?.response?.data ?? {};
+      // const errorMessage = responseData?.error ?? responseData?.message ?? '';
       // 如果没有错误信息，则会根据状态码进行提示
-      message.error(errorMessage || msg);
+      message.error(error || msg);
     }),
   );
 

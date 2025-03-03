@@ -1,11 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
+import { LOGIN_PATH } from '@vben/constants';
 
 import { AuthPageLayout, BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
 import Login from '#/views/_core/authentication/login.vue';
-
+import Home from '#/views/_core/home/index.vue';
 /** 全局404页面 */
 const fallbackNotFoundRoute: RouteRecordRaw = {
   component: () => import('#/views/_core/fallback/not-found.vue'),
@@ -34,7 +34,18 @@ const coreRoutes: RouteRecordRaw[] = [
     },
     name: 'Root',
     path: '/',
-    redirect: DEFAULT_HOME_PATH,
+    redirect: '/home',
+    children: [],
+  },
+  {
+    component: Home,
+    meta: {
+      hideInBreadcrumb: true,
+      title: 'Home',
+      ignoreAuth: true,
+    },
+    name: 'Home',
+    path: '/home',
     children: [],
   },
   {
