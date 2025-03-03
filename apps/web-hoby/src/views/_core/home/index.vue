@@ -1,9 +1,121 @@
-<script setup long="ts"></script>
+<script setup lang="ts">
+import CommonBanner from './components/CommonBanner.vue';
+import LayoutFooter from './layout/Footer.vue';
+import LayoutHeader from './layout/Header.vue';
+
+const navigationItems = [
+  { title: '我要进货', icon: 'i-carbon:delivery-add' },
+  { title: '我的店铺', icon: 'i-lucide-store' },
+  { title: '我的仓库', icon: 'i-lucide:warehouse' },
+  { title: '我的产品', icon: 'i-lucide:blocks' },
+  { title: '去逛店铺', icon: 'i-lucide:shopping-cart' },
+];
+</script>
 
 <template>
-  <div>
-    <h1>Home</h1>
+  <div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <LayoutHeader />
+    <!-- 主导航栏 -->
+    <!-- <HomeMainNav /> -->
+
+    <!-- 主横幅 -->
+    <CommonBanner />
+
+    <!-- 快捷导航 -->
+    <div class="mx-auto max-w-7xl px-4 py-5">
+      <div class="mb-8 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">快捷导航</h2>
+        <!-- <button class="flex items-center text-purple-600 space-x-1 hover:text-purple-700">
+          <span>查看更多</span>
+          <i class="i-lucide-arrow-right h-4 w-4" />
+        </button> -->
+      </div>
+      <div class="grid grid-cols-5 gap-6">
+        <div
+          v-for="item in navigationItems"
+          :key="item.title"
+          class="group cursor-pointer"
+        >
+          <div
+            class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-white/80"
+          >
+            <!-- <span
+              :class="`icon-[${item.icon}]`"
+              class="text-6xl text-purple-300 transition-transform duration-500 group-hover:scale-110 group-hover:text-purple-500"
+            ></span> -->
+            <div
+              class="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5"
+            ></div>
+          </div>
+          <h3 class="text-center font-medium text-gray-700">
+            {{ item.title }}
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- 热门商品 -->
+    <!-- <div class="mx-auto max-w-7xl px-4 py-12">
+      <div class="mb-8 flex items-center justify-between">
+        <h2 class="text-2xl text-gray-800 font-bold">
+          热门商品
+        </h2>
+        <button class="flex items-center text-purple-600 space-x-1 hover:text-purple-700">
+          <span>查看更多</span>
+          <i class="i-lucide-arrow-right h-4 w-4" />
+        </button>
+      </div>
+
+      <div class="grid grid-cols-5 gap-6">
+        <div
+          v-for="i in 5" :key="i"
+          class="group cursor-pointer"
+        >
+          <div class="overflow-hidden rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
+            <div class="relative aspect-square">
+              <img
+                src=""
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                alt="商品图片"
+              >
+              <button class="absolute bottom-3 right-3 h-10 w-10 flex items-center justify-center rounded-full bg-white/80 opacity-0 shadow-lg backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                <i class="i-lucide-heart h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div class="p-4">
+              <h3 class="line-clamp-2 mb-2 text-gray-800 font-medium transition-colors group-hover:text-purple-600">
+                精选商品标题 {{ i }}
+              </h3>
+              <div class="flex items-baseline space-x-2">
+                <span class="text-lg text-purple-600 font-bold">¥299</span>
+                <span class="text-sm text-gray-400 line-through">¥399</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 品牌精选 -->
+    <!-- <div class="mx-auto max-w-7xl px-4 py-12">
+      <h2 class="mb-8 text-2xl text-gray-800 font-bold">
+        品牌精选
+      </h2>
+      <div class="grid grid-cols-6 gap-4">
+        <div
+          v-for="i in 6" :key="i"
+          class="aspect-square flex items-center justify-center rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <img
+            src=""
+            class="h-full w-full object-contain opacity-60 transition-opacity hover:opacity-100"
+            alt="品牌logo"
+          >
+        </div>
+      </div>
+    </div> -->
+
+    <LayoutFooter />
   </div>
 </template>
-
-<style scoped></style>
