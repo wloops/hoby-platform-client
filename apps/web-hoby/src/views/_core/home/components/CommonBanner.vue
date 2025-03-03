@@ -9,6 +9,8 @@
 <script setup>
 import { ref } from 'vue';
 
+import { Carousel } from 'ant-design-vue';
+
 const bannerList = ref([
   {
     title: '夏季新品上市',
@@ -31,7 +33,7 @@ const bannerList = ref([
 <template>
   <div class="mb-0 mt-6 h-[280px] w-full">
     <div class="mx-auto max-w-5xl px-6">
-      <a-carousel class="h-[280px] overflow-hidden rounded-2xl" autoplay>
+      <Carousel class="h-[280px] overflow-hidden rounded-2xl" autoplay>
         <template v-for="item in bannerList" :key="item.title">
           <div class="group relative h-[280px] overflow-hidden rounded-2xl">
             <!-- <div class="absolute inset-0">
@@ -56,7 +58,7 @@ const bannerList = ref([
             </div>
           </div>
         </template>
-      </a-carousel>
+      </Carousel>
     </div>
   </div>
 </template>
