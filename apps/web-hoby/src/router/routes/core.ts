@@ -31,6 +31,7 @@ const coreRoutes: RouteRecordRaw[] = [
     meta: {
       hideInBreadcrumb: true,
       title: 'Root',
+      loaded: false,
     },
     name: 'Root',
     path: '/',

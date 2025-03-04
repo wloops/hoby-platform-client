@@ -4,16 +4,16 @@ import LayoutFooter from './layout/Footer.vue';
 import LayoutHeader from './layout/Header.vue';
 
 const navigationItems = [
-  { title: '我要进货', icon: 'i-carbon:delivery-add' },
-  { title: '我的店铺', icon: 'i-lucide-store' },
-  { title: '我的仓库', icon: 'i-lucide:warehouse' },
-  { title: '我的产品', icon: 'i-lucide:blocks' },
-  { title: '去逛店铺', icon: 'i-lucide:shopping-cart' },
+  { title: '我要进货', icon: 'icon-[carbon--delivery-add]' },
+  { title: '我的店铺', icon: 'icon-[lucide--store]' },
+  { title: '我的仓库', icon: 'icon-[lucide--warehouse]' },
+  { title: '我的产品', icon: 'icon-[lucide--blocks]' },
+  { title: '去逛店铺', icon: 'icon-[lucide--shopping-cart]' },
 ];
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+  <div class="min-h-screen bg-gradient-to-br from-orange-50 to-pink-50">
     <LayoutHeader />
     <!-- 主导航栏 -->
     <!-- <HomeMainNav /> -->
@@ -25,7 +25,7 @@ const navigationItems = [
     <div class="mx-auto max-w-7xl px-4 py-5">
       <div class="mb-8 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-gray-800">快捷导航</h2>
-        <!-- <button class="flex items-center text-purple-600 space-x-1 hover:text-purple-700">
+        <!-- <button class="flex items-center text-orange-600 space-x-1 hover:text-orange-700">
           <span>查看更多</span>
           <i class="i-lucide-arrow-right h-4 w-4" />
         </button> -->
@@ -39,10 +39,10 @@ const navigationItems = [
           <div
             class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-white/80"
           >
-            <!-- <span
-              :class="`icon-[${item.icon}]`"
-              class="text-6xl text-purple-300 transition-transform duration-500 group-hover:scale-110 group-hover:text-purple-500"
-            ></span> -->
+            <span
+              :class="item.icon"
+              class="text-6xl text-orange-300 transition-transform duration-500 group-hover:scale-110 group-hover:text-orange-500"
+            ></span>
             <div
               class="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5"
             ></div>
@@ -60,7 +60,7 @@ const navigationItems = [
         <h2 class="text-2xl text-gray-800 font-bold">
           热门商品
         </h2>
-        <button class="flex items-center text-purple-600 space-x-1 hover:text-purple-700">
+        <button class="flex items-center text-orange-600 space-x-1 hover:text-orange-700">
           <span>查看更多</span>
           <i class="i-lucide-arrow-right h-4 w-4" />
         </button>
@@ -84,11 +84,11 @@ const navigationItems = [
             </div>
 
             <div class="p-4">
-              <h3 class="line-clamp-2 mb-2 text-gray-800 font-medium transition-colors group-hover:text-purple-600">
+              <h3 class="line-clamp-2 mb-2 text-gray-800 font-medium transition-colors group-hover:text-orange-600">
                 精选商品标题 {{ i }}
               </h3>
               <div class="flex items-baseline space-x-2">
-                <span class="text-lg text-purple-600 font-bold">¥299</span>
+                <span class="text-lg text-orange-600 font-bold">¥299</span>
                 <span class="text-sm text-gray-400 line-through">¥399</span>
               </div>
             </div>
