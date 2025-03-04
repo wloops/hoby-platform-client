@@ -10,5 +10,14 @@
     "title": "概览",
     "analytics": "分析页",
     "workspace": "工作台"
+  },
+  "buyer": {
+    "purchaseGoods": {
+      "title": "政采贷进货",
+      "importOrder": "导入第三方平台订单",
+      "purchaseGoodsByOrder": "为销售订单商品进货"
+    },
+    "settlement": "进货结算",
+    "orderManagement": "进货订单管理"
   }
 }
