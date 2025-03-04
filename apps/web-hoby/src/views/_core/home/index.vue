@@ -1,15 +1,35 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+
 import CommonBanner from './components/CommonBanner.vue';
 import LayoutFooter from './layout/Footer.vue';
 import LayoutHeader from './layout/Header.vue';
 
+const router = useRouter();
+
 const navigationItems = [
-  { title: '我要进货', icon: 'icon-[carbon--delivery-add]' },
-  { title: '我的店铺', icon: 'icon-[lucide--store]' },
-  { title: '我的仓库', icon: 'icon-[lucide--warehouse]' },
-  { title: '我的产品', icon: 'icon-[lucide--blocks]' },
-  { title: '去逛店铺', icon: 'icon-[lucide--shopping-cart]' },
+  {
+    title: '我要进货',
+    icon: 'icon-[carbon--delivery-add]',
+    link: '/buyer',
+  },
+  { title: '我的店铺', icon: 'icon-[lucide--store]', link: '/seller' },
+  {
+    title: '我的仓库',
+    icon: 'icon-[lucide--warehouse]',
+    link: '/warehouse/home',
+  },
+  { title: '我的产品', icon: 'icon-[lucide--blocks]', link: '/product' },
+  {
+    title: '去逛店铺',
+    icon: 'icon-[lucide--shopping-cart]',
+    link: '/shopping',
+  },
 ];
+
+const goToMainPage = (link: string) => {
+  router.push(link);
+};
 </script>
 
 <template>
@@ -35,6 +55,7 @@ const navigationItems = [
           v-for="item in navigationItems"
           :key="item.title"
           class="group cursor-pointer"
+          @click="goToMainPage(item.link)"
         >
           <div
             class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-white/80"

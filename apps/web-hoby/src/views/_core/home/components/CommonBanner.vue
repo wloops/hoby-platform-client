@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-28 10:29:19
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-04 12:16:03
+ * @LastEditTime: 2025-03-04 13:24:38
  * @FilePath: \HOBY-platform\app\components\common\Banner.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -40,7 +40,7 @@ const bannerList = ref([
               <img :src="item.image" class="h-full w-full object-cover" :alt="item.title">
             </div> -->
             <div
-              class="absolute inset-0 flex items-center bg-gradient-to-r from-orange-900/50 to-transparent"
+              class="absolute inset-0 flex items-center bg-gradient-to-r from-orange-700/50 to-transparent"
             >
               <div class="space-y-4 px-12">
                 <h1 class="text-4xl font-bold text-white">
@@ -50,7 +50,7 @@ const bannerList = ref([
                   {{ item.description }}
                 </p>
                 <button
-                  class="rounded-full bg-white px-6 py-3 font-medium text-orange-600 transition-colors hover:bg-orange-600 hover:text-white"
+                  class="rounded-full bg-white px-6 py-3 font-medium text-orange-500 transition-colors hover:bg-orange-500 hover:text-white"
                 >
                   立即探索
                 </button>
