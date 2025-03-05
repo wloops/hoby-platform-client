@@ -84,6 +84,8 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   // response数据解构
   client.addResponseInterceptor<any>({
     fulfilled: (response) => {
+      // console.log('response', response);
+
       const { data: responseData, status } = response;
       const code = 0;
       // const { code, data, message: msg } = responseData;
@@ -92,7 +94,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
         doReAuthenticate();
         throw new Error(`Error ${status}: ${msg}`);
       }
-      if (status >= 200 && status < 400 && code === 0 && msg === 1) {
+      if (status >= 200 && status < 400 && code === 0) {
         return responseData;
       }
       throw new Error(`${status}: ${msg}`);
