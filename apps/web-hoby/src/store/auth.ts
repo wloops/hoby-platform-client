@@ -9,7 +9,8 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { getAccessCodesApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+import { getPKApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+import { encryption } from '#/composables/encrypt/encryption';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -29,42 +30,58 @@ export const useAuthStore = defineStore('auth', () => {
     onSuccess?: () => Promise<void> | void,
   ) {
     // 异步处理用户登录操作并获取 accessToken
-    let userInfo: null | UserInfo = null;
+    let userInfo: any = null;
     try {
       loginLoading.value = true;
-      const { accessToken } = await loginApi(params);
+      const { pkkey: pk } = await getPKApi();
+      const encryptedPassword = encryption(pk, params.password);
+      console.error('encryptedPassword', encryptedPassword);
+
+      const loginParams = {
+        tellerNo: params.username,
+        cipherText: encryptedPassword,
+      };
+
+      // const { accessToken } = await loginApi(loginParams);
+      const res = await loginApi(loginParams);
+      console.error('res', res);
 
       // 如果成功获取到 accessToken
-      if (accessToken) {
-        accessStore.setAccessToken(accessToken);
+      // if (accessToken) {
+      // accessStore.setAccessToken(accessToken);
+      accessStore.setAccessToken(JSON.stringify(res));
 
-        // 获取用户信息并存储到 accessStore 中
-        const [fetchUserInfoResult, accessCodes] = await Promise.all([
-          fetchUserInfo(),
-          getAccessCodesApi(),
-        ]);
+      // 获取用户信息并存储到 accessStore 中
+      // const [fetchUserInfoResult, accessCodes] = await Promise.all([
+      //   fetchUserInfo(),
+      //   getAccessCodesApi(),
+      // ]);
 
-        userInfo = fetchUserInfoResult;
+      // userInfo = fetchUserInfoResult;
+      userInfo = {
+        homePath: DEFAULT_HOME_PATH,
+        realName: '张三',
+      };
 
-        userStore.setUserInfo(userInfo);
-        accessStore.setAccessCodes(accessCodes);
+      userStore.setUserInfo(userInfo);
+      // accessStore.setAccessCodes(accessCodes);
 
-        if (accessStore.loginExpired) {
-          accessStore.setLoginExpired(false);
-        } else {
-          onSuccess
-            ? await onSuccess?.()
-            : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
-        }
-
-        if (userInfo?.realName) {
-          notification.success({
-            description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.realName}`,
-            duration: 3,
-            message: $t('authentication.loginSuccess'),
-          });
-        }
+      if (accessStore.loginExpired) {
+        accessStore.setLoginExpired(false);
+      } else {
+        onSuccess
+          ? await onSuccess?.()
+          : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
       }
+
+      if (userInfo?.realName) {
+        notification.success({
+          description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.realName}`,
+          duration: 3,
+          message: $t('authentication.loginSuccess'),
+        });
+      }
+      // }
     } finally {
       loginLoading.value = false;
     }
