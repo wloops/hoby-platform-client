@@ -45,11 +45,10 @@ export const useAuthStore = defineStore('auth', () => {
       // const { accessToken } = await loginApi(loginParams);
       const res = await loginApi(loginParams);
       console.error('res', res);
-
       // 如果成功获取到 accessToken
       // if (accessToken) {
       // accessStore.setAccessToken(accessToken);
-      accessStore.setAccessToken(JSON.stringify(res));
+      accessStore.setAccessToken(res.token.token);
 
       // 获取用户信息并存储到 accessStore 中
       // const [fetchUserInfoResult, accessCodes] = await Promise.all([
@@ -60,7 +59,8 @@ export const useAuthStore = defineStore('auth', () => {
       // userInfo = fetchUserInfoResult;
       userInfo = {
         homePath: DEFAULT_HOME_PATH,
-        realName: '张三',
+        realName: res.TELLERNAME,
+        ...res,
       };
 
       userStore.setUserInfo(userInfo);
