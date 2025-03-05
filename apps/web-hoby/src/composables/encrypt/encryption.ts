@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 19:12:45
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-04 19:17:26
+ * @LastEditTime: 2025-03-05 17:30:05
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\encrypt\encryption.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -20,9 +20,9 @@ export function encryption(pkbase64: string, data: string): string {
 
   // 使用标准RSA算法处理
   const privateKey = `-----BEGIN PUBLIC KEY-----${pkbase64}-----END PUBLIC KEY-----`;
-  newPassword = encryptedData(privateKey, newPassword);
-  const passwordTemp = newPassword.replaceAll('+', '%2B');
-  return passwordTemp;
+  const encryptedPassword = encryptedData(privateKey, newPassword);
+  // const passwordTemp = encryptedPassword.replaceAll('+', '%2B');
+  return encryptedPassword;
 }
 
 function prefixZero(num: number, n: number): string {
