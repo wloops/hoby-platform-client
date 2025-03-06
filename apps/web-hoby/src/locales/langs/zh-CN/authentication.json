@@ -1,4 +1,19 @@
 {
   "pageDesc": "Hoby货比xxxxxxx",
-  "pageTitle": "Hoby货比"
+  "pageTitle": "Hoby货比",
+  "companyName": "企业名称",
+  "companyNameTip": "请输入企业名称",
+  "phone": "手机号",
+  "phoneTip": "请输入申请人常用手机号",
+  "name": "申请人姓名",
+  "nameTip": "请输入申请人姓名",
+  "username": "登录账号",
+  "usernameTip": "请输入登录账号",
+  "password": "登录密码",
+  "passwordTip": "请输入登录密码",
+  "verifyRequiredTip": "请输入验证码",
+  "creditCode": "统一社会信用代码",
+  "creditCodeTip": "请输入统一社会信用代码",
+  "address": "营业执照登记地",
+  "addressTip": "请输入营业执照登记地"
 }

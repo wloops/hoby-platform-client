@@ -93,6 +93,7 @@ const formSchema = computed((): VbenFormSchema[] => {
 
 <template>
   <AuthenticationLogin
+    title="HOBY货比平台"
     :form-schema="formSchema"
     :show-qrcode-login="true"
     :show-third-party-login="false"
