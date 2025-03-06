@@ -258,6 +258,10 @@ async function fetchOrderList(_page: number, pageSize: number) {
 </template>
 
 <style scoped>
+:deep(.vxe-grid--layout-body-content-wrapper) {
+  overflow-y: hidden;
+}
+
 :deep(.vxe-grid) {
   display: flex;
   flex-direction: column;
