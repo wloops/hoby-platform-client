@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ToolbarType } from './types';
 
+import { useRouter } from 'vue-router';
+
 import { preferences, usePreferences } from '@vben/preferences';
 
 import { Copyright } from '../basic/copyright';
@@ -31,6 +33,8 @@ withDefaults(defineProps<Props>(), {
   toolbarList: () => ['color', 'language', 'layout', 'theme'],
   clickLogo: () => {},
 });
+
+const router = useRouter();
 
 const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
   usePreferences();
