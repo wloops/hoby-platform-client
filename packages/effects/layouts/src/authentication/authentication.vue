@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ToolbarType } from './types';
 
+import { useRouter } from 'vue-router';
+
 import { preferences, usePreferences } from '@vben/preferences';
 
 import { Copyright } from '../basic/copyright';
@@ -29,6 +31,8 @@ withDefaults(defineProps<Props>(), {
   toolbar: true,
   toolbarList: () => ['color', 'language', 'layout', 'theme'],
 });
+
+const router = useRouter();
 
 const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
   usePreferences();
@@ -61,7 +65,11 @@ const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
     </AuthenticationFormView>
 
     <!-- 头部 Logo 和应用名称 -->
-    <div v-if="logo || appName" class="absolute left-0 top-0 z-10 flex flex-1">
+    <div
+      v-if="logo || appName"
+      class="absolute left-0 top-0 z-10 flex flex-1 cursor-pointer"
+      @click="router.push('/')"
+    >
       <div
         class="text-foreground lg:text-foreground ml-4 mt-4 flex flex-1 items-center sm:left-6 sm:top-6"
       >
