@@ -9,7 +9,13 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { getPKApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+import {
+  getPKApi,
+  getUserInfoApi,
+  loginApi,
+  logoutApi,
+  registerApi,
+} from '#/api';
 import { encryption } from '#/composables/encrypt/encryption';
 import { $t } from '#/locales';
 
@@ -91,6 +97,25 @@ export const useAuthStore = defineStore('auth', () => {
     };
   }
 
+  async function authRegister(params: Recordable<any>) {
+    try {
+      loginLoading.value = true;
+      const { pkkey: pk } = await getPKApi();
+      const encryptedPassword = encryption(pk, params.password);
+      const registerParams = {
+        companyName: params.companyName,
+        contactor: params.name,
+        mobile: params.phone,
+        tellerNo: params.username,
+        passwordCiper: encryptedPassword,
+      };
+      const res = await registerApi(registerParams);
+      console.error('res', res);
+    } finally {
+      loginLoading.value = false;
+    }
+  }
+
   async function logout(redirect: boolean = true) {
     try {
       await logoutApi();
@@ -125,6 +150,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     $reset,
     authLogin,
+    authRegister,
     fetchUserInfo,
     loginLoading,
     logout,
