@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // userInfo = fetchUserInfoResult;
       userInfo = {
-        homePath: DEFAULT_HOME_PATH,
+        homePath: '/',
         realName: res.TELLERNAME,
         ...res,
       };
@@ -111,6 +111,20 @@ export const useAuthStore = defineStore('auth', () => {
       };
       const res = await registerApi(registerParams);
       console.error('res', res);
+      if (res.rs === '1') {
+        notification.success({
+          description: $t('authentication.registerSuccessDesc'),
+          duration: 2,
+          message: $t('authentication.registerSuccess'),
+        });
+        await router.push('/auth/login');
+      } else {
+        notification.error({
+          description: $t('authentication.registerFailedDesc'),
+          duration: 2,
+          message: $t('authentication.registerFailed'),
+        });
+      }
     } finally {
       loginLoading.value = false;
     }
