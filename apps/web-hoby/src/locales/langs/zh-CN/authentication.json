@@ -15,5 +15,9 @@
   "creditCode": "统一社会信用代码",
   "creditCodeTip": "请输入统一社会信用代码",
   "address": "营业执照登记地",
-  "addressTip": "请输入营业执照登记地"
+  "addressTip": "请输入营业执照登记地",
+  "registerSuccess": "注册成功",
+  "registerSuccessDesc": "请登录后继续使用",
+  "registerFailed": "注册失败",
+  "registerFailedDesc": "请检查后重新注册"
 }
