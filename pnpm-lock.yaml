@@ -484,8 +484,8 @@ catalogs:
       specifier: ^4.3.99
       version: 4.3.100
     vxe-table:
-      specifier: 4.10.0
-      version: 4.10.0
+      specifier: 4.11.17
+      version: 4.11.17
     watermark-js-plus:
       specifier: ^1.5.8
       version: 1.5.8
@@ -699,6 +699,12 @@ importers:
       '@iconify/tailwind':
         specifier: ^1.2.0
         version: 1.2.0
+      jsencrypt:
+        specifier: ^3.3.2
+        version: 3.3.2
+      vxe-table:
+        specifier: 'catalog:'
+        version: 4.11.17(vue@3.5.13(typescript@5.8.2))
 
   docs:
     dependencies:
@@ -1563,7 +1569,7 @@ importers:
         version: 4.3.100(vue@3.5.13(typescript@5.8.2))
       vxe-table:
         specifier: 'catalog:'
-        version: 4.10.0(vue@3.5.13(typescript@5.8.2))
+        version: 4.11.17(vue@3.5.13(typescript@5.8.2))
 
   packages/effects/request:
     dependencies:
@@ -6885,6 +6891,9 @@ packages:
     resolution: {integrity: sha512-Hicd6JK5Njt2QB6XYFS7ok9e37O8AYk3jTcppG4YVQnYjOemymvTcmc7OWsmq/Qqj5TdRFO5/x/tIPmBeRtGHg==}
     engines: {node: '>=12.0.0'}
 
+  jsencrypt@3.3.2:
+    resolution: {integrity: sha512-arQR1R1ESGdAxY7ZheWr12wCaF2yF47v5qpB76TtV64H1pyGudk9Hvw8Y9tb/FiTIaaTRUyaSnm5T/Y53Ghm/A==}
+
   jsesc@0.5.0:
     resolution: {integrity: sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==}
     hasBin: true
@@ -9884,8 +9893,11 @@ packages:
   vxe-pc-ui@4.3.100:
     resolution: {integrity: sha512-VDUXCBOaWL4sUGYbBS9h5U3RFIKyLSLvXtN9sZ+0vSu5TemIhA6dpNrpBBU9xbMVILn/qSdHBW+ITQnQkX55Rg==}
 
-  vxe-table@4.10.0:
-    resolution: {integrity: sha512-HysVARZXZGgXd5tR9vpahZcLB4RuB90ZoZNFKmKc670bGD3bWFFBdBpeQshXziVSkuPi65MqfE7Wq0b2enRcYg==}
+  vxe-pc-ui@4.4.1:
+    resolution: {integrity: sha512-KBIgSLISWjnv7zgKfJf3E2IWd8ieaLl+IUbGm8BbaxEtSWd0th3vmGaqG3MOv6vsYDKc3MR9o+qbwEn07HPIrw==}
+
+  vxe-table@4.11.17:
+    resolution: {integrity: sha512-CZ/yL3wTGx/DS/n9Zdjl3RADRvNnZUIL7grvvaqJsfqSJ/gM53qdleqW9AhU9pwP/AIXG0WtVn9X60PJvE4mkQ==}
 
   warning@4.0.3:
     resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
@@ -16015,6 +16027,8 @@ snapshots:
 
   jsdoc-type-pratt-parser@4.1.0: {}
 
+  jsencrypt@3.3.2: {}
+
   jsesc@0.5.0: {}
 
   jsesc@3.0.2: {}
@@ -19332,9 +19346,15 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  vxe-table@4.10.0(vue@3.5.13(typescript@5.8.2)):
+  vxe-pc-ui@4.4.1(vue@3.5.13(typescript@5.8.2)):
     dependencies:
-      vxe-pc-ui: 4.3.100(vue@3.5.13(typescript@5.8.2))
+      '@vxe-ui/core': 4.0.33(vue@3.5.13(typescript@5.8.2))
+    transitivePeerDependencies:
+      - vue
+
+  vxe-table@4.11.17(vue@3.5.13(typescript@5.8.2)):
+    dependencies:
+      vxe-pc-ui: 4.4.1(vue@3.5.13(typescript@5.8.2))
     transitivePeerDependencies:
       - vue
 
