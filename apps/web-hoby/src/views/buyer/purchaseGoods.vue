@@ -4,10 +4,13 @@
  * @Description: 待进货商品页面
 -->
 <script setup lang="ts">
+import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { computed, h, onMounted, onUnmounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
+
+import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
@@ -23,19 +26,32 @@ interface OrderItem {
   status: string;
 }
 
-const route = useRoute();
 const router = useRouter();
 
 // 计算表格高度
 const viewHeight = ref(window.innerHeight);
+
+const searchHeight = ref(0);
+// vxe-grid--form-wrapper的高度
+const updateSearchHeight = () => {
+  const search = document.querySelector(
+    '.vxe-grid--form-wrapper',
+  ) as HTMLElement;
+  if (search) {
+    searchHeight.value = search.offsetHeight;
+  }
+};
+updateSearchHeight();
+
 const tableHeight = computed(() => {
   const config = {
-    headerHeight: 0,
-    pagerHeight: 40,
-    paddingTop: 8,
-    paddingBottom: 8,
-    toolbarHeight: 32,
-    extraOffset: 10,
+    // headerHeight: 0,
+    // pagerHeight: 40,
+    // paddingTop: 16,
+    // paddingBottom: 16,
+    // toolbarHeight: 32,
+    searchHeight: searchHeight.value, // 搜索区域高度
+    extraOffset: 0,
   };
 
   const totalOffset = Object.values(config).reduce((sum, val) => sum + val, 0);
@@ -45,6 +61,7 @@ const tableHeight = computed(() => {
 // 更新视口高度
 const updateViewHeight = () => {
   viewHeight.value = window.innerHeight;
+  updateSearchHeight();
 };
 
 onMounted(() => {
@@ -55,6 +72,44 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateViewHeight);
 });
+
+const formOptions: VbenFormProps = {
+  // 默认展开
+  collapsed: false,
+  schema: [
+    {
+      component: 'Input',
+      componentProps: {
+        placeholder: '',
+      },
+      defaultValue: '',
+      fieldName: 'orderNo',
+      label: '销售订单号',
+    },
+    {
+      component: 'Input',
+      componentProps: {
+        placeholder: '',
+      },
+      fieldName: 'purchaseUnit',
+      label: '采购单位',
+    },
+    {
+      component: 'DatePicker',
+      fieldName: 'date',
+      label: '日期',
+    },
+  ],
+  // 控制表单是否显示折叠按钮
+  showCollapseButton: true,
+  submitButtonOptions: {
+    content: '查询',
+  },
+  // 是否在字段值改变时提交表单
+  submitOnChange: false,
+  // 按下回车时是否提交表单
+  submitOnEnter: false,
+};
 
 const gridOptions: VxeGridProps<OrderItem> = {
   columns: [
@@ -185,6 +240,7 @@ const gridOptions: VxeGridProps<OrderItem> = {
 };
 
 const [Grid] = useVbenVxeGrid({
+  formOptions,
   gridOptions,
   tableTitle: '待进货销售订单',
 });
@@ -221,38 +277,38 @@ async function fetchOrderList(_page: number, pageSize: number) {
 </script>
 
 <template>
-  <div class="flex h-full flex-col overflow-hidden">
-    <div class="flex-1 overflow-hidden rounded-lg shadow-sm">
-      <Grid>
-        <template #toolbar-tools>
-          <div class="py-1 text-gray-500">
-            销售订单号：{{ route.params.id }}
-          </div>
-        </template>
-      </Grid>
-    </div>
-  </div>
+  <Page auto-content-height>
+    <Grid />
+  </Page>
 </template>
 
 <style scoped>
-:deep(.vxe-grid) {
+:deep(.vxe-grid--layout-body-content-wrapper) {
+  overflow: hidden;
+}
+
+/* :deep(.vxe-grid) {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
+} */
 
-:deep(.vxe-table--main-wrapper) {
+/* :deep(.vxe-table--main-wrapper) {
   flex: 1;
 }
 
-:deep(.vxe-pager) {
+:deep(.vxe-table--body-wrapper) {
+  overflow-y: auto;
+} */
+
+/* :deep(.vxe-pager) {
   position: sticky;
   bottom: 0;
   z-index: 10;
   padding: 8px 0;
   background: white;
   border-top: 1px solid #f0f0f0;
-}
+} */
 
 :deep(.product-image-cell) {
   display: flex;
