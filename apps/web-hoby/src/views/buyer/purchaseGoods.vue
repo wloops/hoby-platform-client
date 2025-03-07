@@ -7,12 +7,13 @@
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { computed, h, onMounted, onUnmounted, ref } from 'vue';
+import { h, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getUserInfoApi } from '#/api/core';
 
 interface OrderItem {
   id: string;
@@ -42,21 +43,21 @@ const updateSearchHeight = () => {
   }
 };
 updateSearchHeight();
+getUserInfoApi();
+// const tableHeight = computed(() => {
+//   const config = {
+//     // headerHeight: 0,
+//     // pagerHeight: 40,
+//     // paddingTop: 16,
+//     // paddingBottom: 16,
+//     // toolbarHeight: 32,
+//     searchHeight: searchHeight.value, // 搜索区域高度
+//     extraOffset: 0,
+//   };
 
-const tableHeight = computed(() => {
-  const config = {
-    // headerHeight: 0,
-    // pagerHeight: 40,
-    // paddingTop: 16,
-    // paddingBottom: 16,
-    // toolbarHeight: 32,
-    searchHeight: searchHeight.value, // 搜索区域高度
-    extraOffset: 0,
-  };
-
-  const totalOffset = Object.values(config).reduce((sum, val) => sum + val, 0);
-  return viewHeight.value - totalOffset;
-});
+//   const totalOffset = Object.values(config).reduce((sum, val) => sum + val, 0);
+//   return viewHeight.value - totalOffset;
+// });
 
 // 更新视口高度
 const updateViewHeight = () => {
@@ -208,7 +209,7 @@ const gridOptions: VxeGridProps<OrderItem> = {
     },
   ],
   border: true,
-  height: tableHeight.value,
+  height: 'auto',
   rowConfig: {
     keyField: 'id',
     height: 80,
@@ -283,9 +284,9 @@ async function fetchOrderList(_page: number, pageSize: number) {
 </template>
 
 <style scoped>
-:deep(.vxe-grid--layout-body-content-wrapper) {
+/* :deep(.vxe-grid--layout-body-content-wrapper) {
   overflow: hidden;
-}
+} */
 
 /* :deep(.vxe-grid) {
   display: flex;
