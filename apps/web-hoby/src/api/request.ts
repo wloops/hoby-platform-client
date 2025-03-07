@@ -10,7 +10,7 @@ import {
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
@@ -63,6 +63,15 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
+      const userStore = useUserStore();
+      // console.log('userStore', userStore.userInfo);
+
+      if (userStore && userStore.userInfo) {
+        // config.headers.res_token = 'adeebd32-5f54-4a88-9821-f38c44538dca';
+        // config.headers['X-CSRF-TOKEN'] = '9681b818-bc33-4551-bded-35564058e4f9';
+        config.headers.res_token = userStore.userInfo?.res_token;
+        config.headers['X-CSRF-TOKEN'] = userStore.userInfo?.token?.token;
+      }
 
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
@@ -84,15 +93,13 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   // response数据解构
   client.addResponseInterceptor<any>({
     fulfilled: (response) => {
-      // console.log('response', response);
-
       const { data: responseData, status } = response;
       const code = 0;
       // const { code, data, message: msg } = responseData;
-      const { rs: msg } = responseData;
-      if (responseData.statusCode && responseData.statusCode === 301) {
+      const { rs, msg } = responseData;
+      if (rs && rs === '-6') {
         doReAuthenticate();
-        throw new Error(`Error ${status}: ${msg}`);
+        throw new Error(`${msg}`);
       }
       if (status >= 200 && status < 400 && code === 0) {
         return responseData;

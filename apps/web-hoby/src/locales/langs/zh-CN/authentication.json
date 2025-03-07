@@ -19,5 +19,7 @@
   "registerSuccess": "注册成功",
   "registerSuccessDesc": "请登录后继续使用",
   "registerFailed": "注册失败",
-  "registerFailedDesc": "请检查后重新注册"
+  "registerFailedDesc": "请检查后重新注册",
+  "loginFailed": "登录失败",
+  "loginFailedDesc": "请检查后重新登录"
 }
