@@ -3,7 +3,7 @@ import type { Recordable, UserInfo } from '@vben/types';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
+import { DEFAULT_HOME_PATH } from '@vben/constants';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
 import { notification } from 'ant-design-vue';
@@ -51,6 +51,17 @@ export const useAuthStore = defineStore('auth', () => {
       // const { accessToken } = await loginApi(loginParams);
       const res = await loginApi(loginParams);
       console.error('res', res);
+      const resCode = res.rs;
+      if (resCode !== '1') {
+        const errorMessage = res.rs;
+        notification.error({
+          description: errorMessage + $t('authentication.loginFailedDesc'),
+          duration: 2,
+          message: $t('authentication.loginFailed'),
+        });
+        return;
+      }
+
       // 如果成功获取到 accessToken
       // if (accessToken) {
       // accessStore.setAccessToken(accessToken);
@@ -70,6 +81,8 @@ export const useAuthStore = defineStore('auth', () => {
       };
 
       userStore.setUserInfo(userInfo);
+      // console.log('loign userStore', userStore.userInfo);
+
       // accessStore.setAccessCodes(accessCodes);
 
       if (accessStore.loginExpired) {
@@ -141,7 +154,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 回登录页带上当前路由地址
     await router.replace({
-      path: LOGIN_PATH,
+      // path: LOGIN_PATH,
+      path: '/',
       query: redirect
         ? {
             redirect: encodeURIComponent(router.currentRoute.value.fullPath),

@@ -93,26 +93,26 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       rules: z.string().min(1, { message: $t('authentication.passwordTip') }),
     },
-    // {
-    //   component: 'VbenInputPassword',
-    //   componentProps: {
-    //     placeholder: $t('authentication.confirmPassword'),
-    //   },
-    //   dependencies: {
-    //     rules(values) {
-    //       const { password } = values;
-    //       return z
-    //         .string({ required_error: $t('authentication.passwordTip') })
-    //         .min(1, { message: $t('authentication.passwordTip') })
-    //         .refine((value) => value === password, {
-    //           message: $t('authentication.confirmPasswordTip'),
-    //         });
-    //     },
-    //     triggerFields: ['password'],
-    //   },
-    //   fieldName: 'confirmPassword',
-    //   label: $t('authentication.confirmPassword'),
-    // },
+    {
+      component: 'VbenInputPassword',
+      componentProps: {
+        placeholder: $t('authentication.confirmPassword'),
+      },
+      dependencies: {
+        rules(values) {
+          const { password } = values;
+          return z
+            .string({ required_error: $t('authentication.passwordTip') })
+            .min(1, { message: $t('authentication.passwordTip') })
+            .refine((value) => value === password, {
+              message: $t('authentication.confirmPasswordTip'),
+            });
+        },
+        triggerFields: ['password'],
+      },
+      fieldName: 'confirmPassword',
+      label: $t('authentication.confirmPassword'),
+    },
     {
       component: 'VbenPinInput',
       componentProps: {
