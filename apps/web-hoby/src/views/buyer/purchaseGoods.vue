@@ -115,54 +115,20 @@ const formOptions: VbenFormProps = {
 const gridOptions: VxeGridProps<OrderItem> = {
   columns: [
     {
-      title: '商品',
-      width: 400,
-      children: [
-        {
-          field: 'productImage',
-          title: '图片',
-          width: 120,
-          cellRender: {
-            name: 'CellImage',
-          },
-          className: 'product-image-cell',
-        },
-        {
-          field: 'productInfo',
-          title: '商品信息',
-          slots: {
-            default: ({ row }) => {
-              return [
-                h('div', { class: 'flex flex-col gap-1' }, [
-                  h(
-                    'div',
-                    { class: 'font-medium' },
-                    `${row.manufacturer} · ${row.productName}`,
-                  ),
-                  h(
-                    'div',
-                    { class: 'text-gray-500 text-sm' },
-                    row.specs.join(' · '),
-                  ),
-                ]),
-              ];
-            },
-          },
-        },
-      ],
-    },
-    {
-      field: 'quantity',
-      title: '数量',
-      width: 120,
+      field: 'orderNo',
+      title: '销售订单号',
       align: 'center',
     },
     {
-      field: 'unitPrice',
-      title: '销售单价',
-      width: 180,
-      align: 'right',
-      formatter: ({ cellValue }) => `¥${cellValue.toFixed(2)}`,
+      field: 'purchaseUnit',
+      title: '采购单位',
+      align: 'center',
+    },
+    {
+      field: 'quantity',
+      title: '商品数量',
+      width: 120,
+      align: 'center',
     },
     {
       field: 'totalPrice',
@@ -170,6 +136,25 @@ const gridOptions: VxeGridProps<OrderItem> = {
       width: 180,
       align: 'right',
       formatter: ({ cellValue }) => `¥${cellValue.toFixed(2)}`,
+    },
+    {
+      field: 'productCategoryList',
+      title: '产品品类清单',
+      width: 180,
+      align: 'center',
+    },
+    {
+      field: 'productModelList',
+      title: '产品型号清单',
+      width: 180,
+      align: 'center',
+    },
+
+    {
+      field: 'date',
+      title: '日期',
+      width: 120,
+      align: 'center',
     },
     {
       field: 'status',
@@ -190,15 +175,7 @@ const gridOptions: VxeGridProps<OrderItem> = {
                 'button',
                 {
                   class: 'text-blue-500 hover:text-blue-600',
-                  onClick: () => viewSource(row),
-                },
-                '订单详情',
-              ),
-              h(
-                'button',
-                {
-                  class: 'text-blue-500 hover:text-blue-600',
-                  onClick: () => viewOrderDetail(row),
+                  onClick: () => viewGoods(row),
                 },
                 '待进货商品',
               ),
@@ -243,17 +220,16 @@ const gridOptions: VxeGridProps<OrderItem> = {
 const [Grid] = useVbenVxeGrid({
   formOptions,
   gridOptions,
-  tableTitle: '待进货销售订单',
+  // tableTitle: '待进货销售订单',
 });
 
-// 查看货源
-function viewSource(row: OrderItem) {
-  router.push(`/buyer/source/${row.id}`);
-}
-
-// 查看订单详情
-function viewOrderDetail(row: OrderItem) {
-  router.push(`/buyer/order/${row.id}`);
+// 查看待进货商品
+function viewGoods(row: OrderItem) {
+  // router.push(`/buyer/orderProduct:${row.id}`);
+  router.push({
+    name: 'BuyerOrderProduct',
+    params: { id: row.id },
+  });
 }
 
 // 获取订单列表数据
@@ -262,14 +238,13 @@ async function fetchOrderList(_page: number, pageSize: number) {
   return {
     items: Array.from({ length: pageSize }, (_, index) => ({
       id: `${111 + index}`,
-      productImage:
-        'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cdb109cb051163646151a4a5083b.png~tplv-uwbnlip3yd-webp.webp',
-      productName: '示例商品',
-      manufacturer: '示例厂商',
-      specs: ['规格值', '规格值'],
+      orderNo: `SO1596956696${index + 1}`,
+      purchaseUnit: '单位',
       quantity: 2,
-      unitPrice: 1000,
       totalPrice: 2000,
+      productCategoryList: ['产品品类1', '产品品类2', '产品品类3'],
+      productModelList: ['产品型号1', '产品型号2'],
+      date: '2025-03-06',
       status: '待进货',
     })),
     total: 100,
@@ -283,46 +258,4 @@ async function fetchOrderList(_page: number, pageSize: number) {
   </Page>
 </template>
 
-<style scoped>
-/* :deep(.vxe-grid--layout-body-content-wrapper) {
-  overflow: hidden;
-} */
-
-/* :deep(.vxe-grid) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-} */
-
-/* :deep(.vxe-table--main-wrapper) {
-  flex: 1;
-}
-
-:deep(.vxe-table--body-wrapper) {
-  overflow-y: auto;
-} */
-
-/* :deep(.vxe-pager) {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  padding: 8px 0;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-} */
-
-:deep(.product-image-cell) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 80px;
-  padding: 10px;
-}
-
-:deep(.product-image-cell img) {
-  width: 65px;
-  height: 65px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-</style>
+<style scoped></style>
