@@ -422,8 +422,8 @@ const handleAfterSale = (record: ProductItem) => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 24px;
-  overflow: hidden;
+  // padding: 24px;
+  // overflow: hidden;
   background: #f0f2f5;
 
   .search-area {
