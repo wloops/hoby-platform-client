@@ -4,7 +4,9 @@ import type { Key } from 'ant-design-vue/es/table/interface';
 
 import { h, ref } from 'vue';
 
-import { Badge, Button, Input, Table, Tabs } from 'ant-design-vue';
+import { Page } from '@vben/common-ui';
+
+import { Button, Input, Table, Tag } from 'ant-design-vue';
 
 interface ProductItem {
   key: string;
@@ -110,24 +112,39 @@ const columns = [
     key: 'status',
     align: 'center' as const,
     width: 100,
+    customRender: ({ text }: { text: string }) => {
+      const statusConfig: Record<string, { color: string }> = {
+        未完成: { color: 'warning' },
+        待付款: { color: 'error' },
+        待配货: { color: 'processing' },
+        配送中: { color: 'processing' },
+        已签收: { color: 'success' },
+        已完成: { color: 'success' },
+      };
+      return h(
+        Tag,
+        { color: statusConfig[text]?.color || 'default' },
+        () => text,
+      );
+    },
   },
   {
     title: '操作',
     key: 'operation',
     fixed: 'right' as const,
     align: 'center' as const,
-    width: 180,
+    width: 80,
     customRender: ({ record }: { record: OrderItem }) => {
       return h('div', { class: 'flex items-center gap-2' }, [
-        h(
-          Button,
-          {
-            type: 'link',
-            size: 'small',
-            onClick: () => viewOrderDetail(record),
-          },
-          { default: () => '订单详情' },
-        ),
+        // h(
+        //   Button,
+        //   {
+        //     type: 'link',
+        //     size: 'small',
+        //     onClick: () => viewOrderDetail(record),
+        //   },
+        //   { default: () => '订单详情' },
+        // ),
         h(
           Button,
           {
@@ -149,16 +166,9 @@ const expandedColumns = [
     dataIndex: 'productInfo',
     key: 'productInfo',
     customRender: ({ record }: { record: ProductItem }) => {
-      return h('div', { class: 'flex items-center' }, [
-        h('img', {
-          src: record.imageUrl,
-          class: 'mr-3 h-12 w-12 object-cover',
-          alt: '商品图片',
-        }),
-        h('div', [
-          h('div', record.name),
-          h('div', { class: 'text-sm text-gray-500' }, record.spec),
-        ]),
+      return h('div', { class: 'flex flex-col gap-0.5' }, [
+        h('div', { class: 'font-medium' }, record.name),
+        h('div', { class: 'text-sm text-gray-500' }, record.spec),
       ]);
     },
   },
@@ -302,9 +312,9 @@ const handleSearch = () => {
 };
 
 // 查看订单详情
-const viewOrderDetail = (record: OrderItem) => {
-  console.warn('查看订单详情', record);
-};
+// const viewOrderDetail = (record: OrderItem) => {
+//   console.warn('查看订单详情', record);
+// };
 
 // 申请开发票
 const requestInvoice = (record: OrderItem) => {
@@ -318,98 +328,106 @@ const handleAfterSale = (record: ProductItem) => {
 </script>
 
 <template>
-  <div class="order-management">
-    <!-- 搜索区域 -->
-    <div class="search-area">
-      <div class="search-form">
-        <div class="form-item">
-          <span class="label">进货店铺：</span>
-          <Input
-            v-model:value="searchForm.purchaseStore"
-            placeholder="请输入进货店铺"
-            class="input"
-          />
+  <Page auto-content-height>
+    <div class="order-management">
+      <!-- 搜索区域 -->
+      <div class="search-area">
+        <div class="search-form">
+          <div class="form-item">
+            <span class="label">进货店铺：</span>
+            <Input
+              v-model:value="searchForm.purchaseStore"
+              placeholder="请输入进货店铺"
+              class="input"
+            />
+          </div>
+          <div class="form-item">
+            <span class="label">进货订单号：</span>
+            <Input
+              v-model:value="searchForm.purchaseOrderNo"
+              placeholder="请输入进货订单号"
+              class="input"
+            />
+          </div>
+          <div class="form-item">
+            <span class="label">销售订单号：</span>
+            <Input
+              v-model:value="searchForm.salesOrderNo"
+              placeholder="请输入销售订单号"
+              class="input"
+            />
+          </div>
         </div>
-        <div class="form-item">
-          <span class="label">进货订单号：</span>
-          <Input
-            v-model:value="searchForm.purchaseOrderNo"
-            placeholder="请输入进货订单号"
-            class="input"
-          />
-        </div>
-        <div class="form-item">
-          <span class="label">销售订单号：</span>
-          <Input
-            v-model:value="searchForm.salesOrderNo"
-            placeholder="请输入销售订单号"
-            class="input"
-          />
+        <div class="search-buttons">
+          <Button class="reset-btn" @click="resetSearch">重置</Button>
+          <Button type="primary" class="search-btn" @click="handleSearch">
+            搜索
+          </Button>
         </div>
       </div>
-      <div class="search-buttons">
-        <Button class="reset-btn" @click="resetSearch">重置</Button>
-        <Button type="primary" class="search-btn" @click="handleSearch">
-          搜索
-        </Button>
-      </div>
-    </div>
 
-    <!-- 状态导航 -->
-    <div class="status-nav">
-      <Tabs
-        v-model:active-key="activeStatus"
-        type="card"
-        @change="handleStatusChange"
-      >
-        <Tabs.TabPane v-for="status in OrderStatus" :key="status.key">
-          <template #tab>
-            <span class="tab-text">{{ status.text }}</span>
-            <Badge
-              :count="status.count"
-              class="status-badge"
-              :class="{ 'status-badge-active': activeStatus === status.key }"
-              :number-style="{
-                backgroundColor:
-                  activeStatus === status.key ? '#1BD0FD' : '#999999',
-              }"
+      <!-- 状态导航 -->
+      <div class="flex items-center gap-2 rounded-lg pb-2 pr-3">
+        <div
+          v-for="status in OrderStatus"
+          :key="status.key"
+          class="inline-flex cursor-pointer items-center rounded px-3 py-1.5 transition-colors"
+          :class="[
+            activeStatus === status.key
+              ? 'bg-primary text-white'
+              : 'bg-gray-50 text-gray-600 hover:bg-gray-100',
+          ]"
+          @click="handleStatusChange(status.key)"
+        >
+          <span>{{ status.text }}</span>
+          <span
+            class="ml-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-[6px] text-xs leading-[18px]"
+            :class="[
+              activeStatus === status.key
+                ? 'bg-white bg-opacity-20 text-white'
+                : 'bg-gray-200 text-gray-600',
+            ]"
+            >{{ status.count }}</span
+          >
+        </div>
+      </div>
+
+      <!-- 表格区域 -->
+      <div class="table-area">
+        <Table
+          :columns="columns"
+          :data-source="orderData"
+          :loading="loading"
+          :pagination="pagination"
+          @change="handleTableChange"
+          bordered
+        >
+          <template #expandedRowRender="{ record }">
+            <Table
+              :columns="expandedColumns"
+              :data-source="record.products"
+              :pagination="false"
+              bordered
+              class="sub-table"
             />
           </template>
-        </Tabs.TabPane>
-      </Tabs>
+        </Table>
+      </div>
     </div>
-
-    <!-- 表格区域 -->
-    <div class="table-area">
-      <Table
-        :columns="columns"
-        :data-source="orderData"
-        :loading="loading"
-        :pagination="pagination"
-        @change="handleTableChange"
-        bordered
-      >
-        <template #expandedRowRender="{ record }">
-          <Table
-            :columns="expandedColumns"
-            :data-source="record.products"
-            :pagination="false"
-            bordered
-            class="sub-table"
-          />
-        </template>
-      </Table>
-    </div>
-  </div>
+  </Page>
 </template>
 
 <style lang="scss" scoped>
 .order-management {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 24px;
+  overflow: hidden;
   background: #f0f2f5;
 
   .search-area {
+    flex-shrink: 0;
     padding: 24px;
     margin-bottom: 24px;
     background: white;
@@ -456,63 +474,17 @@ const handleAfterSale = (record: ProductItem) => {
     }
   }
 
-  .status-nav {
-    // padding: 8px 12px;
-    // margin-bottom: 24px;
-    // background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
-
-    :deep(.ant-tabs-nav) {
-      margin-bottom: 0;
-    }
-
-    :deep(.ant-tabs-tab) {
-      // padding: 12px 24px;
-      margin: 0 8px 0 0;
-      border-radius: 4px 4px 0 0;
-      transition: all 0.3s;
-
-      &:hover {
-        color: #1890ff;
-      }
-
-      &.ant-tabs-tab-active {
-        background: #1890ff;
-        border-color: #1890ff;
-
-        .ant-tabs-tab-btn {
-          color: white;
-        }
-      }
-    }
-
-    .tab-text {
-      font-size: 14px;
-    }
-
-    .status-badge {
-      margin-left: 8px;
-      color: #666;
-      // background: #f5f5f5;
-      // border: 1px solid #d9d9d9;
-      transition: all 0.3s;
-
-      &-active {
-        color: white;
-        background: #1890ff;
-        border-color: #1890ff;
-      }
-    }
-  }
-
   .table-area {
+    flex: 1;
     padding: 0;
+    overflow: hidden;
     background: white;
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
 
     :deep(.ant-table-wrapper) {
+      height: 100%;
+
       .ant-table {
         border-radius: 8px;
       }
@@ -539,5 +511,67 @@ const handleAfterSale = (record: ProductItem) => {
       }
     }
   }
+}
+
+:deep(.ant-table-wrapper) {
+  height: 100%;
+}
+
+:deep(.ant-spin-nested-loading) {
+  height: 100%;
+}
+
+:deep(.ant-spin-container) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:deep(.ant-table) {
+  flex: 1;
+  overflow: auto;
+}
+
+:deep(.ant-table-container) {
+  height: 100%;
+}
+
+:deep(.ant-table-body) {
+  max-height: calc(100vh - 480px);
+  overflow-y: auto !important;
+}
+
+:deep(.ant-table-expanded-row) {
+  .ant-table-wrapper {
+    margin: 0 !important;
+  }
+
+  .ant-table {
+    margin: 0 !important;
+  }
+}
+
+:deep(.ant-table-thead > tr > th) {
+  font-weight: 500;
+  background: #fafafa !important;
+}
+
+:deep(.sub-table .ant-table-thead > tr > th) {
+  background: #f5f5f5 !important;
+}
+
+:deep(.ant-pagination) {
+  padding: 8px 0;
+  margin: 16px !important;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+}
+
+.bg-primary {
+  background-color: #1890ff;
+}
+
+.text-primary {
+  color: #1890ff;
 }
 </style>

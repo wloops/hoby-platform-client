@@ -2,120 +2,303 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 17:24:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-07 12:13:22
+ * @LastEditTime: 2025-03-09 13:38:54
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
-<script lang="ts" setup>
-import type { VxeGridProps } from '#/adapter/vxe-table';
+<script setup lang="ts">
+import type { ColumnsType } from 'ant-design-vue/es/table';
+import type { Dayjs } from 'dayjs';
+
+import { computed, h, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
-import { Button, Image, Switch, Tag } from 'ant-design-vue';
+import { Button, DatePicker, Form, Input, Table, Tag } from 'ant-design-vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
-
-interface RowType {
-  category: string;
-  color: string;
+interface SettlementItem {
   id: string;
-  imageUrl: string;
-  open: boolean;
-  price: string;
-  productName: string;
-  releaseDate: string;
-  status: 'error' | 'success' | 'warning';
+  orderNo: string; // 进货订单号
+  voucherType: string; // 凭证类型
+  purchaseUnit: string; // 收款单位
+  amount: number; // 结算金额
+  period: string; // 账期
+  interest: number; // 利率
+  estimatedInterest: number; // 预计利息
+  dueDate: string; // 履约日期
+  paymentStatus: string; // 付款状态
+  paidAmount: number; // 已付金额
 }
 
-// 模拟数据生成
-async function fetchTableData(page: number, pageSize: number) {
-  return {
-    items: Array.from({ length: pageSize }, (_, index) => {
-      return {
-        id: `${page * pageSize + index}`,
-        purchaseOrderNo: `PO${index + 1}`,
-        voucherType: '采购订单',
-        payee: '供应商A',
-        amount: `¥${(Math.random() * 1000).toFixed(2)}`,
-        accountPeriod: '30天',
-        interestRate: '5%',
-        interestAmount: `¥${(Math.random() * 100).toFixed(2)}`,
-        performanceDate: '2025-03-01',
-        status: 'success',
-        paidAmount: `¥${(Math.random() * 1000).toFixed(2)}`,
-      };
-    }),
-    total: 100,
-  };
+interface SearchForm {
+  orderNo: string; // 进货订单号
+  purchaseUnit: string; // 收款单位
+  dueDate: Dayjs | undefined; // 履约日期
 }
 
-const gridOptions: VxeGridProps<RowType> = {
-  checkboxConfig: {
-    highlight: true,
-    labelField: 'name',
+const router = useRouter();
+const loading = ref(false);
+const dataSource = ref<SettlementItem[]>([]);
+
+// 搜索表单
+const searchForm = ref<SearchForm>({
+  orderNo: '',
+  purchaseUnit: '',
+  dueDate: undefined,
+});
+
+// 分页配置
+const pagination = ref({
+  current: 1,
+  pageSize: 20,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+});
+
+const columns: ColumnsType<SettlementItem> = [
+  {
+    title: '进货订单号',
+    dataIndex: 'orderNo',
+    align: 'center',
+    width: 180,
   },
-  columns: [
-    { title: '序号', type: 'seq', width: 50 },
-    { field: 'purchaseOrderNo', title: '进货订单号' },
-    { field: 'voucherType', title: '凭证类型' },
-    { field: 'payee', title: '收款单位' },
-    { field: 'amount', title: '结算金额', width: 100 },
-    { field: 'accountPeriod', title: '账期', width: 100 },
-    { field: 'interestRate', title: '利率', width: 100 },
-    { field: 'interestAmount', title: '预计利息', width: 100 },
-    { field: 'performanceDate', title: '履约日期', width: 100 },
-    { field: 'status', title: '付款状态', width: 100 },
-    { field: 'paidAmount', title: '已付金额', width: 100 },
-    {
-      cellRender: { name: 'CellLink', props: { text: '完成付款' } },
-      field: 'action',
-      fixed: 'right',
-      title: '操作',
-      width: 120,
-    },
-  ],
-  height: 'auto',
-  keepSource: true,
-  pagerConfig: {
-    pageSize: 20,
-    pageSizes: [10, 20, 50, 100],
+  {
+    title: '凭证类型',
+    dataIndex: 'voucherType',
+    align: 'center',
+    width: 180,
   },
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }) => {
-        const response = await fetchTableData(page.currentPage, page.pageSize);
-        return {
-          items: response.items,
-          total: response.total,
-        };
-      },
-    },
-    props: {
-      result: 'result',
-      total: 'total',
+  {
+    title: '收款单位',
+    dataIndex: 'purchaseUnit',
+    align: 'center',
+    width: 180,
+  },
+  {
+    title: '结算金额',
+    dataIndex: 'amount',
+    align: 'right',
+    width: 120,
+    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+  },
+  {
+    title: '账期',
+    dataIndex: 'period',
+    align: 'center',
+    width: 100,
+  },
+  {
+    title: '利率',
+    dataIndex: 'interest',
+    align: 'right',
+    width: 100,
+    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+  },
+  {
+    title: '预计利息',
+    dataIndex: 'estimatedInterest',
+    align: 'right',
+    width: 100,
+    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+  },
+  {
+    title: '履约日期',
+    dataIndex: 'dueDate',
+    align: 'center',
+    width: 120,
+  },
+  {
+    title: '付款状态',
+    dataIndex: 'paymentStatus',
+    align: 'center',
+    width: 100,
+    customRender: ({ text }) => {
+      const color = text === '已付款' ? 'success' : 'warning';
+      return h(Tag, { color }, () => text);
     },
   },
-  showOverflow: false,
+  {
+    title: '已付金额',
+    dataIndex: 'paidAmount',
+    align: 'right',
+    width: 120,
+    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+  },
+  {
+    title: '操作',
+    width: 120,
+    fixed: 'right',
+    align: 'center',
+    customRender: ({ record }) => {
+      return h(
+        Button,
+        {
+          type: 'link',
+          onClick: () => viewDetail(record),
+        },
+        () => '完成付款',
+      );
+    },
+  },
+];
+
+// 表格滚动配置
+const scroll = computed(() => ({
+  y: 'calc(100vh - 300px)',
+}));
+
+// 查看详情
+function viewDetail(row: SettlementItem) {
+  router.push({
+    name: 'BuyerSettlementDetail',
+    params: { id: row.id },
+  });
+}
+
+// 处理表格变化
+const handleTableChange = async (pag: any) => {
+  pagination.value.current = pag.current;
+  pagination.value.pageSize = pag.pageSize;
+  await fetchSettlementList();
 };
 
-const [Grid] = useVbenVxeGrid({ gridOptions });
+// 重置搜索
+const resetSearch = () => {
+  searchForm.value = {
+    orderNo: '',
+    purchaseUnit: '',
+    dueDate: undefined,
+  };
+  handleSearch();
+};
+
+// 搜索
+const handleSearch = () => {
+  pagination.value.current = 1;
+  fetchSettlementList();
+};
+
+// 获取结算列表数据
+async function fetchSettlementList() {
+  loading.value = true;
+  try {
+    const { pageSize } = pagination.value;
+    const response = {
+      items: Array.from({ length: pageSize }, (_, index) => ({
+        id: `${111 + index}`,
+        orderNo: `202502042119550241380037${index + 1}`,
+        voucherType: '信用担保支付订单全款凭证',
+        purchaseUnit: '美的货比旗舰店',
+        amount: 300,
+        period: '半年',
+        interest: 2,
+        estimatedInterest: 6,
+        dueDate: '2025-08-06',
+        paymentStatus: '未支付',
+        paidAmount: 0,
+      })),
+      total: 100,
+    };
+
+    dataSource.value = response.items;
+    pagination.value.total = response.total;
+  } finally {
+    loading.value = false;
+  }
+}
+
+// 初始加载
+fetchSettlementList();
 </script>
 
 <template>
   <Page auto-content-height>
-    <Grid>
-      <template #image-url="{ row }">
-        <Image :src="row.imageUrl" height="30" width="30" />
-      </template>
-      <template #open="{ row }">
-        <Switch v-model:checked="row.open" />
-      </template>
-      <template #status="{ row }">
-        <Tag :color="row.color">{{ row.status }}</Tag>
-      </template>
-      <template #action>
-        <Button type="link">编辑</Button>
-      </template>
-    </Grid>
+    <div class="flex h-full flex-col overflow-hidden">
+      <!-- 搜索区域 -->
+      <div class="mb-2 rounded-lg bg-white p-4 shadow-sm">
+        <Form layout="inline" :model="searchForm">
+          <Form.Item label="进货订单号">
+            <Input
+              v-model:value="searchForm.orderNo"
+              placeholder="请输入进货订单号"
+              allow-clear
+            />
+          </Form.Item>
+          <Form.Item label="收款单位">
+            <Input
+              v-model:value="searchForm.purchaseUnit"
+              placeholder="请输入收款单位"
+              allow-clear
+            />
+          </Form.Item>
+          <Form.Item label="履约日期">
+            <DatePicker
+              v-model:value="searchForm.dueDate"
+              placeholder="请选择履约日期"
+              style="width: 200px"
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" @click="handleSearch">搜索</Button>
+            <Button class="ml-2" @click="resetSearch">重置</Button>
+          </Form.Item>
+        </Form>
+      </div>
+
+      <!-- 表格区域 -->
+      <div class="flex-1 overflow-hidden rounded-lg bg-white shadow-sm">
+        <Table
+          :columns="columns"
+          :data-source="dataSource"
+          :loading="loading"
+          :pagination="pagination"
+          :scroll="scroll"
+          bordered
+          size="middle"
+          row-key="id"
+          @change="handleTableChange"
+        />
+      </div>
+    </div>
   </Page>
 </template>
+
+<style scoped>
+:deep(.ant-table-wrapper) {
+  height: 100%;
+}
+
+:deep(.ant-spin-nested-loading) {
+  height: 100%;
+}
+
+:deep(.ant-spin-container) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:deep(.ant-table) {
+  flex: 1;
+  overflow: hidden;
+}
+
+:deep(.ant-table-container) {
+  height: 100%;
+}
+
+:deep(.ant-table-body) {
+  height: calc(100% - 55px) !important;
+}
+
+:deep(.ant-pagination) {
+  margin: 16px !important;
+}
+
+:deep(.ant-form-inline .ant-form-item) {
+  margin-right: 16px;
+  margin-bottom: 16px;
+}
+</style>
