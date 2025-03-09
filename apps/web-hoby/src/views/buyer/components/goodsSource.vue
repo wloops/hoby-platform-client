@@ -1,8 +1,16 @@
 <!--
  * @Author: Loong wentloop@gmail.com
+ * @Date: 2025-03-09 15:14:28
+ * @LastEditors: Loong wentloop@gmail.com
+ * @LastEditTime: 2025-03-09 16:05:43
+ * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!--
+ * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-07 17:21:26
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-07 18:16:24
+ * @LastEditTime: 2025-03-09 15:47:03
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,32 +18,22 @@
 import type { TableColumnType } from 'ant-design-vue';
 import type { AlignType } from 'ant-design-vue/es/vc-table/interface';
 
+import type { ProductDetail, SourceItem } from './types';
+
 import { h, ref } from 'vue';
 
-import { Button, Drawer, InputNumber, Table } from 'ant-design-vue';
+import { Button, Drawer, Table } from 'ant-design-vue';
 
-interface ProductDetail {
-  name: string;
-  image: string;
-  specs: string[];
-  brand: string;
-  category: string;
-}
-
-interface SourceItem {
-  id: string;
-  store: string;
-  price: number;
-  stock: number;
-  delivery: string;
-  address: string;
-}
+import ProductInfo from './ProductInfo.vue';
+import PurchaseModal from './PurchaseModal.vue';
 
 interface SelectedSource {
   source: SourceItem;
   quantity: number;
 }
 
+const productInfoRef = ref();
+const purchaseModalRef = ref();
 const visible = ref(false);
 const selectedSources = ref<SelectedSource[]>([]);
 
@@ -47,23 +45,23 @@ const productDetail = ref<ProductDetail>({
   specs: ['1.5匹', '变频', '冷暖', '壁挂式'],
   brand: '美的',
   category: '空调',
+  purchaseUnit: '湖南省长沙市第一中学',
+  manufacturer: '皮尔卡丹',
+  model: '圆领文化衫',
+  sku: 'L 白色',
+  unitPrice: 400,
+  totalPrice: 40_000,
+  quantity: 100,
+  requiredQuantity: 100,
+  orderNo: '147524081311232011',
+  product: '男士T恤衫',
 });
 
 const handleSelect = (record: SourceItem) => {
-  // 检查是否已经选择了该货源
   if (selectedSources.value.some((item) => item.source.id === record.id)) {
     return;
   }
-  selectedSources.value.push({
-    source: record,
-    quantity: 1,
-  });
-};
-
-const handleRemoveSource = (sourceId: string) => {
-  selectedSources.value = selectedSources.value.filter(
-    (item) => item.source.id !== sourceId,
-  );
+  purchaseModalRef.value?.open(record);
 };
 
 const columns: TableColumnType<SourceItem>[] = [
@@ -148,15 +146,6 @@ const close = () => {
   selectedSources.value = [];
 };
 
-const handleOk = () => {
-  if (selectedSources.value.length === 0) {
-    return;
-  }
-  // TODO: 处理确认选择逻辑
-  console.warn('采购成功', selectedSources.value);
-  close();
-};
-
 defineExpose({
   open: () => {
     visible.value = true;
@@ -174,64 +163,7 @@ defineExpose({
   >
     <div class="flex h-full flex-col">
       <!-- 商品信息区域 -->
-      <div class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <div class="flex items-start gap-4">
-          <img
-            :src="productDetail.image"
-            :alt="productDetail.name"
-            class="h-24 w-24 rounded-lg object-cover"
-          />
-          <div class="flex flex-1 flex-col gap-2">
-            <div class="text-lg font-medium">{{ productDetail.name }}</div>
-            <div class="flex items-center gap-2 text-gray-500">
-              <span>品牌：{{ productDetail.brand }}</span>
-              <span class="text-gray-300">|</span>
-              <span>品类：{{ productDetail.category }}</span>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="spec in productDetail.specs"
-                :key="spec"
-                class="rounded bg-white px-2 py-1 text-sm text-gray-600"
-              >
-                {{ spec }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 已选货源列表 -->
-      <div v-if="selectedSources.length > 0" class="mb-4 space-y-2">
-        <div
-          v-for="item in selectedSources"
-          :key="item.source.id"
-          class="flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 px-4 py-3"
-        >
-          <div class="flex items-center gap-4">
-            <span class="font-medium">{{ item.source.store }}</span>
-            <span class="text-gray-500">|</span>
-            <span class="text-red-500"
-              >¥{{ item.source.price.toFixed(2) }}</span
-            >
-          </div>
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-              <span class="text-gray-600">采购数量：</span>
-              <InputNumber
-                v-model:value="item.quantity"
-                :min="1"
-                :max="item.source.stock"
-                :precision="0"
-                style="width: 120px"
-              />
-            </div>
-            <Button type="link" @click="handleRemoveSource(item.source.id)">
-              取消
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ProductInfo ref="productInfoRef" :data="productDetail" class="mb-6" />
 
       <!-- 货源列表 -->
       <div class="flex-1">
@@ -245,15 +177,10 @@ defineExpose({
       </div>
       <div class="mt-4 flex justify-end gap-2">
         <Button @click="close">取消</Button>
-        <Button
-          type="primary"
-          :disabled="selectedSources.length === 0"
-          @click="handleOk"
-        >
-          确定采购
-        </Button>
       </div>
     </div>
+    <PurchaseModal ref="purchaseModalRef" :data="productDetail" />
+    />
   </Drawer>
 </template>
 
@@ -262,5 +189,9 @@ defineExpose({
   .ant-table-cell {
     padding: 12px 16px !important;
   }
+}
+
+:deep(.ant-modal-body) {
+  padding: 24px;
 }
 </style>
