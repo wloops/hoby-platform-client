@@ -75,9 +75,10 @@ export const useAuthStore = defineStore('auth', () => {
 
       // userInfo = fetchUserInfoResult;
       userInfo = {
+        ...res,
         homePath: '/',
         realName: res.TELLERNAME,
-        ...res,
+        // roles: ['super', 'buyer'],
       };
 
       userStore.setUserInfo(userInfo);

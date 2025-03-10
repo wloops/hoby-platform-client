@@ -25,5 +25,21 @@
     },
     "settlement": "进货结算",
     "orderManagement": "进货订单管理"
+  },
+  "seller": {
+    "title": "我的店铺",
+    "home": "店铺首页"
+  },
+  "warehouse": {
+    "title": "我的仓库",
+    "home": "仓库首页"
+  },
+  "products": {
+    "title": "我的产品",
+    "home": "产品首页"
+  },
+  "shopping": {
+    "title": "去逛店铺",
+    "home": "店铺首页"
   }
 }
