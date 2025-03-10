@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import type { BasicUserInfo } from '@vben/types';
+
 import { useRouter } from 'vue-router';
+
+import { useUserStore } from '@vben/stores';
 
 import CommonBanner from './components/CommonBanner.vue';
 import LayoutFooter from './layout/Footer.vue';
 import LayoutHeader from './layout/Header.vue';
 
+const userStore = useUserStore();
 const router = useRouter();
 
 const navigationItems = [
@@ -12,23 +17,43 @@ const navigationItems = [
     title: '我要进货',
     icon: 'icon-[carbon--delivery-add]',
     link: '/buyer',
+    authority: ['buyer'],
   },
-  { title: '我的店铺', icon: 'icon-[lucide--store]', link: '/seller' },
+  {
+    title: '我的店铺',
+    icon: 'icon-[lucide--store]',
+    link: '/seller',
+    authority: ['seller'],
+  },
   {
     title: '我的仓库',
     icon: 'icon-[lucide--warehouse]',
-    link: '/warehouse/home',
+    link: '/warehouse',
+    authority: ['warehouse'],
   },
-  { title: '我的产品', icon: 'icon-[lucide--blocks]', link: '/product' },
+  {
+    title: '我的产品',
+    icon: 'icon-[lucide--blocks]',
+    link: '/products',
+    authority: ['products'],
+  },
   {
     title: '去逛店铺',
     icon: 'icon-[lucide--shopping-cart]',
     link: '/shopping',
+    authority: ['shopping'],
   },
 ];
 
-const goToMainPage = (link: string) => {
-  router.push(link);
+const goToMainPage = async (page: any) => {
+  const access: string[] = page.authority;
+  const userInfo = userStore.userInfo;
+  const addRolesUserInfo = {
+    ...userInfo,
+    roles: access,
+  };
+  await userStore.setUserInfo(addRolesUserInfo as BasicUserInfo);
+  await router.push(page.link);
 };
 </script>
 
@@ -55,7 +80,7 @@ const goToMainPage = (link: string) => {
           v-for="item in navigationItems"
           :key="item.title"
           class="group cursor-pointer"
-          @click="goToMainPage(item.link)"
+          @click="goToMainPage(item)"
         >
           <div
             class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-white/80"
