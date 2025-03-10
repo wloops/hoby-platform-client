@@ -151,22 +151,22 @@ const formSchema = computed((): VbenFormSchema[] => {
       //   message: $t('authentication.codeTip', [CODE_LENGTH]),
       // }),
     },
-    {
-      component: 'VbenInput',
-      componentProps: {
-        placeholder: $t('authentication.creditCodeTip'),
-      },
-      fieldName: 'creditCode',
-      label: $t('authentication.creditCode'),
-    },
-    {
-      component: 'VbenInput',
-      componentProps: {
-        placeholder: $t('authentication.addressTip'),
-      },
-      fieldName: 'address',
-      label: $t('authentication.address'),
-    },
+    // {
+    //   component: 'VbenInput',
+    //   componentProps: {
+    //     placeholder: $t('authentication.creditCodeTip'),
+    //   },
+    //   fieldName: 'creditCode',
+    //   label: $t('authentication.creditCode'),
+    // },
+    // {
+    //   component: 'VbenInput',
+    //   componentProps: {
+    //     placeholder: $t('authentication.addressTip'),
+    //   },
+    //   fieldName: 'address',
+    //   label: $t('authentication.address'),
+    // },
     {
       component: 'VbenCheckbox',
       fieldName: 'agreePolicy',
@@ -202,7 +202,7 @@ function handleSubmit(value: Recordable<any>) {
   <AuthenticationRegister
     ref="registerRef"
     :form-schema="formSchema"
-    :copyright="false"
+    sub-title=" "
     :loading="loading"
     @submit="handleSubmit"
   />
