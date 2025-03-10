@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-06 15:32:07
+ * @LastEditTime: 2025-03-10 13:18:03
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,27 +12,28 @@ import { useRouter } from 'vue-router';
 
 import { UserDropdown } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
-import { useAccessStore, useUserStore } from '@vben/stores';
 
 import hobyLogo from '#/assets/hoby_logo.png';
 import { useAuthStore } from '#/store';
 
 const router = useRouter();
-const userStore = useUserStore();
-const accessStore = useAccessStore();
+const userInfo = sessionStorage.getItem('userInfo')
+  ? JSON.parse(sessionStorage.getItem('userInfo')!)
+  : null;
+
 const authStore = useAuthStore();
 
 const avatar = computed(() => {
-  return userStore.userInfo?.avatar ?? preferences.app.defaultAvatar;
+  return userInfo?.avatar ?? preferences.app.defaultAvatar;
 });
 const realName = computed(() => {
-  return userStore.userInfo?.realName;
+  return userInfo?.realName;
 });
 const company = computed(() => {
-  return userStore.userInfo?.TELLERCOMPANY;
+  return userInfo?.TELLERCOMPANY;
 });
 const userName = computed(() => {
-  return userStore.userInfo?.tellerNo;
+  return userInfo?.tellerNo;
 });
 const toLogin = () => {
   router.push('/auth/login');
@@ -57,7 +58,7 @@ async function handleLogout() {
 
       <!-- 右侧按钮 -->
       <div class="flex items-center space-x-3">
-        <div v-if="accessStore.accessToken">
+        <div v-if="userInfo">
           <UserDropdown
             :avatar
             :text="realName"

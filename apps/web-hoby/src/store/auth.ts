@@ -1,4 +1,4 @@
-import type { Recordable, UserInfo } from '@vben/types';
+import type { Recordable } from '@vben/types';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -9,13 +9,7 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import {
-  getPKApi,
-  getUserInfoApi,
-  loginApi,
-  logoutApi,
-  registerApi,
-} from '#/api';
+import { getPKApi, getUserInfoApi, loginApi, registerApi } from '#/api';
 import { encryption } from '#/composables/encrypt/encryption';
 import { $t } from '#/locales';
 
@@ -65,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
       // 如果成功获取到 accessToken
       // if (accessToken) {
       // accessStore.setAccessToken(accessToken);
-      accessStore.setAccessToken(res.token.token);
+      accessStore.setAccessToken(res.res_token);
 
       // 获取用户信息并存储到 accessStore 中
       // const [fetchUserInfoResult, accessCodes] = await Promise.all([
@@ -82,6 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
       };
 
       userStore.setUserInfo(userInfo);
+      sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
       // console.log('loign userStore', userStore.userInfo);
 
       // accessStore.setAccessCodes(accessCodes);
@@ -145,11 +140,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(redirect: boolean = true) {
-    try {
-      await logoutApi();
-    } catch {
-      // 不做任何处理
-    }
+    // try {
+    //   await logoutApi();
+    // } catch {
+    //   // 不做任何处理
+    // }
     resetAllStores();
     accessStore.setLoginExpired(false);
 
@@ -166,10 +161,19 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUserInfo() {
-    let userInfo: null | UserInfo = null;
-    userInfo = await getUserInfoApi();
-    userStore.setUserInfo(userInfo);
-    return userInfo;
+    try {
+      let userInfo: any = null;
+      userInfo = await getUserInfoApi();
+      if (userInfo) {
+        const { queryPersonalInfo: newUserInfo } = userInfo;
+        userStore.setUserInfo(newUserInfo);
+        return newUserInfo;
+      }
+    } catch (error) {
+      console.error('fetchUserInfo error', error);
+      await logout();
+      return null;
+    }
   }
 
   function $reset() {

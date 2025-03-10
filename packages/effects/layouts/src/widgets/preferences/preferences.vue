@@ -53,12 +53,14 @@ const listen = computed(() => {
   }
   return result;
 });
+
+const isDevEnv = computed(() => import.meta.env.DEV);
 </script>
 <template>
   <div>
     <Drawer v-bind="{ ...$attrs, ...attrs }" v-on="listen" />
 
-    <div @click="() => drawerApi.open()">
+    <div v-if="isDevEnv" @click="() => drawerApi.open()">
       <slot>
         <VbenButton
           :title="$t('preferences.title')"
