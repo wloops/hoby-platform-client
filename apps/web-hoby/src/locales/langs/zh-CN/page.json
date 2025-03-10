@@ -28,7 +28,26 @@
   },
   "seller": {
     "title": "我的店铺",
-    "home": "店铺首页"
+    "home": "店铺首页",
+    "directSales": {
+      "title": "直销店铺",
+      "selectGoods": "选择商品",
+      "goods": "直销的产品",
+      "goodsModel": "直销的型号",
+      "goodsSku": "直销的SKU"
+    },
+    "selfSales": {
+      "title": "自营店铺",
+      "selectGoods": "选择商品",
+      "goods": "自营的产品",
+      "goodsModel": "自营的型号",
+      "goodsSku": "自营的SKU"
+    },
+    "applyToOpenStore": {
+      "title": "申请开店",
+      "submitApply": "提交开店申请",
+      "myApply": "我的开店申请"
+    }
   },
   "warehouse": {
     "title": "我的仓库",
