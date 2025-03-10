@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-10 14:44:08
+ * @LastEditTime: 2025-03-10 17:31:10
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\seller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -63,6 +63,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: $t('page.seller.selfSales.title'),
       icon: 'mdi:storefront-check',
+      authority: ['seller'],
     },
     name: 'SellerSelfSales',
     path: '/seller/self-sales',
@@ -100,6 +101,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: $t('page.seller.applyToOpenStore.title'),
       icon: 'mdi:storefront-plus',
+      authority: ['seller'],
     },
     name: 'SellerApplyToOpenStore',
     path: '/seller/apply-to-open-store',
