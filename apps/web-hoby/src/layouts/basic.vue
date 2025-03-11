@@ -14,7 +14,7 @@ import {
   UserDropdown,
 } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
-import { useAccessStore, useUserStore } from '@vben/stores';
+import { useAccessStore } from '@vben/stores';
 // import { openWindow } from '@vben/utils';
 
 // import { $t } from '#/locales';
@@ -52,7 +52,9 @@ const notifications = ref<NotificationItem[]>([
   },
 ]);
 
-const userStore = useUserStore();
+const userInfo = sessionStorage.getItem('userInfo')
+  ? JSON.parse(sessionStorage.getItem('userInfo')!)
+  : null;
 const authStore = useAuthStore();
 const accessStore = useAccessStore();
 const { destroyWatermark, updateWatermark } = useWatermark();
@@ -91,7 +93,7 @@ const menus = computed(() => [
 ]);
 
 const avatar = computed(() => {
-  return userStore.userInfo?.avatar ?? preferences.app.defaultAvatar;
+  return userInfo?.avatar ?? preferences.app.defaultAvatar;
 });
 
 async function handleLogout() {
@@ -110,7 +112,7 @@ watch(
   async (enable) => {
     if (enable) {
       await updateWatermark({
-        content: `${userStore.userInfo?.username}`,
+        content: `${userInfo?.username}`,
       });
     } else {
       destroyWatermark();
@@ -128,9 +130,9 @@ watch(
       <UserDropdown
         :avatar
         :menus
-        :text="userStore.userInfo?.realName"
-        :description="userStore.userInfo?.TELLERCOMPANY"
-        :tag-text="userStore.userInfo?.tellerNo"
+        :text="userInfo?.realName"
+        :description="userInfo?.TELLERCOMPANY"
+        :tag-text="userInfo?.tellerNo"
         @logout="handleLogout"
       />
     </template>

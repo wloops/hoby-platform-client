@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { BasicUserInfo } from '@vben/types';
 
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useUserStore } from '@vben/stores';
+import { startProgress, stopProgress } from '@vben/utils';
 
 import CommonBanner from './components/CommonBanner.vue';
 import LayoutFooter from './layout/Footer.vue';
@@ -44,6 +46,11 @@ const navigationItems = [
     authority: ['shopping'],
   },
 ];
+startProgress();
+
+onMounted(() => {
+  stopProgress();
+});
 
 const goToMainPage = async (page: any) => {
   const access: string[] = page.authority;
@@ -53,6 +60,7 @@ const goToMainPage = async (page: any) => {
     roles: access,
   };
   await userStore.setUserInfo(addRolesUserInfo as BasicUserInfo);
+  sessionStorage.setItem('userInfo', JSON.stringify(addRolesUserInfo));
   await router.push(page.link);
 };
 </script>
