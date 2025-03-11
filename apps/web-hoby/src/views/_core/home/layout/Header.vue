@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-10 13:18:03
+ * @LastEditTime: 2025-03-11 10:49:11
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,6 +12,7 @@ import { useRouter } from 'vue-router';
 
 import { UserDropdown } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
+import { useUserStore } from '@vben/stores';
 
 import hobyLogo from '#/assets/hoby_logo.png';
 import { useAuthStore } from '#/store';
@@ -21,6 +22,7 @@ const userInfo = sessionStorage.getItem('userInfo')
   ? JSON.parse(sessionStorage.getItem('userInfo')!)
   : null;
 
+const userStore = useUserStore();
 const authStore = useAuthStore();
 
 const avatar = computed(() => {
@@ -58,7 +60,7 @@ async function handleLogout() {
 
       <!-- 右侧按钮 -->
       <div class="flex items-center space-x-3">
-        <div v-if="userInfo">
+        <div v-if="userStore.userInfo">
           <UserDropdown
             :avatar
             :text="realName"
