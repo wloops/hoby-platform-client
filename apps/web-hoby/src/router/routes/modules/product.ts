@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 16:17:01
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-06 15:52:48
+ * @LastEditTime: 2025-03-11 11:03:39
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\buyer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -23,7 +23,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       icon: 'lucide:layout-dashboard',
       order: 1,
-      title: $t('page.product.productStandards.title'),
+      title: $t('page.products.productStandards.title'),
     },
     name: 'Product',
     path: '/product',
@@ -38,35 +38,35 @@ const routes: RouteRecordRaw[] = [
       // },
       {
         meta: {
-          title: $t('page.product.productStandards.productStandards'),
+          title: $t('page.products.productStandards.productStandards'),
         },
         name: 'ProductProductStandards',
-        path: '/product/productStandards',
-        component: () => import('#/views/product/productStandards.vue'),
+        path: '/products/productStandards',
+        component: () => import('#/views/products/productStandards.vue'),
       },
       {
         meta: {
-          title: $t('page.product.productStandards.productModel'),
+          title: $t('page.products.productStandards.productModel'),
         },
         name: 'ProductProductModel',
-        path: '/product/productModel',
-        component: () => import('#/views/product/productModel.vue'),
+        path: '/products/productModel',
+        component: () => import('#/views/products/productModel.vue'),
       },
       {
         meta: {
-          title: $t('page.product.productStandards.mySKU1'),
+          title: $t('page.products.productStandards.mySKU'),
         },
-        name: 'ProductMySKU1',
-        path: '/product/mySKU1',
-        component: () => import('#/views/product/mySKU1.vue'),
+        name: 'ProductMySKU',
+        path: '/products/mySKU',
+        component: () => import('#/views/products/mySKU.vue'),
       },
       {
         meta: {
-          title: $t('page.product.productStandards.specStandards'),
+          title: $t('page.products.productStandards.specStandards'),
         },
         name: 'ProductSpecStandards',
-        path: '/product/specStandards',
-        component: () => import('#/views/product/specStandards.vue'),
+        path: '/products/specStandards',
+        component: () => import('#/views/products/specStandards.vue'),
       },
     ],
   },
@@ -74,22 +74,22 @@ const routes: RouteRecordRaw[] = [
     meta: {
       icon: 'lucide:layout-dashboard',
       order: 1,
-      title: $t('page.product.agentAuthByMe'),
+      title: $t('page.products.agentAuthByMe'),
     },
     name: 'ProductAgentAuthByMe',
-    path: '/product/agentAuthByMe',
-    component: () => import('#/views/product/agentAuthByMe.vue'),
+    path: '/products/agentAuthByMe',
+    component: () => import('#/views/products/agentAuthByMe.vue'),
     children: [],
   },
   {
     meta: {
       icon: 'lucide:layout-dashboard',
       order: 2,
-      title: $t('page.product.wareTraderByMe'),
+      title: $t('page.products.wareTraderByMe'),
       hideChildrenInMenu: true,
     },
     name: 'ProductWareTraderByMe',
-    path: '/product/wareTraderByMe',
+    path: '/products/wareTraderByMe',
     children: [
       // {
       //   meta: {

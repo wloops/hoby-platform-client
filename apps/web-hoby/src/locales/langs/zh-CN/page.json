@@ -54,8 +54,15 @@
     "home": "仓库首页"
   },
   "products": {
-    "title": "我的产品",
-    "home": "产品首页"
+    "productStandards": {
+      "title": "我的产品",
+      "productStandards": "产品标准",
+      "productModel": "产品型号",
+      "mySKU": "我的SKU",
+      "specStandards": "规格标准"
+    },
+    "agentAuthByMe": "我授权的代理",
+    "wareTraderByMe": "我授权的仓商"
   },
   "shopping": {
     "title": "去逛店铺",
