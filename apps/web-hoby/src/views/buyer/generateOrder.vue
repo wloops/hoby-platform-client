@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
+import { message, Pagination } from 'ant-design-vue';
 // 购物车数据结构重构，增加展开/收起状态
 const cartData = ref([
   {
@@ -308,6 +308,40 @@ const batchGenerateOrders = () => {
   // 这里可以添加批量生成订单的逻辑
   message.success(`已批量生成 ${generatedOrders.length} 笔进货订单`);
 };
+
+// 分页相关数据
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total) => `共 ${total} 条`,
+});
+
+// 处理页码改变
+const handlePageChange = (page, pageSize) => {
+  pagination.current = page;
+  pagination.pageSize = pageSize;
+  // 这里调用获取数据的方法
+  fetchData();
+};
+
+// 获取数据的方法
+const fetchData = async () => {
+  try {
+    // 这里调用接口获取数据
+    const { data, total } = await fetchOrderList({
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+    });
+    // 更新数据和总数
+    orderList.value = data;
+    pagination.total = total;
+  } catch (error) {
+    console.error('获取数据失败：', error);
+  }
+};
 </script>
 
 <template>
@@ -570,6 +604,18 @@ const batchGenerateOrders = () => {
           >
             删除选中
           </button>
+          <div class="ml-4 border-l pl-4">
+            <Pagination
+              v-model:current="pagination.current"
+              v-model:page-size="pagination.pageSize"
+              :total="pagination.total"
+              :show-size-changer="pagination.showSizeChanger"
+              :show-quick-jumper="pagination.showQuickJumper"
+              :show-total="pagination.showTotal"
+              @change="handlePageChange"
+              size="small"
+            />
+          </div>
         </div>
         <div class="flex items-center">
           <div class="mr-6">
