@@ -44,9 +44,21 @@ const coreRoutes: RouteRecordRaw[] = [
       hideInBreadcrumb: true,
       title: 'Home',
       ignoreAuth: true,
+      loaded: true,
     },
     name: 'Home',
     path: '/home',
+    children: [],
+  },
+  {
+    component: () => import('#/views/_core/test/index.vue'),
+    meta: {
+      hideInBreadcrumb: true,
+      title: '测试',
+      ignoreAuth: true,
+    },
+    name: 'Test',
+    path: '/test',
     children: [],
   },
   {

@@ -147,6 +147,7 @@ export const useAuthStore = defineStore('auth', () => {
     // }
     resetAllStores();
     accessStore.setLoginExpired(false);
+    sessionStorage.removeItem('userInfo');
 
     // 回登录页带上当前路由地址
     await router.replace({
