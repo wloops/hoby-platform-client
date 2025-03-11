@@ -2,7 +2,9 @@
 import { reactive, ref } from 'vue';
 
 // 产品展开状态
-const expandedProducts = reactive({});
+const expandedProducts = reactive({
+  1: true, // 默认展开第一个产品
+});
 
 // 规格展开状态
 const expandedSpecs = reactive({});
@@ -21,7 +23,7 @@ const toggleSpec = (productId, specType) => {
 // 检查规格是否展开
 const isSpecExpanded = (productId, specType) => {
   const key = `${productId}-${specType}`;
-  return expandedSpecs[key] !== false; // 默认展开
+  return expandedSpecs[key] || false; // 默认收起
 };
 
 // 获取规格类型名称
@@ -159,10 +161,7 @@ const products = ref([
               </svg>
               编辑产品规格
             </button>
-            <button
-              class="btn-text-secondary"
-              @click="toggleProduct(product.id)"
-            >
+            <button class="btn-text-secondary">
               <svg
                 class="mr-1 h-4 w-4"
                 fill="none"
@@ -177,21 +176,24 @@ const products = ref([
                 />
               </svg>
               创建产品型号
-              <svg
-                class="ml-1 h-5 w-5 transform transition-transform duration-200"
-                :class="{ 'rotate-180': expandedProducts[product.id] }"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
             </button>
+            <svg
+              class="ml-1 h-5 w-5 transform cursor-pointer transition-transform duration-200"
+              :class="{
+                'rotate-180': expandedProducts[product.id],
+              }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              @click="toggleProduct(product.id)"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </div>
         </div>
 
@@ -273,7 +275,7 @@ const products = ref([
                   规格：{{ getSpecTypeName(specType) }}
                 </dt>
                 <div class="flex items-center">
-                  <span class="mr-2 text-xs text-gray-500"
+                  <span class="mr-2 text-sm text-gray-500"
                     >{{ spec.length }}个选项</span
                   >
                   <svg
@@ -298,11 +300,11 @@ const products = ref([
                 v-show="isSpecExpanded(product.id, specType)"
                 class="border-t border-gray-100 bg-gray-50 transition-all duration-300"
               >
-                <div class="divide-y divide-gray-100">
+                <div class="flex flex-wrap gap-4 p-4">
                   <div
                     v-for="(item, index) in spec"
                     :key="index"
-                    class="flex items-center px-6 py-3 text-sm text-gray-700"
+                    class="flex items-center text-sm text-gray-700"
                   >
                     <div
                       v-if="specType === 'colors'"
