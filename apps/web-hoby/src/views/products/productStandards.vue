@@ -1,6 +1,8 @@
 <script setup>
 import { reactive, ref } from 'vue';
 
+import EditSpecificationModal from './components/EditSpecificationModal.vue';
+
 // 产品展开状态
 const expandedProducts = reactive({
   1: true, // 默认展开第一个产品
@@ -34,6 +36,22 @@ const getSpecTypeName = (specType) => {
     materials: '材质',
   };
   return names[specType] || specType;
+};
+
+// 编辑模态框状态
+const isEditModalOpen = ref(false);
+const currentEditingProduct = ref(null);
+
+// 打开编辑模态框
+const openEditModal = (product) => {
+  currentEditingProduct.value = product;
+  isEditModalOpen.value = true;
+};
+
+// 关闭编辑模态框
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+  currentEditingProduct.value = null;
 };
 
 // 获取颜色对应的CSS颜色值
@@ -91,7 +109,7 @@ const products = ref([
     <!-- 顶部搜索和创建按钮 -->
     <div class="mb-8 flex items-center justify-between">
       <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
-        产品规格管理
+        产品标准管理
       </h1>
       <button class="btn-primary">
         <svg
@@ -110,6 +128,14 @@ const products = ref([
         创建产品
       </button>
     </div>
+
+    <EditSpecificationModal
+      :is-open="isEditModalOpen"
+      :product-id="currentEditingProduct?.id"
+      :specifications="currentEditingProduct?.specifications"
+      @close="closeEditModal"
+      @save="handleSaveSpecifications"
+    />
 
     <!-- 产品列表 -->
     <div class="space-y-6">
@@ -145,7 +171,7 @@ const products = ref([
               </svg>
               删除
             </button>
-            <button class="btn-text-primary">
+            <button class="btn-text-primary" @click="openEditModal(product)">
               <svg
                 class="mr-1 h-4 w-4"
                 fill="none"
@@ -300,11 +326,11 @@ const products = ref([
                 v-show="isSpecExpanded(product.id, specType)"
                 class="border-t border-gray-100 bg-gray-50 transition-all duration-300"
               >
-                <div class="flex flex-wrap gap-4 p-4">
+                <div class="flex flex-wrap gap-3 p-4">
                   <div
                     v-for="(item, index) in spec"
                     :key="index"
-                    class="flex items-center text-sm text-gray-700"
+                    class="flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
                   >
                     <div
                       v-if="specType === 'colors'"
