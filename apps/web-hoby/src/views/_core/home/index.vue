@@ -34,8 +34,8 @@ const navigationItems = [
   {
     title: '我的产品',
     icon: 'icon-[lucide--blocks]',
-    link: '/products',
-    authority: ['products'],
+    link: '/product',
+    authority: ['product'],
   },
   {
     title: '去逛店铺',
