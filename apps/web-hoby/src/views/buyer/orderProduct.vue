@@ -6,18 +6,19 @@
 <script setup lang="ts">
 import type { ColumnsType } from 'ant-design-vue/es/table';
 
-import { computed, h, ref } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { Button, Table, Tag } from 'ant-design-vue';
 
+import { useEnums, useMainGetData } from '#/composables';
+
 import GoodsSource from './components/goodsSource.vue';
 
 interface OrderItem {
   id: string;
-  productImage: string;
   productName: string;
   manufacturer: string;
   specs: string[];
@@ -31,6 +32,7 @@ const router = useRouter();
 const route = useRoute();
 const loading = ref(false);
 const dataSource = ref<OrderItem[]>([]);
+const { getEnumLabel, getEnumColor } = useEnums();
 const pagination = ref({
   current: 1,
   pageSize: 20,
@@ -87,15 +89,8 @@ const columns: ColumnsType<OrderItem> = [
     width: 100,
     align: 'center',
     customRender: ({ text }: { text: string }) => {
-      const statusConfig: Record<string, { color: string }> = {
-        待进货: { color: 'warning' },
-        已进货: { color: 'success' },
-        进货中: { color: 'processing' },
-      };
-      return h(
-        Tag,
-        { color: statusConfig[text]?.color || 'default' },
-        () => text,
+      return h(Tag, { color: getEnumColor('restockingStatus', text) }, () =>
+        getEnumLabel('restockingStatus', text),
       );
     },
   },
@@ -135,7 +130,7 @@ const scroll = computed(() => ({
 // 查看货源
 function viewSource(row: OrderItem) {
   console.warn('row', row);
-  goodsSourceRef.value?.open();
+  goodsSourceRef.value?.open(row);
 }
 
 // 查看订单详情
@@ -156,26 +151,81 @@ async function fetchOrderList() {
   try {
     // TODO: 替换为实际的API调用
     // const { current, pageSize } = pagination.value;
-    const { pageSize } = pagination.value;
-    const response = {
-      items: Array.from({ length: pageSize }, (_, index) => ({
-        id: `${111 + index}`,
-        productImage:
-          'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cdb109cb051163646151a4a5083b.png~tplv-uwbnlip3yd-webp.webp',
-        productName: '示例商品',
-        manufacturer: '示例厂商',
-        specs: ['规格值', '规格值'],
-        quantity: 2,
-        salesQuantity: 1,
-        unitPrice: 1000,
-        totalPrice: 2000,
-        status: '待进货',
-      })),
-      total: 100,
+    const { current, pageSize } = pagination.value;
+    const reqParams = {
+      pageID: 'mySaleOrderGoodsForRestockingPage',
+      pageDataGrpID: 'mySpecSaleOrderGoodsForRestocking',
+      currentPage: current,
+      numOfPerPage: pageSize,
+      billNo: route.query.id,
     };
+    const { data, total } = useMainGetData(reqParams);
+    console.warn('data', data.value);
+    // 响应数据:[
+    // 	{
+    // 		"indexNum": "1",
+    // 		"srlID": "酷炫男士内衣2025版",
+    // 		"totalAmtAfterDiscount": "1050.00",
+    // 		"restockingStatus": "2",
+    // 		"companyName": "测试厂商6",
+    // 		"productName": "男士内衣",
+    // 		"restockingNumNeeded": "7",
+    // 		"attrUnit": "4",
+    // 		"wareAttrValueList": "XXXL.青色",
+    // 		"orderDtlNo": "1476-20250205151805-00019713-0004",
+    // 		"prdNum": "7",
+    // 		"purchaseCompanyName": "测试采购商",
+    // 		"prdNo": "1640-20250204205039-00024135-0115",
+    // 		"billNo": "202502051518050197130018",
+    // 		"priceAfterDiscount": "150.00",
+    // 		"restockingNum": "0",
+    // 		"memberID": "testPurchaser"
+    // 	}
+    // ]
+    // 监听 data 的变化
+    watch(data, (newData) => {
+      if (newData) {
+        // 将原始数据转换为目标格式
+        const response = {
+          items: (newData as any[]).map((item: any, index: number) => ({
+            id: `${index + 1}`, // 生成唯一 ID
+            productName: item.productName, // 商品名称
+            manufacturer: item.companyName, // 厂商名称
+            specs: item.wareAttrValueList.split(','), // 规格值
+            quantity: Number.parseInt(item.restockingNumNeeded, 10), // 需进货数量
+            salesQuantity: Number.parseInt(item.prdNum, 10), // 销售数量
+            unitPrice: Number.parseFloat(item.priceAfterDiscount), // 销售单价
+            totalPrice: Number.parseFloat(item.totalAmtAfterDiscount), // 销售总价
+            status: item.restockingStatus, // 状态
+            record: item,
+          })),
+          total: total.value, // 总条数
+        };
 
-    dataSource.value = response.items;
-    pagination.value.total = response.total;
+        // 更新数据源和分页信息
+        dataSource.value = response.items;
+        pagination.value.total = response.total;
+      }
+    });
+    // const response = {
+    //   items: Array.from({ length: pageSize }, (_, index) => ({
+    //     id: `${111 + index}`,
+    //     productImage:
+    //       'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cdb109cb051163646151a4a5083b.png~tplv-uwbnlip3yd-webp.webp',
+    //     productName: '示例商品',
+    //     manufacturer: '示例厂商',
+    //     specs: ['规格值', '规格值'],
+    //     quantity: 2,
+    //     salesQuantity: 1,
+    //     unitPrice: 1000,
+    //     totalPrice: 2000,
+    //     status: '待进货',
+    //   })),
+    //   total: 100,
+    // };
+
+    // dataSource.value = response.items;
+    // pagination.value.total = response.total;
   } finally {
     loading.value = false;
   }
@@ -207,8 +257,8 @@ fetchOrderList();
       <div
         class="mb-4 flex items-center justify-between rounded-lg bg-white p-4 shadow-sm"
       >
-        <div class="text-gray-600">销售订单号：{{ route.params.id }}</div>
-        <div class="text-gray-600">采购单位：湖南省长沙市第一中学</div>
+        <div class="text-gray-600">销售订单号：{{ route.query.id }}</div>
+        <div class="text-gray-600">采购单位：{{ route.query.unit }}</div>
       </div>
 
       <div class="flex-1 overflow-hidden rounded-lg bg-white shadow-sm">

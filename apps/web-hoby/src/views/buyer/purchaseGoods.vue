@@ -7,12 +7,15 @@
 import type { ColumnsType } from 'ant-design-vue/es/table';
 import type { Dayjs } from 'dayjs';
 
-import { computed, h, ref } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { Button, DatePicker, Form, Input, Table, Tag } from 'ant-design-vue';
+import dayjs from 'dayjs';
+
+import { useEnums, useMainGetData } from '#/composables';
 
 interface OrderItem {
   id: string;
@@ -36,6 +39,7 @@ interface SearchForm {
 const router = useRouter();
 const loading = ref(false);
 const dataSource = ref<OrderItem[]>([]);
+const { getEnumLabel, getEnumColor } = useEnums();
 
 // 搜索表单
 const searchForm = ref<SearchForm>({
@@ -59,11 +63,15 @@ const columns: ColumnsType<OrderItem> = [
     title: '销售订单号',
     dataIndex: 'orderNo',
     align: 'center',
+    width: 180,
+    ellipsis: true,
   },
   {
     title: '采购单位',
     dataIndex: 'purchaseUnit',
     align: 'center',
+    width: 180,
+    ellipsis: true,
   },
   {
     title: '商品数量',
@@ -106,15 +114,8 @@ const columns: ColumnsType<OrderItem> = [
     width: 100,
     align: 'center',
     customRender: ({ text }: { text: string }) => {
-      const statusConfig: Record<string, { color: string }> = {
-        待进货: { color: 'warning' },
-        已进货: { color: 'success' },
-        进货中: { color: 'processing' },
-      };
-      return h(
-        Tag,
-        { color: statusConfig[text]?.color || 'default' },
-        () => text,
+      return h(Tag, { color: getEnumColor('restockingStatus', text) }, () =>
+        getEnumLabel('restockingStatus', text),
       );
     },
   },
@@ -145,7 +146,7 @@ const scroll = computed(() => ({
 function viewGoods(row: OrderItem) {
   router.push({
     name: 'BuyerOrderProduct',
-    params: { id: row.id },
+    query: { id: row.orderNo, unit: row.purchaseUnit },
   });
 }
 
@@ -177,31 +178,48 @@ const handleSearch = () => {
 async function fetchOrderList() {
   loading.value = true;
   try {
-    const { pageSize } = pagination.value;
-    const response = {
-      items: Array.from({ length: pageSize }, (_, index) => ({
-        id: `${111 + index}`,
-        orderNo: `SO1596956696${index + 1}`,
-        purchaseUnit: '单位',
-        quantity: 2,
-        totalPrice: 2000,
-        productCategoryList: ['产品品类1', '产品品类2', '产品品类3'],
-        productModelList: ['产品型号1', '产品型号2'],
-        date: '2025-03-06',
-        status: '待进货',
-      })),
-      total: 100,
+    const { current, pageSize } = pagination.value;
+    const reqParams = {
+      pageID: 'mySaleOrderForRestockingPage',
+      pageDataGrpID: 'mySaleOrderForRestocking',
+      currentPage: current,
+      numOfPerPage: pageSize,
     };
+    const { data, total } = useMainGetData(reqParams);
 
-    dataSource.value = response.items;
-    pagination.value.total = response.total;
+    // 监听 data 的变化
+    watch(data, (newData) => {
+      if (newData) {
+        // 将原始数据转换为目标格式
+        const response = {
+          items: (newData as any[]).map((item: any, index: number) => ({
+            id: `${111 + index}`, // 生成唯一 ID
+            orderNo: item.billNo, // 销售订单号
+            purchaseUnit: item.purchaseCompanyName, // 采购单位
+            quantity: Number.parseInt(item.saleOrderPrdNum, 10), // 商品数量
+            totalPrice: Number.parseFloat(item.totalAmtAfterDiscount), // 销售总价
+            productCategoryList: item.prdTypeList.split(','), // 产品品类清单
+            productModelList: item.prdSrlIDList.split(','), // 产品型号清单
+            date: dayjs(item.transDate).format('YYYY-MM-DD'), // 日期
+            status: item.restockingStatus, // 状态
+          })),
+          total: total.value, // 总条数
+        };
+
+        // 更新数据源和分页信息
+        dataSource.value = response.items;
+        pagination.value.total = response.total;
+      }
+    });
   } finally {
     loading.value = false;
   }
 }
 
 // 初始加载
-fetchOrderList();
+onMounted(async () => {
+  await fetchOrderList();
+});
 </script>
 
 <template>
