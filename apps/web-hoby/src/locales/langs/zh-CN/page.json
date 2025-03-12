@@ -18,7 +18,7 @@
       "title": "政采贷进货",
       "importOrder": "导入销售订单",
       "purchaseGoodsByOrder": "为订单商品进货",
-      "generateOrder": "生成进货订单",
+      "generateOrder": "采购车",
       "orderDetail": "销售订单详情",
       "orderProduct": "销售订单商品",
       "goodsSource": "货源详情"

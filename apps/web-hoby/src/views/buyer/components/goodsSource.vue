@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-12 17:25:13
+ * @LastEditTime: 2025-03-12 18:29:13
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -68,6 +68,8 @@ const productDetail = ref<ProductDetail>({
   requiredQuantity: 100,
   orderNo: '147524081311232011',
   product: '男士T恤衫',
+  restockingNum: 0,
+  restockingNumStill: 0,
 });
 
 const handleSelect = (record: SourceItem) => {
@@ -256,7 +258,7 @@ defineExpose({
   <Drawer
     v-model:visible="visible"
     title="选择货源"
-    width="800"
+    width="50%"
     :footer-style="{ textAlign: 'right' }"
     @close="close"
   >
