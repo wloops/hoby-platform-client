@@ -95,6 +95,15 @@ const menus = computed(() => [
 const avatar = computed(() => {
   return userInfo?.avatar ?? preferences.app.defaultAvatar;
 });
+const realName = computed(() => {
+  return userInfo?.realName;
+});
+const company = computed(() => {
+  return userInfo?.TELLERCOMPANY;
+});
+const userName = computed(() => {
+  return userInfo?.tellerNo;
+});
 
 async function handleLogout() {
   await authStore.logout(false);
@@ -130,9 +139,9 @@ watch(
       <UserDropdown
         :avatar
         :menus
-        :text="userInfo?.realName"
-        :description="userInfo?.TELLERCOMPANY"
-        :tag-text="userInfo?.tellerNo"
+        :text="realName"
+        :description="company"
+        :tag-text="userName"
         @logout="handleLogout"
       />
     </template>
