@@ -14,6 +14,8 @@ interface ProductDetail {
   requiredQuantity: number;
   orderNo: string;
   product: string;
+  restockingNum: number;
+  restockingNumStill: number;
 }
 interface SourceItem {
   id: string;

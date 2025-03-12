@@ -18,14 +18,17 @@ import { useEnums, useMainGetData } from '#/composables';
 import GoodsSource from './components/goodsSource.vue';
 
 interface OrderItem {
-  id: string;
-  productName: string;
-  manufacturer: string;
-  specs: string[];
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  status: string;
+  id: string; // 唯一ID
+  productName: string; // 商品名称
+  manufacturer: string; // 厂商名称
+  specs: string[]; // 规格值
+  quantity: number; // 需进货数量
+  salesQuantity: number; // 销售数量
+  restockingNum: number; // 已进货数量
+  restockingNumStill: number; // 待进货数量
+  unitPrice: number; // 销售单价
+  totalPrice: number; // 销售总价
+  status: string; // 状态
 }
 
 const router = useRouter();
@@ -58,14 +61,26 @@ const columns: ColumnsType<OrderItem> = [
     },
   },
   {
+    title: '销售数量',
+    dataIndex: 'salesQuantity',
+    width: 120,
+    align: 'center',
+  },
+  {
     title: '需进货数量',
     dataIndex: 'quantity',
     width: 120,
     align: 'center',
   },
   {
-    title: '销售数量',
-    dataIndex: 'salesQuantity',
+    title: '已进货数量',
+    dataIndex: 'restockingNum',
+    width: 120,
+    align: 'center',
+  },
+  {
+    title: '待进货数量',
+    dataIndex: 'restockingNumStill',
     width: 120,
     align: 'center',
   },
@@ -194,6 +209,8 @@ async function fetchOrderList() {
             specs: item.wareAttrValueList.split(','), // 规格值
             quantity: Number.parseInt(item.restockingNumNeeded, 10), // 需进货数量
             salesQuantity: Number.parseInt(item.prdNum, 10), // 销售数量
+            restockingNum: Number.parseInt(item.restockingNum, 10), // 已进货数量
+            restockingNumStill: Number.parseInt(item.restockingNumStill, 10), // 待进货数量
             unitPrice: Number.parseFloat(item.priceAfterDiscount), // 销售单价
             totalPrice: Number.parseFloat(item.totalAmtAfterDiscount), // 销售总价
             status: item.restockingStatus, // 状态

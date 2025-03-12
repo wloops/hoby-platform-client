@@ -1,4 +1,12 @@
 <!--
+ * @Author: Loong wentloop@gmail.com
+ * @Date: 2025-03-12 10:51:03
+ * @LastEditors: Loong wentloop@gmail.com
+ * @LastEditTime: 2025-03-12 18:23:50
+ * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\ProductInfo.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!--
  * @Description: 商品信息展示组件
 -->
 <script lang="ts" setup>
@@ -29,6 +37,8 @@ const props = withDefaults(defineProps<Props>(), {
     requiredQuantity: 0,
     orderNo: '',
     product: '',
+    restockingNum: 0,
+    restockingNumStill: 0,
   }),
 });
 </script>
@@ -82,6 +92,12 @@ const props = withDefaults(defineProps<Props>(), {
           </Descriptions.Item>
           <Descriptions.Item label="需进货数量">
             {{ props.data.requiredQuantity }}
+          </Descriptions.Item>
+          <Descriptions.Item label="已进货数量">
+            {{ props.data.restockingNum }}
+          </Descriptions.Item>
+          <Descriptions.Item label="待进货数量">
+            {{ props.data.restockingNumStill }}
           </Descriptions.Item>
         </Descriptions>
       </div>

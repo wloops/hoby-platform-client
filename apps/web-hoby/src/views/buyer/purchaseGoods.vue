@@ -18,15 +18,15 @@ import dayjs from 'dayjs';
 import { useEnums, useMainGetData } from '#/composables';
 
 interface OrderItem {
-  id: string;
-  orderNo: string;
-  purchaseUnit: string;
-  quantity: number;
-  totalPrice: number;
-  productCategoryList: string[];
-  productModelList: string[];
-  date: string;
-  status: string;
+  id: string; // 唯一ID
+  orderNo: string; // 销售订单号
+  purchaseUnit: string; // 采购单位
+  quantity: number; // 商品数量
+  totalPrice: number; // 销售总价
+  productCategoryList: string[]; // 产品品类清单
+  productModelList: string[]; // 产品型号清单
+  date: string; // 日期
+  status: string; // 状态
 }
 
 interface SearchForm {
