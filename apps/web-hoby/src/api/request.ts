@@ -77,6 +77,11 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       if (userInfo) {
         config.headers.res_token = userInfo?.res_token;
         config.headers['X-CSRF-TOKEN'] = userInfo?.token?.token;
+        // 通用请求body添加参数
+        config.data = {
+          ...config.data,
+          TELLERCOMPANY: userInfo?.TELLERCOMPANY,
+        };
       }
       config.headers.Accept = '*/*';
       config.headers.Authorization = formatToken(accessStore.accessToken);
