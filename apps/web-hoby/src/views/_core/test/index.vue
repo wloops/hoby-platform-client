@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { Button } from 'ant-design-vue';
 
-import { getCommonData } from '#/api/core/main';
+import { mainGetDataApi } from '#/api/core/main';
 
 defineOptions({ name: 'Test' });
 const data = {
@@ -18,7 +18,7 @@ const data = {
   TELLERCOMPANY: '测试仓商',
 };
 const handleClick = () => {
-  getCommonData(data).then((res) => {
+  mainGetDataApi(data).then((res) => {
     console.warn(res);
   });
 };
