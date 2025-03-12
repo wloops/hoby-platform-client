@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-09 16:05:43
+ * @LastEditTime: 2025-03-12 14:42:31
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -66,9 +66,14 @@ const handleSelect = (record: SourceItem) => {
 
 const columns: TableColumnType<SourceItem>[] = [
   {
-    title: '店铺',
+    title: '仓商',
     dataIndex: 'store',
     width: 150,
+  },
+  {
+    title: '仓商仓库',
+    dataIndex: 'warehouse',
+    width: 120,
   },
   {
     title: '价格',
@@ -82,16 +87,6 @@ const columns: TableColumnType<SourceItem>[] = [
     dataIndex: 'stock',
     width: 100,
     align: 'center' as AlignType,
-  },
-  {
-    title: '发货',
-    dataIndex: 'delivery',
-    width: 120,
-  },
-  {
-    title: '发货地',
-    dataIndex: 'address',
-    width: 180,
   },
   {
     title: '操作',
@@ -109,7 +104,7 @@ const columns: TableColumnType<SourceItem>[] = [
           type: 'link',
           onClick: () => handleSelect(record),
         },
-        () => '采购',
+        () => '确定采购',
       ),
   },
 ];
@@ -120,24 +115,21 @@ const dataSource = ref<SourceItem[]>([
     store: '美的官方旗舰店',
     price: 2999,
     stock: 100,
-    delivery: '24小时内',
-    address: '广东省佛山市顺德区',
+    warehouse: '美的广州仓',
   },
   {
     id: '2',
     store: '格力官方旗舰店',
     price: 3199,
     stock: 50,
-    delivery: '48小时内',
-    address: '广东省珠海市香洲区',
+    warehouse: '格力珠海仓',
   },
   {
     id: '3',
     store: '海尔官方旗舰店',
     price: 3099,
     stock: 80,
-    delivery: '24小时内',
-    address: '山东省青岛市崂山区',
+    warehouse: '海尔青岛仓',
   },
 ]);
 

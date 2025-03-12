@@ -20,8 +20,7 @@ interface SourceItem {
   store: string;
   price: number;
   stock: number;
-  delivery: string;
-  address: string;
+  warehouse: string;
 }
 
 export type { ProductDetail, SourceItem };
