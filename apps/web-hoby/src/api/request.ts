@@ -10,7 +10,7 @@ import {
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore, useUserStore } from '@vben/stores';
+import { useAccessStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
@@ -64,14 +64,19 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
-      const userStore = useUserStore();
+      // const userStore = useUserStore();
+      let userInfo: any = null;
+      const userStore = sessionStorage.getItem('userInfo');
+      if (userStore) {
+        userInfo = JSON.parse(userStore);
+      }
       // console.log('userStore', userStore.userInfo);
 
-      config.headers.res_token = 'adeebd32-5f54-4a88-9821-f38c44538dca';
-      config.headers['X-CSRF-TOKEN'] = '9681b818-bc33-4551-bded-35564058e4f9';
-      if (userStore && userStore.userInfo) {
-        // config.headers.res_token = userStore.userInfo?.res_token;
-        // config.headers['X-CSRF-TOKEN'] = userStore.userInfo?.token?.token;
+      // config.headers.res_token = 'adeebd32-5f54-4a88-9821-f38c44538dca';
+      // config.headers['X-CSRF-TOKEN'] = '9681b818-bc33-4551-bded-35564058e4f9';
+      if (userInfo) {
+        config.headers.res_token = userInfo?.res_token;
+        config.headers['X-CSRF-TOKEN'] = userInfo?.token?.token;
       }
       config.headers.Accept = '*/*';
       config.headers.Authorization = formatToken(accessStore.accessToken);

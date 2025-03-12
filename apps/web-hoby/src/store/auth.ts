@@ -1,3 +1,11 @@
+/*
+ * @Author: Loong wentloop@gmail.com
+ * @Date: 2025-03-12 10:52:42
+ * @LastEditors: Loong wentloop@gmail.com
+ * @LastEditTime: 2025-03-12 11:08:49
+ * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import type { Recordable } from '@vben/types';
 
 import { ref } from 'vue';
@@ -9,7 +17,7 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { getPKApi, getUserInfoApi, loginApi, registerApi } from '#/api';
+import { getPKApi, loginApi, mainGetDataApi, registerApi } from '#/api';
 import { encryption } from '#/composables/encrypt/encryption';
 import { $t } from '#/locales';
 
@@ -164,10 +172,26 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUserInfo() {
     try {
       let userInfo: any = null;
-      userInfo = await getUserInfoApi();
+      let storageUserInfo: any = null;
+      const sessionStorageUserInfo = sessionStorage.getItem('userInfo');
+      if (sessionStorageUserInfo) {
+        storageUserInfo = JSON.parse(sessionStorageUserInfo);
+      }
+      const data = {
+        pageID: 'personInfoManagement',
+        pageDataGrpID: 'queryPersonalInfo',
+        TELLERCOMPANY: storageUserInfo.TELLERCOMPANY,
+      };
+      userInfo = await mainGetDataApi(data);
       if (userInfo) {
-        const { queryPersonalInfo: newUserInfo } = userInfo;
+        let { queryPersonalInfo: newUserInfo } = userInfo;
+        newUserInfo = {
+          ...newUserInfo,
+          homePath: '/',
+          realName: storageUserInfo.TELLERNAME,
+        };
         userStore.setUserInfo(newUserInfo);
+        sessionStorage.setItem('userInfo', JSON.stringify(newUserInfo));
         return newUserInfo;
       }
     } catch (error) {
