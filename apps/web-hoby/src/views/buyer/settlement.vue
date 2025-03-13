@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 17:24:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-13 11:19:18
+ * @LastEditTime: 2025-03-13 11:45:13
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,8 +16,9 @@ import { useRouter } from 'vue-router';
 import { Page } from '@vben/common-ui';
 
 import { Button, DatePicker, Form, Input, Table, Tag } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
-import { useMainGetData } from '#/composables';
+import { useEnums, useMainGetData } from '#/composables';
 
 interface SettlementItem {
   id: string;
@@ -42,6 +43,8 @@ interface SearchForm {
 const router = useRouter();
 const loading = ref(false);
 const dataSource = ref<SettlementItem[]>([]);
+
+const { getEnumLabel, getEnumColor } = useEnums();
 
 // 搜索表单
 const searchForm = ref<SearchForm>({
@@ -71,6 +74,7 @@ const columns: ColumnsType<SettlementItem> = [
     dataIndex: 'voucherType',
     align: 'center',
     width: 180,
+    customRender: ({ text }) => getEnumLabel('voucherType', text),
   },
   {
     title: '收款单位',
@@ -110,6 +114,7 @@ const columns: ColumnsType<SettlementItem> = [
     dataIndex: 'dueDate',
     align: 'center',
     width: 120,
+    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD') : ''),
   },
   {
     title: '付款状态',
@@ -117,8 +122,9 @@ const columns: ColumnsType<SettlementItem> = [
     align: 'center',
     width: 100,
     customRender: ({ text }) => {
-      const color = text === '已付款' ? 'success' : 'warning';
-      return h(Tag, { color }, () => text);
+      return h(Tag, { color: getEnumColor('paymentStatus', text) }, () =>
+        getEnumLabel('paymentStatus', text),
+      );
     },
   },
   {

@@ -13,7 +13,9 @@ interface EnumItem {
 }
 
 interface Enums {
-  restockingStatus: Record<string, EnumItem>;
+  restockingStatus: Record<string, EnumItem>; // 进货状态
+  voucherType: Record<string, EnumItem>; // 结算凭证类型
+  paymentStatus: Record<string, EnumItem>; // 付款状态
 }
 
 // 本地枚举值
@@ -30,6 +32,63 @@ const localEnums: Enums = {
     '2': {
       label: '正在进货',
       color: 'processing',
+    },
+  },
+  voucherType: {
+    '1': {
+      label: '订单现结支付凭证',
+    },
+    '2': {
+      label: '订单预付支付凭证',
+    },
+    '3': {
+      label: '信用担保支付订单尾款凭证',
+    },
+    '4': {
+      label: '信用担保支付订单全款凭证',
+    },
+    '101': {
+      label: '厂商分成结算凭证',
+    },
+    '102': {
+      label: '经销商分成结算凭证',
+    },
+    '103': {
+      label: '运营平台分成结算凭证',
+    },
+  },
+  paymentStatus: {
+    '0': {
+      label: '未支付',
+      color: 'warning',
+    },
+    '1': {
+      label: '等待支付确认',
+      color: 'processing',
+    },
+    '2': {
+      label: '部分支付',
+      color: 'warning',
+    },
+    '3': {
+      label: '已支付',
+      color: 'success',
+    },
+    '10': {
+      label: '已支付后撤销',
+      color: 'default',
+    },
+    '11': {
+      label: '已支付后提交退款申请',
+      color: 'error',
+    },
+    '20': {
+      label: '支付中',
+      color: 'processing',
+    },
+    '30': {
+      label: '信用担保支付全款',
+      color: 'success',
     },
   },
 };
