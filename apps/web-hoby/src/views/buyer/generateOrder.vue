@@ -325,8 +325,8 @@ const generateOrderMainServiceApi = async (order) => {
     // const userInfo = sessionStorage.getItem('userInfo');
     // const userInfoObj = JSON.parse(userInfo || '{}');
     const data = {
-      pageID: 'sourceOfGoodsShowPage', // 页面ID
-      pageButtonID: 'addGoodsToCart', // 按钮ID
+      pageID: 'mySaleOrderRestockCartPage', // 页面ID
+      pageButtonID: 'genRestockOrderForOneShopOfSaleOrder', // 按钮ID
       actNo: order.record.actNo,
       saleCmpName: order.record.saleCmpName,
       wareName: order.record.wareName,
@@ -335,11 +335,7 @@ const generateOrderMainServiceApi = async (order) => {
       oriBillNo: order.record.tellerNo,
     };
     const { rs: code } = await mainServiceApi(data);
-    if (code === '1') {
-      message.success('已添加到采购车');
-    } else {
-      message.error(`添加失败: ${code}`);
-    }
+    return code === '1';
   } catch (error) {
     console.error(error);
   } finally {
@@ -356,14 +352,17 @@ const generateOrder = (orderIndex) => {
 };
 
 // 生成单个店铺的进货订单
-const generateStoreOrder = (orderIndex, storeIndex, store) => {
+const generateStoreOrder = async (orderIndex, storeIndex, store) => {
   const order = cartData.value[orderIndex];
   // const store = order.stores[storeIndex];
-  generateOrderMainServiceApi(store);
-  // 这里可以添加生成店铺订单的逻辑
-  message.success(
-    `已为销售订单 ${order.orderNumber} 的 ${store.name} 生成进货订单`,
-  );
+  const result = await generateOrderMainServiceApi(store);
+  if (result) {
+    message.success(
+      `已为销售订单 ${order.orderNumber} 的 ${store.name} 生成进货订单`,
+    );
+  } else {
+    message.error(`生成进货订单失败`);
+  }
 };
 
 // 批量生成订单
