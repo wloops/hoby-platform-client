@@ -5,7 +5,7 @@ import EditSpecificationModal from './components/EditSpecificationModal.vue';
 
 // 产品展开状态
 const expandedProducts = reactive({
-  1: true, // 默认展开第一个产品
+  1: false, // 默认展开第一个产品
 });
 
 // 规格展开状态
