@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-13 11:54:15
+ * @LastEditTime: 2025-03-13 16:25:14
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -77,15 +77,23 @@ const productDetail = ref<ProductDetail>({
   product: '男士T恤衫',
   restockingNum: 0,
   restockingNumStill: 0,
+  record: {},
 });
 
 const handleSelect = (record: SourceItem) => {
+  console.warn('productDetail', productDetail.value);
   record.restockingNum = productDetail.value.restockingNum;
   record.restockingNumStill = productDetail.value.restockingNumStill;
   if (selectedSources.value.some((item) => item.source.id === record.id)) {
     return;
   }
-  purchaseModalRef.value?.open(record);
+  const result = {
+    ...record,
+    billNo: productDetail.value?.record.billNo,
+    orderDtlNo: productDetail.value?.record.orderDtlNo,
+    purchaseCompanyName: productDetail.value?.record.purchaseCompanyName,
+  };
+  purchaseModalRef.value?.open(result);
 };
 
 const columns: TableColumnType<SourceItem>[] = [
