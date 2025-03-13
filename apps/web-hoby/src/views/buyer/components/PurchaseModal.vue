@@ -24,8 +24,8 @@ const purchaseTotal = computed(
 
 const open = (record: SourceItem) => {
   purchasePrice.value = record.price;
-  purchaseQuantity.value = record.stock;
-  purchaseMaxQuantity.value = record.stock;
+  purchaseQuantity.value = record.restockingNumStill ?? 0; // 待进货数量
+  purchaseMaxQuantity.value = record.restockingNumStill ?? 0; // 最大进货数量
   purchaseModalVisible.value = true;
 };
 

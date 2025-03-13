@@ -23,6 +23,8 @@ interface SourceItem {
   price: number;
   stock: number;
   warehouse: string;
+  restockingNum?: number;
+  restockingNumStill?: number;
 }
 
 export type { ProductDetail, SourceItem };
