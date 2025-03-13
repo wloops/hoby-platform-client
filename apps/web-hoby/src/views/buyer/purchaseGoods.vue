@@ -78,13 +78,14 @@ const columns: ColumnsType<OrderItem> = [
     dataIndex: 'quantity',
     width: 120,
     align: 'center',
+    customRender: ({ text }) => Number.parseInt(text, 10),
   },
   {
     title: '销售总价',
     dataIndex: 'totalPrice',
     width: 180,
     align: 'right',
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${Number.parseFloat(text).toFixed(2)}`,
   },
   {
     title: '产品品类清单',
@@ -92,7 +93,7 @@ const columns: ColumnsType<OrderItem> = [
     width: 180,
     align: 'center',
     ellipsis: true,
-    customRender: ({ text }) => text.join('、'),
+    customRender: ({ text }) => text,
   },
   {
     title: '产品型号清单',
@@ -100,13 +101,14 @@ const columns: ColumnsType<OrderItem> = [
     width: 180,
     align: 'center',
     ellipsis: true,
-    customRender: ({ text }) => text.join('、'),
+    customRender: ({ text }) => text,
   },
   {
     title: '日期',
     dataIndex: 'date',
     width: 120,
     align: 'center',
+    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD') : ''),
   },
   {
     title: '状态',
@@ -196,11 +198,11 @@ async function fetchOrderList() {
             id: `${111 + index}`, // 生成唯一 ID
             orderNo: item.billNo, // 销售订单号
             purchaseUnit: item.purchaseCompanyName, // 采购单位
-            quantity: Number.parseInt(item.saleOrderPrdNum, 10), // 商品数量
-            totalPrice: Number.parseFloat(item.totalAmtAfterDiscount), // 销售总价
-            productCategoryList: item.prdTypeList.split(','), // 产品品类清单
-            productModelList: item.prdSrlIDList.split(','), // 产品型号清单
-            date: dayjs(item.transDate).format('YYYY-MM-DD'), // 日期
+            quantity: item.saleOrderPrdNum, // 商品数量
+            totalPrice: item.totalAmtAfterDiscount, // 销售总价
+            productCategoryList: item.prdTypeList, // 产品品类清单
+            productModelList: item.prdSrlIDList, // 产品型号清单
+            date: item.transDate, // 日期
             status: item.restockingStatus, // 状态
           })),
           total: total.value, // 总条数
