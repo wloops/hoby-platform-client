@@ -5,8 +5,8 @@ import { computed, ref } from 'vue';
 const productSearch = ref('');
 const modelSearch = ref('');
 const activeTab = ref('introduction');
-// 默认展开第一个
-const expandedIndex = ref(0);
+// 默认折叠
+const expandedIndex = ref();
 const expandedSpecs = ref([]);
 const products = ref([
   {
@@ -198,7 +198,7 @@ const toggleSpecExpand = (specId) => {
         class="mb-4 rounded-lg shadow-sm hover:shadow-md"
       >
         <div
-          class="flex items-center justify-between rounded-t-lg border bg-white p-2 p-4"
+          class="flex items-center justify-between rounded-t-lg border bg-white p-4 text-lg font-medium text-gray-800"
         >
           <span class="mr-2 h-2 w-2 flex-none rounded-full bg-green-500"></span
           >产品：{{ product.name }}
@@ -301,7 +301,7 @@ const toggleSpecExpand = (specId) => {
         class="mb-4 shadow-sm hover:shadow-md"
       >
         <div
-          class="flex items-center justify-between rounded-t-lg border bg-white p-4"
+          class="flex items-center justify-between rounded-t-lg border bg-white p-4 text-lg font-medium text-gray-800"
         >
           <span class="mr-2 h-2 w-2 flex-none rounded-full bg-green-500"></span
           >产品：{{ product.name }}
@@ -381,7 +381,9 @@ const toggleSpecExpand = (specId) => {
                     d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
                   />
                 </svg>
-                <span>规格：{{ spec.name }}</span>
+                <span class="font-sm text-base text-gray-700"
+                  >规格：{{ spec.name }}</span
+                >
               </dt>
               <svg
                 class="h-6 w-6 transform text-gray-600 transition-transform"
@@ -423,7 +425,7 @@ const toggleSpecExpand = (specId) => {
         class="mb-4 shadow-sm hover:shadow-md"
       >
         <div
-          class="flex items-center justify-between rounded-t-lg border bg-white p-2 p-4"
+          class="flex items-center justify-between rounded-t-lg border bg-white p-4 text-lg font-medium text-gray-800"
         >
           <span class="mr-2 h-2 w-2 flex-none rounded-full bg-green-500"></span
           >产品：{{ product.name }}
