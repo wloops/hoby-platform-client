@@ -1,90 +1,94 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
-// 产品展开状态
-const expandedProducts = reactive({
-  1: true, // 默认展开第一个产品
+// 模拟规格标准数据
+const specs = ref([
+  { id: 1, name: '颜色', values: ['红色', '白色', '蓝色'] },
+  { id: 2, name: '尺寸', values: ['M', 'L', 'XL'] },
+  { id: 3, name: '材质', values: ['棉', '涤纶', '丝绸'] },
+  { id: 4, name: '重量', values: ['100g', '200g', '300g'] },
+  { id: 6, name: '风格', values: ['简约', '复古', '现代'] },
+  { id: 7, name: '品牌', values: ['A品牌', 'B品牌', 'C品牌'] },
+  { id: 8, name: '产地', values: ['中国', '美国', '日本'] },
+  { id: 9, name: '工艺', values: ['手工', '机器'] },
+  { id: 10, name: '包装', values: ['盒装', '袋装'] },
+]);
+
+const collapsedState = ref({}); // 用于存储展开/折叠状态
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(5); // 每页显示的规格数量
+
+// 初始化 collapsedState，默认折叠所有规格类型
+const initializeCollapsedState = () => {
+  for (const spec of specs.value) {
+    collapsedState.value[spec.id] = true; // true 表示折叠
+  }
+};
+
+// 在组件挂载时初始化 collapsedState
+onMounted(() => {
+  initializeCollapsedState();
 });
 
-// 规格展开状态
-const expandedSpecs = reactive({});
+// 计算总页数
+const totalPages = computed(() =>
+  Math.ceil(specs.value.length / pageSize.value),
+);
 
-// 切换产品展开状态
-const toggleProduct = (productId) => {
-  expandedProducts[productId] = !expandedProducts[productId];
+// 计算当前页显示的规格数据
+const paginatedSpecs = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return specs.value.slice(start, end);
+});
+
+// 切换展开/折叠状态
+const toggleCollapse = (id) => {
+  collapsedState.value[id] = !collapsedState.value[id];
 };
 
-// 切换规格展开状态
-// const toggleSpec = (productId, specType) => {
-//   const key = `${productId}-${specType}`;
-//   expandedSpecs[key] = !expandedSpecs[key];
-// };
+// 判断是否折叠
+const isCollapsed = (id) => collapsedState.value[id];
 
-// 检查规格是否展开
-const isSpecExpanded = (productId, specType) => {
-  const key = `${productId}-${specType}`;
-  return expandedSpecs[key] || true; // 默认收起
+// 删除规格类型
+const deleteSpec = (id) => {
+  specs.value = specs.value.filter((spec) => spec.id !== id);
+  // 如果删除后当前页没有数据，则跳转到上一页
+  if (paginatedSpecs.value.length === 0 && currentPage.value > 1) {
+    currentPage.value--;
+  }
 };
 
-// 获取规格类型名称
-// const getSpecTypeName = (specType) => {
-//   const names = {
-//     colors: '颜色',
-//     sizes: '尺寸',
-//     materials: '材质',
-//   };
-//   return names[specType] || specType;
-// };
-
-// 获取颜色对应的CSS颜色值
-const getColorValue = (color) => {
-  const colorMap = {
-    白色: '#ffffff',
-    红色: '#f5222d',
-    黑色: '#000000',
-    紫色: '#722ed1',
-    蓝色: '#1890ff',
-  };
-  return colorMap[color] || '#cccccc';
+// 删除规格值
+const deleteSpecValue = (id, value) => {
+  const spec = specs.value.find((spec) => spec.id === id);
+  if (spec) {
+    spec.values = spec.values.filter((v) => v !== value);
+  }
 };
 
-// 获取规格值显示文本
-const getSpecValue = (specType, item) => {
-  if (typeof item === 'string') return item;
-  if (specType === 'colors') return `${item.name} - ${item.description}`;
-  if (specType === 'sizes') return `${item.label} - ${item.description}`;
-  if (specType === 'materials') return `${item.name} - ${item.description}`;
-  return JSON.stringify(item);
+// 上一页
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
 };
 
-// 示例数据
-const specs = ref([
-  {
-    id: 1,
-    name: '颜色',
-    type: '服装',
-    status: '上架',
-    createdAt: '2023-05-15 10:30:00',
-    specifications: [
-      { colors: '白色' },
-      { colors: '红色' },
-      { colors: '黑色' },
-      { colors: '紫色' },
-    ],
-  },
-  {
-    id: 2,
-    name: '尺寸',
-    type: '服装',
-    status: '上架',
-    createdAt: '2023-05-15 10:30:00',
-    specifications: [{ colors: 'M' }, { colors: 'L' }, { colors: 'XL' }],
-  },
-]);
+// 下一页
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+// 重置页码
+const resetPage = () => {
+  currentPage.value = 1;
+};
 </script>
 
 <template>
-  <div class="mx-auto max-w-7xl p-4 md:p-6">
+  <div class="flex h-screen flex-col p-4 md:p-6">
     <!-- 顶部搜索和创建按钮 -->
     <div class="mb-8 flex items-center justify-between">
       <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
@@ -108,25 +112,26 @@ const specs = ref([
       </button>
     </div>
 
-    <!-- 产品列表 -->
-    <div class="space-y-6">
+    <!-- 规格标准列表 -->
+    <div class="flex-1 overflow-y-auto">
       <div
-        v-for="specItem in specs"
-        :key="specItem.id"
-        class="overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+        v-for="spec in paginatedSpecs"
+        :key="spec.id"
+        class="mb-4 rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
       >
-        <!-- 产品标题栏 -->
+        <!-- 规格类型区域 -->
         <div class="flex items-center justify-between border-b px-6 py-4">
-          <h3 class="flex items-center text-lg font-medium text-gray-800">
+          <div class="text-lg font-medium text-gray-800">
             <span
-              class="mr-2 h-2 w-2 rounded-full bg-green-500"
-              v-if="specItem.status === '上架'"
-            ></span>
-            <span class="mr-2 h-2 w-2 rounded-full bg-gray-400" v-else></span>
-            规格：{{ specItem.name }}
-          </h3>
-          <div class="flex items-center gap-4">
-            <button class="btn-text-danger">
+              class="mr-2 inline-block h-2 w-2 flex-none rounded-full bg-green-500"
+            ></span
+            >规格：{{ spec.name }}
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              class="btn-text-danger flex-none"
+              @click="deleteSpec(spec.id)"
+            >
               <svg
                 class="mr-1 h-4 w-4"
                 fill="none"
@@ -159,14 +164,12 @@ const specs = ref([
               新增规格值
             </button>
             <svg
-              class="ml-1 h-5 w-5 transform cursor-pointer transition-transform duration-200"
-              :class="{
-                'rotate-180': expandedProducts[specItem.id],
-              }"
+              class="h-6 w-6 transform cursor-pointer text-gray-600 transition-transform"
+              :class="{ 'rotate-180': !collapsedState[spec.id] }"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              @click="toggleProduct(specItem.id)"
+              @click="toggleCollapse(spec.id)"
             >
               <path
                 stroke-linecap="round"
@@ -178,80 +181,79 @@ const specs = ref([
           </div>
         </div>
 
-        <!-- 产品详情 -->
-        <div
-          v-show="expandedProducts[specItem.id]"
-          class="transition-all duration-300"
-        >
-          <dl class="divide-y divide-gray-100">
-            <!-- 规格部分 -->
+        <!-- 规格值区域 -->
+        <div v-if="!isCollapsed(spec.id)" class="px-6 py-4">
+          <div class="flex flex-wrap">
             <div
-              v-for="(spec, specType) in specItem.specifications"
-              :key="specType"
-              class="transition-colors duration-150 hover:bg-gray-50"
+              v-for="value in spec.values"
+              :key="value"
+              class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
             >
-              <dd
-                v-show="isSpecExpanded(specItem.id, specType)"
-                class="border-t border-gray-100 bg-gray-50 transition-all duration-300"
+              <span>{{ value }}</span>
+              <button
+                class="btn-text-danger flex-none"
+                @click="deleteSpecValue(spec.id, value)"
               >
-                <div class="flex flex-wrap gap-4 px-6 py-4">
-                  <div
-                    v-for="(item, index) in spec"
-                    :key="index"
-                    class="flex items-center text-sm text-gray-700"
-                  >
-                    <div
-                      v-if="specType === 'colors'"
-                      class="mr-2 h-4 w-4 rounded-full border"
-                      :style="{ backgroundColor: getColorValue(item) }"
-                    ></div>
-                    {{ getSpecValue(specType, item) }}
-                  </div>
-                </div>
-              </dd>
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                删除
+              </button>
             </div>
-          </dl>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 分页 -->
-    <div class="mt-8 flex justify-center gap-1">
-      <button class="pagination-btn">
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-      <button class="pagination-btn pagination-active">1</button>
-      <button class="pagination-btn">2</button>
-      <button class="pagination-btn">3</button>
-      <button class="pagination-btn">4</button>
-      <button class="pagination-btn">5</button>
-      <button class="pagination-btn">
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
+    <!-- 分页组件 -->
+    <div
+      class="fixed bottom-0 right-0 justify-end border-t bg-white p-4 shadow-lg"
+    >
+      <div class="flex items-center justify-between">
+        <div class="mr-3 text-sm text-gray-600">共 {{ specs.length }} 条</div>
+        <div class="flex items-center space-x-4">
+          <!-- 分页按钮 -->
+          <div class="flex items-center space-x-2">
+            <button
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              class="rounded-l bg-blue-500 p-1 text-white disabled:bg-gray-300"
+            >
+              &lt;
+            </button>
+            <span class="bg-gray-200 p-2"
+              >{{ currentPage }} / {{ totalPages }}</span
+            >
+            <button
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+              class="rounded-r bg-blue-500 p-1 text-white disabled:bg-gray-300"
+            >
+              &gt;
+            </button>
+          </div>
+          <!-- 每页条数选择 -->
+          <select
+            v-model="pageSize"
+            @change="resetPage"
+            class="rounded border p-2"
+          >
+            <option value="5">5 条/页</option>
+            <option value="10">10 条/页</option>
+            <option value="20">20 条/页</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 </template>
