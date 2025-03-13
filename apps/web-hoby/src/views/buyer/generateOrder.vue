@@ -1,20 +1,20 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { message, Pagination } from 'ant-design-vue';
-// 购物车数据结构重构，增加展开/收起状态
+import { InputNumber, message, Pagination } from 'ant-design-vue';
+// 购物车数据结构重构，改为订单->店铺->商品的层级结构
 const cartData = ref([
   {
-    name: '美的货比旗舰店',
+    orderNumber: '14752408131123201140',
     selected: true,
     isExpanded: true,
-    orders: [
+    stores: [
       {
+        name: '美的货比旗舰店',
         selected: true,
         isExpanded: true,
-        orderNumber: '14752408131123201140',
         totalPrice: 2800,
         totalQuantity: 3,
         products: [
@@ -36,22 +36,39 @@ const cartData = ref([
           },
         ],
       },
+      {
+        name: '格力货比旗舰店',
+        selected: false,
+        isExpanded: false,
+        totalPrice: 1600,
+        totalQuantity: 1,
+        products: [
+          {
+            id: 3,
+            selected: false,
+            name: '厂商+产品+型号',
+            specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
+            price: 1600,
+            quantity: 1,
+          },
+        ],
+      },
     ],
   },
   {
-    name: '格力货比旗舰店',
+    orderNumber: '14752408131123201141',
     selected: false,
     isExpanded: false,
-    orders: [
+    stores: [
       {
+        name: '格力货比旗舰店',
         selected: false,
         isExpanded: false,
-        orderNumber: '14752408131123201140',
         totalPrice: 3200,
         totalQuantity: 2,
         products: [
           {
-            id: 3,
+            id: 4,
             selected: false,
             name: '厂商+产品+型号',
             specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
@@ -64,18 +81,32 @@ const cartData = ref([
   },
 ]);
 
+// 使用深度监听cartData中的quantity变化，实时更新总价
+watch(
+  cartData,
+  () => {
+    // 遍历所有订单和店铺，更新总价和总数量
+    cartData.value.forEach((order, orderIndex) => {
+      order.stores.forEach((store, storeIndex) => {
+        updateTotals(orderIndex, storeIndex);
+      });
+    });
+  },
+  { deep: true },
+);
+
 // 计算属性：是否全选
 const isAllSelected = computed(() => {
   if (cartData.value.length === 0) return false;
-  return cartData.value.every((store) => store.selected);
+  return cartData.value.every((order) => order.selected);
 });
 
 // 计算属性：选中的商品数量
 const selectedProductsCount = computed(() => {
   let count = 0;
-  cartData.value.forEach((store) => {
-    store.orders.forEach((order) => {
-      order.products.forEach((product) => {
+  cartData.value.forEach((order) => {
+    order.stores.forEach((store) => {
+      store.products.forEach((product) => {
         if (product.selected) {
           count += product.quantity;
         }
@@ -88,16 +119,14 @@ const selectedProductsCount = computed(() => {
 // 计算属性：选中的订单数量
 const selectedOrdersCount = computed(() => {
   let count = 0;
-  cartData.value.forEach((store) => {
-    store.orders.forEach((order) => {
-      // 检查订单是否有选中的商品
-      const hasSelectedProducts = order.products.some(
-        (product) => product.selected,
-      );
-      if (hasSelectedProducts) {
-        count++;
-      }
-    });
+  cartData.value.forEach((order) => {
+    // 检查订单是否有选中的商品
+    const hasSelectedProducts = order.stores.some((store) =>
+      store.products.some((product) => product.selected),
+    );
+    if (hasSelectedProducts) {
+      count++;
+    }
   });
   return count;
 });
@@ -105,9 +134,9 @@ const selectedOrdersCount = computed(() => {
 // 计算属性：总价
 const totalPrice = computed(() => {
   let total = 0;
-  cartData.value.forEach((store) => {
-    store.orders.forEach((order) => {
-      order.products.forEach((product) => {
+  cartData.value.forEach((order) => {
+    order.stores.forEach((store) => {
+      store.products.forEach((product) => {
         if (product.selected) {
           total += product.price * product.quantity;
         }
@@ -117,126 +146,119 @@ const totalPrice = computed(() => {
   return total;
 });
 
-// 展开/收起店铺
-const toggleStore = (storeIndex) => {
-  cartData.value[storeIndex].isExpanded =
-    !cartData.value[storeIndex].isExpanded;
+// 展开/收起订单
+const toggleOrder = (orderIndex) => {
+  cartData.value[orderIndex].isExpanded =
+    !cartData.value[orderIndex].isExpanded;
 };
 
-// 展开/收起订单
-const toggleOrder = (storeIndex, orderIndex) => {
-  cartData.value[storeIndex].orders[orderIndex].isExpanded =
-    !cartData.value[storeIndex].orders[orderIndex].isExpanded;
+// 展开/收起店铺
+const toggleStore = (orderIndex, storeIndex) => {
+  cartData.value[orderIndex].stores[storeIndex].isExpanded =
+    !cartData.value[orderIndex].stores[storeIndex].isExpanded;
 };
 
 // 切换全选状态
 const toggleAllSelection = () => {
   const newState = !isAllSelected.value;
-  cartData.value.forEach((store) => {
-    store.selected = newState;
-    store.orders.forEach((order) => {
-      order.selected = newState;
-      order.products.forEach((product) => {
+  cartData.value.forEach((order) => {
+    order.selected = newState;
+    order.stores.forEach((store) => {
+      store.selected = newState;
+      store.products.forEach((product) => {
         product.selected = newState;
       });
     });
   });
 };
 
-// 切换店铺选择状态
-const toggleStoreSelection = (storeIndex) => {
-  const store = cartData.value[storeIndex];
-  store.selected = !store.selected;
+// 切换订单选择状态
+const toggleOrderSelection = (orderIndex) => {
+  const order = cartData.value[orderIndex];
+  order.selected = !order.selected;
 
-  // 同步更新订单和所有商品的选择状态
-  store.orders.forEach((order) => {
-    order.selected = store.selected;
-    order.products.forEach((product) => {
-      product.selected = store.selected;
+  // 同步更新所有店铺和商品的选择状态
+  order.stores.forEach((store) => {
+    store.selected = order.selected;
+    store.products.forEach((product) => {
+      product.selected = order.selected;
     });
   });
 };
 
-// 切换订单选择状态
-const toggleOrderSelection = (storeIndex, orderIndex) => {
-  const order = cartData.value[storeIndex].orders[orderIndex];
-  order.selected = !order.selected;
+// 切换店铺选择状态
+const toggleStoreSelection = (orderIndex, storeIndex) => {
+  const store = cartData.value[orderIndex].stores[storeIndex];
+  store.selected = !store.selected;
 
   // 同步更新所有商品的选择状态
-  order.products.forEach((product) => {
-    product.selected = order.selected;
+  store.products.forEach((product) => {
+    product.selected = store.selected;
   });
 
-  // 检查是否所有订单都被选中，更新店铺选择状态
-  updateStoreSelectionState(storeIndex);
+  // 检查是否所有店铺都被选中，更新订单选择状态
+  updateOrderSelectionState(orderIndex);
 };
 
 // 切换商品选择状态
-const toggleProductSelection = (storeIndex, orderIndex, productIndex) => {
+const toggleProductSelection = (orderIndex, storeIndex, productIndex) => {
   const product =
-    cartData.value[storeIndex].orders[orderIndex].products[productIndex];
+    cartData.value[orderIndex].stores[storeIndex].products[productIndex];
   product.selected = !product.selected;
 
-  // 检查是否所有商品都被选中，更新订单和店铺选择状态
-  updateOrderSelectionState(storeIndex, orderIndex);
-  updateStoreSelectionState(storeIndex);
-};
-
-// 更新订单选择状态
-const updateOrderSelectionState = (storeIndex, orderIndex) => {
-  const order = cartData.value[storeIndex].orders[orderIndex];
-  order.selected = order.products.every((product) => product.selected);
+  // 检查是否所有商品都被选中，更新店铺和订单选择状态
+  updateStoreSelectionState(orderIndex, storeIndex);
+  updateOrderSelectionState(orderIndex);
 };
 
 // 更新店铺选择状态
-const updateStoreSelectionState = (storeIndex) => {
-  const store = cartData.value[storeIndex];
-  store.selected = store.orders.every((order) => order.selected);
+const updateStoreSelectionState = (orderIndex, storeIndex) => {
+  const store = cartData.value[orderIndex].stores[storeIndex];
+  store.selected = store.products.every((product) => product.selected);
 };
 
-// 增加商品数量
-const increaseQuantity = (storeIndex, orderIndex, productIndex) => {
-  cartData.value[storeIndex].orders[orderIndex].products[productIndex]
-    .quantity++;
-  updateTotals(storeIndex, orderIndex);
+// 更新订单选择状态
+const updateOrderSelectionState = (orderIndex) => {
+  const order = cartData.value[orderIndex];
+  order.selected = order.stores.every((store) => store.selected);
 };
 
-// 减少商品数量
-const decreaseQuantity = (storeIndex, orderIndex, productIndex) => {
-  const product =
-    cartData.value[storeIndex].orders[orderIndex].products[productIndex];
-  if (product.quantity > 1) {
-    product.quantity--;
-    updateTotals(storeIndex, orderIndex);
-  }
+// 处理数量变化
+const handleQuantityChange = (value, orderIndex, storeIndex, productIndex) => {
+  // 确保数量至少为1
+  const quantity = Math.max(1, value);
+  cartData.value[orderIndex].stores[storeIndex].products[
+    productIndex
+  ].quantity = quantity;
+  updateTotals(orderIndex, storeIndex);
 };
 
 // 移除商品
-const removeProduct = (storeIndex, orderIndex, productIndex) => {
-  const order = cartData.value[storeIndex].orders[orderIndex];
-  order.products.splice(productIndex, 1);
+const removeProduct = (orderIndex, storeIndex, productIndex) => {
+  const store = cartData.value[orderIndex].stores[storeIndex];
+  store.products.splice(productIndex, 1);
 
-  // 如果订单没有商品了，移除订单
-  if (order.products.length === 0) {
-    cartData.value[storeIndex].orders.splice(orderIndex, 1);
+  // 如果店铺没有商品了，移除店铺
+  if (store.products.length === 0) {
+    cartData.value[orderIndex].stores.splice(storeIndex, 1);
 
-    // 如果店铺没有订单了，移除店铺
-    if (cartData.value[storeIndex].orders.length === 0) {
-      cartData.value.splice(storeIndex, 1);
+    // 如果订单没有店铺了，移除订单
+    if (cartData.value[orderIndex].stores.length === 0) {
+      cartData.value.splice(orderIndex, 1);
     }
   } else {
-    updateTotals(storeIndex, orderIndex);
+    updateTotals(orderIndex, storeIndex);
   }
 };
 
-// 更新订单总价和总数量
-const updateTotals = (storeIndex, orderIndex) => {
-  const order = cartData.value[storeIndex].orders[orderIndex];
-  order.totalQuantity = order.products.reduce(
+// 更新店铺总价和总数量
+const updateTotals = (orderIndex, storeIndex) => {
+  const store = cartData.value[orderIndex].stores[storeIndex];
+  store.totalQuantity = store.products.reduce(
     (sum, product) => sum + product.quantity,
     0,
   );
-  order.totalPrice = order.products.reduce(
+  store.totalPrice = store.products.reduce(
     (sum, product) => sum + product.price * product.quantity,
     0,
   );
@@ -246,41 +268,38 @@ const updateTotals = (storeIndex, orderIndex) => {
 const removeSelected = () => {
   // 从后往前遍历，避免删除时索引变化
   for (let i = cartData.value.length - 1; i >= 0; i--) {
-    const store = cartData.value[i];
+    const order = cartData.value[i];
 
-    for (let j = store.orders.length - 1; j >= 0; j--) {
-      const order = store.orders[j];
+    for (let j = order.stores.length - 1; j >= 0; j--) {
+      const store = order.stores[j];
 
-      for (let k = order.products.length - 1; k >= 0; k--) {
-        if (order.products[k].selected) {
-          order.products.splice(k, 1);
+      for (let k = store.products.length - 1; k >= 0; k--) {
+        if (store.products[k].selected) {
+          store.products.splice(k, 1);
         }
       }
 
-      // 如果订单没有商品了，移除订单
-      if (order.products.length === 0) {
-        store.orders.splice(j, 1);
+      // 如果店铺没有商品了，移除店铺
+      if (store.products.length === 0) {
+        order.stores.splice(j, 1);
       } else {
         updateTotals(i, j);
       }
     }
 
-    // 如果店铺没有订单了，移除店铺
-    if (store.orders.length === 0) {
+    // 如果订单没有店铺了，移除订单
+    if (order.stores.length === 0) {
       cartData.value.splice(i, 1);
     }
   }
 };
 
-// 生成单个订单
-const generateOrder = (storeIndex, orderIndex) => {
-  const store = cartData.value[storeIndex];
-  const order = store.orders[orderIndex];
+// 生成单个订单的进货订单
+const generateOrder = (orderIndex) => {
+  const order = cartData.value[orderIndex];
 
   // 这里可以添加生成订单的逻辑
-  message.success(
-    `已为 ${store.name} 的订单 ${order.orderNumber} 生成进货订单`,
-  );
+  message.success(`已为销售订单 ${order.orderNumber} 生成进货订单`);
 };
 
 // 批量生成订单
@@ -289,20 +308,17 @@ const batchGenerateOrders = () => {
 
   const generatedOrders = [];
 
-  cartData.value.forEach((store) => {
-    store.orders.forEach((order) => {
-      // 检查订单是否有选中的商品
-      const hasSelectedProducts = order.products.some(
-        (product) => product.selected,
-      );
+  cartData.value.forEach((order) => {
+    // 检查订单是否有选中的商品
+    const hasSelectedProducts = order.stores.some((store) =>
+      store.products.some((product) => product.selected),
+    );
 
-      if (hasSelectedProducts) {
-        generatedOrders.push({
-          storeName: store.name,
-          orderNumber: order.orderNumber,
-        });
-      }
-    });
+    if (hasSelectedProducts) {
+      generatedOrders.push({
+        orderNumber: order.orderNumber,
+      });
+    }
   });
 
   // 这里可以添加批量生成订单的逻辑
@@ -361,46 +377,56 @@ const fetchData = async () => {
 
       <!-- 购物车内容 -->
       <div class="divide-y pb-20">
-        <!-- 店铺区块 -->
+        <!-- 订单区块 -->
         <div
-          v-for="(store, storeIndex) in cartData"
-          :key="storeIndex"
+          v-for="(order, orderIndex) in cartData"
+          :key="orderIndex"
           class="pb-4"
         >
-          <!-- 店铺标题 -->
+          <!-- 订单标题 -->
           <div
             class="flex items-center justify-between border-b bg-white px-4 py-3"
           >
             <div class="flex items-center">
               <input
                 type="checkbox"
-                :checked="store.selected"
-                @change="toggleStoreSelection(storeIndex)"
+                :checked="order.selected"
+                @change="toggleOrderSelection(orderIndex)"
                 class="mr-2 h-4 w-4 accent-blue-500"
               />
-              <span class="font-medium">{{ store.name }}</span>
-            </div>
-            <button
-              class="transform p-2 text-gray-500 transition-transform duration-200 focus:outline-none"
-              :class="{ 'rotate-180': store.isExpanded }"
-              @click="toggleStore(storeIndex)"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+              <span class="font-medium"
+                >销售订单号：{{ order.orderNumber }}</span
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+                @click="generateOrder(orderIndex)"
+              >
+                生成进货订单
+              </button>
+              <button
+                class="transform p-2 text-gray-500 transition-transform duration-200 focus:outline-none"
+                :class="{ 'rotate-180': order.isExpanded }"
+                @click="toggleOrder(orderIndex)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <!-- 店铺内容（可展开/收起） -->
+          <!-- 订单内容（可展开/收起） -->
           <transition
             enter-active-class="transition-all duration-300 ease-in-out"
             leave-active-class="transition-all duration-300 ease-in-out"
@@ -409,39 +435,33 @@ const fetchData = async () => {
             leave-from-class="max-h-[2000px] opacity-100"
             leave-to-class="max-h-0 opacity-0"
           >
-            <div v-show="store.isExpanded" class="overflow-hidden">
-              <!-- 订单信息 -->
+            <div v-show="order.isExpanded" class="overflow-hidden">
+              <!-- 店铺信息 -->
               <div
-                v-for="(order, orderIndex) in store.orders"
-                :key="orderIndex"
+                v-for="(store, storeIndex) in order.stores"
+                :key="storeIndex"
               >
                 <div class="flex items-center border-b bg-white px-4 py-2">
                   <input
                     type="checkbox"
-                    :checked="order.selected"
-                    @change="toggleOrderSelection(storeIndex, orderIndex)"
+                    :checked="store.selected"
+                    @change="toggleStoreSelection(orderIndex, storeIndex)"
                     class="mr-2 h-4 w-4 accent-blue-500"
                   />
                   <div class="text-sm text-gray-600">
-                    <span>销售订单号：{{ order.orderNumber }}</span>
+                    <span>{{ store.name }}</span>
                     <span class="ml-8"
-                      >店铺进货总价：¥ {{ order.totalPrice.toFixed(2) }}</span
+                      >店铺进货总价：¥ {{ store.totalPrice.toFixed(2) }}</span
                     >
                     <span class="ml-8"
-                      >店铺进货数量：{{ order.totalQuantity }}</span
+                      >店铺进货数量：{{ store.totalQuantity }}</span
                     >
                   </div>
-                  <div class="ml-auto flex items-center space-x-2">
-                    <button
-                      class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
-                      @click="generateOrder(storeIndex, orderIndex)"
-                    >
-                      生成进货订单
-                    </button>
+                  <div class="ml-auto">
                     <button
                       class="transform rounded border p-1 text-gray-500 transition-transform duration-200 focus:outline-none"
-                      :class="{ 'rotate-180': order.isExpanded }"
-                      @click="toggleOrder(storeIndex, orderIndex)"
+                      :class="{ 'rotate-180': store.isExpanded }"
+                      @click="toggleStore(orderIndex, storeIndex)"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -459,7 +479,7 @@ const fetchData = async () => {
                   </div>
                 </div>
 
-                <!-- 订单商品列表（可展开/收起） -->
+                <!-- 店铺商品列表（可展开/收起） -->
                 <transition
                   enter-active-class="transition-all duration-300 ease-in-out"
                   leave-active-class="transition-all duration-300 ease-in-out"
@@ -468,9 +488,9 @@ const fetchData = async () => {
                   leave-from-class="max-h-[1000px] opacity-100"
                   leave-to-class="max-h-0 opacity-0"
                 >
-                  <div v-show="order.isExpanded" class="overflow-hidden">
+                  <div v-show="store.isExpanded" class="overflow-hidden">
                     <div
-                      v-for="(product, productIndex) in order.products"
+                      v-for="(product, productIndex) in store.products"
                       :key="productIndex"
                       class="border-b"
                     >
@@ -482,21 +502,21 @@ const fetchData = async () => {
                             :checked="product.selected"
                             @change="
                               toggleProductSelection(
-                                storeIndex,
                                 orderIndex,
+                                storeIndex,
                                 productIndex,
                               )
                             "
                             class="mr-2 h-4 w-4 self-center accent-blue-500"
                           />
                           <div class="flex">
-                            <div class="h-24 w-24 flex-shrink-0 border">
+                            <!-- <div class="h-24 w-24 flex-shrink-0 border">
                               <div
                                 class="flex h-full w-full items-center justify-center bg-gray-50 text-gray-400"
                               >
                                 商品图片
                               </div>
-                            </div>
+                            </div> -->
                             <div
                               class="ml-4 flex flex-col justify-between py-1"
                             >
@@ -523,41 +543,21 @@ const fetchData = async () => {
 
                         <!-- 数量 -->
                         <div class="col-span-2 flex justify-center">
-                          <div class="flex rounded border">
-                            <button
-                              @click="
-                                decreaseQuantity(
-                                  storeIndex,
-                                  orderIndex,
-                                  productIndex,
-                                )
+                          <div class="flex">
+                            <InputNumber
+                              v-model:value="product.quantity"
+                              :min="1"
+                              @change="
+                                (value) =>
+                                  handleQuantityChange(
+                                    value,
+                                    orderIndex,
+                                    storeIndex,
+                                    productIndex,
+                                  )
                               "
-                              class="border-r px-2 py-1 hover:bg-gray-100"
-                              :disabled="product.quantity <= 1"
-                              :class="{
-                                'cursor-not-allowed opacity-50':
-                                  product.quantity <= 1,
-                              }"
-                            >
-                              -
-                            </button>
-                            <input
-                              type="text"
-                              v-model="product.quantity"
-                              class="w-10 text-center focus:outline-none"
+                              class="w-70"
                             />
-                            <button
-                              @click="
-                                increaseQuantity(
-                                  storeIndex,
-                                  orderIndex,
-                                  productIndex,
-                                )
-                              "
-                              class="border-l px-2 py-1 hover:bg-gray-100"
-                            >
-                              +
-                            </button>
                           </div>
                         </div>
 
@@ -566,8 +566,8 @@ const fetchData = async () => {
                           <button
                             @click="
                               removeProduct(
-                                storeIndex,
                                 orderIndex,
+                                storeIndex,
                                 productIndex,
                               )
                             "

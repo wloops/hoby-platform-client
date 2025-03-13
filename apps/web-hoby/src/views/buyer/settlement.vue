@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 17:24:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-09 13:38:54
+ * @LastEditTime: 2025-03-13 11:19:18
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,12 +10,14 @@
 import type { ColumnsType } from 'ant-design-vue/es/table';
 import type { Dayjs } from 'dayjs';
 
-import { computed, h, ref } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { Button, DatePicker, Form, Input, Table, Tag } from 'ant-design-vue';
+
+import { useMainGetData } from '#/composables';
 
 interface SettlementItem {
   id: string;
@@ -81,7 +83,7 @@ const columns: ColumnsType<SettlementItem> = [
     dataIndex: 'amount',
     align: 'right',
     width: 120,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '账期',
@@ -94,14 +96,14 @@ const columns: ColumnsType<SettlementItem> = [
     dataIndex: 'interest',
     align: 'right',
     width: 100,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '预计利息',
     dataIndex: 'estimatedInterest',
     align: 'right',
     width: 100,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '履约日期',
@@ -124,7 +126,7 @@ const columns: ColumnsType<SettlementItem> = [
     dataIndex: 'paidAmount',
     align: 'right',
     width: 120,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '操作',
@@ -161,7 +163,7 @@ function viewDetail(row: SettlementItem) {
 const handleTableChange = async (pag: any) => {
   pagination.value.current = pag.current;
   pagination.value.pageSize = pag.pageSize;
-  await fetchSettlementList();
+  await fetchList();
 };
 
 // 重置搜索
@@ -177,40 +179,69 @@ const resetSearch = () => {
 // 搜索
 const handleSearch = () => {
   pagination.value.current = 1;
-  fetchSettlementList();
+  fetchList();
 };
 
 // 获取结算列表数据
-async function fetchSettlementList() {
+async function fetchList() {
   loading.value = true;
   try {
-    const { pageSize } = pagination.value;
-    const response = {
-      items: Array.from({ length: pageSize }, (_, index) => ({
-        id: `${111 + index}`,
-        orderNo: `202502042119550241380037${index + 1}`,
-        voucherType: '信用担保支付订单全款凭证',
-        purchaseUnit: '美的货比旗舰店',
-        amount: 300,
-        period: '半年',
-        interest: 2,
-        estimatedInterest: 6,
-        dueDate: '2025-08-06',
-        paymentStatus: '未支付',
-        paidAmount: 0,
-      })),
-      total: 100,
+    // TODO: 替换为实际的API调用
+    // const { current, pageSize } = pagination.value;
+    const { current, pageSize } = pagination.value;
+    const reqParams = {
+      pageID: 'myPurchasingOrderVoucherPage',
+      pageDataGrpID: 'purchasingOrderVoucherWaitPayment',
+      currentPage: current,
+      numOfPerPage: pageSize,
     };
+    const { data, total } = useMainGetData(reqParams);
+    console.warn('data', data.value);
+    // 响应数据:[
+    // {
+    // 	"interestRate": "0.00",
+    // 	"accountPeriodID": "",
+    // 	"recvCompany": "长沙东然商务咨询有限公司",
+    // 	"endDate": "",
+    // 	"billCate": "103",
+    // 	"predictedInterest": "0.00",
+    // 	"paidAmt": "0.00",
+    // 	"billNo": "202502031720300128520153",
+    // 	"payStatus": "0"
+    // },
+    // 监听 data 的变化
+    watch(data, (newData) => {
+      if (newData) {
+        // 将原始数据转换为目标格式
+        const response = {
+          items: (newData as any[]).map((item: any, index: number) => ({
+            id: `${index + 1}`, // 生成唯一 ID
+            orderNo: item.billNo,
+            voucherType: item.billCate,
+            purchaseUnit: item.recvCompany,
+            amount: item.predictedInterest,
+            period: item.accountPeriodID,
+            interest: item.interestRate,
+            estimatedInterest: item.predictedInterest,
+            dueDate: item.endDate,
+            paymentStatus: item.payStatus,
+            paidAmount: item.paidAmt,
+          })),
+          total: total.value, // 总条数
+        };
 
-    dataSource.value = response.items;
-    pagination.value.total = response.total;
+        // 更新数据源和分页信息
+        dataSource.value = response.items;
+        pagination.value.total = response.total;
+      }
+    });
   } finally {
     loading.value = false;
   }
 }
 
 // 初始加载
-fetchSettlementList();
+fetchList();
 </script>
 
 <template>

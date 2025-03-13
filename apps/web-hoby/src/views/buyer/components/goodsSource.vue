@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-12 18:29:13
+ * @LastEditTime: 2025-03-13 10:06:46
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -23,7 +23,7 @@ import type { ProductDetail, SourceItem } from './types';
 import { h, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { Button, Drawer, Table } from 'ant-design-vue';
+import { Button, Drawer, Form, Input, Space, Table } from 'ant-design-vue';
 
 import { useMainGetData } from '#/composables';
 
@@ -48,6 +48,13 @@ const pagination = ref({
   total: 0,
   showSizeChanger: true,
   showTotal: (total: number) => `共 ${total} 条`,
+});
+
+const formState = ref({
+  store: '',
+  warehouse: '',
+  minPrice: '',
+  maxPrice: '',
 });
 
 // 模拟商品详情数据
@@ -233,6 +240,27 @@ const close = () => {
   selectedSources.value = [];
 };
 
+const handleSearch = () => {
+  pagination.value.current = 1;
+  console.warn('formState', formState.value);
+};
+
+const handleReset = () => {
+  formState.value = {
+    store: '',
+    warehouse: '',
+    minPrice: '',
+    maxPrice: '',
+  };
+  handleSearch();
+};
+
+const handleTableChange = (pag: any) => {
+  pagination.value.current = pag.current;
+  pagination.value.pageSize = pag.pageSize;
+  fetchList(productDetail.value);
+};
+
 defineExpose({
   open: (row: any) => {
     visible.value = true;
@@ -252,6 +280,13 @@ defineExpose({
     fetchList(row.record);
   },
 });
+
+// 价格输入验证
+// const validatePrice = (value: string) => {
+//   if (value === '') return true;
+//   const num = Number(value);
+//   return !isNaN(num) && num >= 0;
+// };
 </script>
 
 <template>
@@ -266,14 +301,60 @@ defineExpose({
       <!-- 商品信息区域 -->
       <ProductInfo ref="productInfoRef" :data="productDetail" class="mb-6" />
 
+      <!-- 搜索表单 -->
+      <Form layout="inline" :model="formState" class="mb-4">
+        <Form-item label="仓商名称" class="flex-grom-1 m-1 ml-0">
+          <Input
+            v-model:value="formState.store"
+            placeholder="请输入仓商名称"
+            allow-clear
+          />
+        </Form-item>
+        <Form-item label="仓库名称" class="m-1 ml-0 flex-grow-0">
+          <Input
+            v-model:value="formState.warehouse"
+            placeholder="请输入仓库名称"
+            allow-clear
+          />
+        </Form-item>
+        <Form-item label="价格区间" class="m-1 ml-0 flex-grow-0">
+          <Space :size="8">
+            <Input
+              v-model:value="formState.minPrice"
+              placeholder="最小价格"
+              style="width: 100px"
+              allow-clear
+            />
+            <span>-</span>
+            <Input
+              v-model:value="formState.maxPrice"
+              placeholder="最大价格"
+              style="width: 100px"
+              allow-clear
+            />
+          </Space>
+        </Form-item>
+        <Form-item class="m-1 ml-0 flex-grow-0">
+          <Space :size="8">
+            <Button type="primary" @click="handleSearch">搜索</Button>
+            <Button @click="handleReset">重置</Button>
+          </Space>
+        </Form-item>
+      </Form>
+
       <!-- 货源列表 -->
       <div class="flex-1">
         <Table
           :columns="columns"
           :data-source="dataSource"
-          :pagination="false"
+          :pagination="{
+            ...pagination,
+            size: 'small',
+          }"
           :row-key="(record: SourceItem) => record.id"
+          :loading="loading"
           bordered
+          @change="handleTableChange"
         />
       </div>
       <div class="mt-4 flex justify-end gap-2">
@@ -281,7 +362,6 @@ defineExpose({
       </div>
     </div>
     <PurchaseModal ref="purchaseModalRef" :data="productDetail" />
-    />
   </Drawer>
 </template>
 
@@ -294,5 +374,24 @@ defineExpose({
 
 :deep(.ant-modal-body) {
   padding: 24px;
+}
+
+:deep(.ant-form) {
+  .ant-form-item {
+    margin-right: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+:deep(.ant-pagination) {
+  &.mini {
+    .ant-pagination-item,
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      min-width: 24px;
+      height: 24px;
+      line-height: 22px;
+    }
+  }
 }
 </style>
