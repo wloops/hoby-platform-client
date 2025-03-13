@@ -37,7 +37,6 @@ const open = (record: SourceItem) => {
 const handleConfirm = async () => {
   loading.value = true;
   try {
-    console.warn('recordData', recordData.value);
     emit('confirm', purchaseQuantity.value);
     const userInfo = sessionStorage.getItem('userInfo');
     const userInfoObj = JSON.parse(userInfo || '{}');
@@ -57,7 +56,6 @@ const handleConfirm = async () => {
       tellerNo: recordData.value?.billNo,
       prdNum: purchaseQuantity.value,
     };
-    console.warn('data', data);
     const { rs: code } = await mainServiceApi(data);
     if (code === '1') {
       message.success('已添加到采购车');
