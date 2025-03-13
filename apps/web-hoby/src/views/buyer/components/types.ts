@@ -16,6 +16,7 @@ interface ProductDetail {
   product: string;
   restockingNum: number;
   restockingNumStill: number;
+  record: any;
 }
 interface SourceItem {
   id: string;

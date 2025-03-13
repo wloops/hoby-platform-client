@@ -3,7 +3,9 @@ import type { ProductDetail, SourceItem } from './types';
 
 import { computed, defineExpose, ref } from 'vue';
 
-import { Button, InputNumber, Modal } from 'ant-design-vue';
+import { Button, InputNumber, message, Modal } from 'ant-design-vue';
+
+import { mainServiceApi } from '#/api';
 
 import ProductInfo from './ProductInfo.vue';
 
@@ -14,6 +16,8 @@ const props = defineProps<{
 const emit = defineEmits(['confirm']);
 
 // 采购相关
+const loading = ref(false);
+const recordData = ref<any>();
 const purchaseModalVisible = ref(false);
 const purchaseQuantity = ref(0);
 const purchasePrice = ref(0);
@@ -23,15 +27,49 @@ const purchaseTotal = computed(
 );
 
 const open = (record: SourceItem) => {
+  recordData.value = record;
   purchasePrice.value = record.price;
   purchaseQuantity.value = record.restockingNumStill ?? 0; // 待进货数量
   purchaseMaxQuantity.value = record.restockingNumStill ?? 0; // 最大进货数量
   purchaseModalVisible.value = true;
 };
 
-const handleConfirm = () => {
-  emit('confirm', purchaseQuantity.value);
-  purchaseModalVisible.value = false;
+const handleConfirm = async () => {
+  loading.value = true;
+  try {
+    console.warn('recordData', recordData.value);
+    emit('confirm', purchaseQuantity.value);
+    const userInfo = sessionStorage.getItem('userInfo');
+    const userInfoObj = JSON.parse(userInfo || '{}');
+    const data = {
+      pageID: 'sourceOfGoodsShowPage', // 页面ID
+      pageButtonID: 'addGoodsToCart', // 按钮ID
+      purchaseCompanyName: userInfoObj.TELLERCOMPANY, // 采购公司名称 (从用户信息中获取)
+      billNo: recordData.value?.billNo, // 单据号
+      oriObjectID: recordData.value?.oriObjectID,
+      orderDtlNo: recordData.value?.orderDtlNo,
+      saleCmpName: recordData.value?.store,
+      wareName: recordData.value?.warehouse,
+      actNo: recordData.value?.record.actNo,
+      prdNo: recordData.value?.record.prdNo,
+      prdSrlID: recordData.value?.record.prdSrlID,
+      terminalPchCmpName: recordData.value?.purchaseCompanyName,
+      tellerNo: recordData.value?.billNo,
+      prdNum: purchaseQuantity.value,
+    };
+    console.warn('data', data);
+    const { rs: code } = await mainServiceApi(data);
+    if (code === '1') {
+      message.success('已添加到采购车');
+    } else {
+      message.error(`添加失败: ${code}`);
+    }
+    purchaseModalVisible.value = false;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 暴露方法给父组件
@@ -78,7 +116,9 @@ defineExpose({
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button @click="purchaseModalVisible = false">取消</Button>
-          <Button type="primary" @click="handleConfirm">确定</Button>
+          <Button type="primary" @click="handleConfirm" :loading="loading">
+            确定
+          </Button>
         </div>
       </template>
     </Modal>
