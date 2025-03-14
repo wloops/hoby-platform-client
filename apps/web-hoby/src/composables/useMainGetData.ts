@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 12:01:24
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-12 14:43:20
+ * @LastEditTime: 2025-03-14 14:12:34
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\useMainGetData.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,7 +15,7 @@ import { mainGetDataApi } from '#/api';
  * @param reqParams - 请求参数对象，包含必填的 pageID 和 pageDataGrpID，以及其他可选字段
  * @returns 包含数据、加载状态、错误信息和刷新方法的对象
  */
-export const useMainGetData = <T>(
+export const useMainGetData = async <T>(
   reqParams: Record<string, any> & { pageDataGrpID: string; pageID: string },
 ) => {
   const data = ref<null | T>(null); // 存储获取的数据
@@ -52,7 +52,7 @@ export const useMainGetData = <T>(
   };
 
   // 初始化时自动获取数据
-  fetchData();
+  await fetchData();
 
   // 返回数据、加载状态、错误信息和刷新方法
   return {

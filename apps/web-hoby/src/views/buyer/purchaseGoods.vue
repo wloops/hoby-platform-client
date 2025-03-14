@@ -7,7 +7,7 @@
 import type { ColumnsType } from 'ant-design-vue/es/table';
 import type { Dayjs } from 'dayjs';
 
-import { computed, h, onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
@@ -187,32 +187,27 @@ async function fetchOrderList() {
       currentPage: current,
       numOfPerPage: pageSize,
     };
-    const { data, total } = useMainGetData(reqParams);
+    const { data, total } = await useMainGetData(reqParams);
 
-    // 监听 data 的变化
-    watch(data, (newData) => {
-      if (newData) {
-        // 将原始数据转换为目标格式
-        const response = {
-          items: (newData as any[]).map((item: any, index: number) => ({
-            id: `${111 + index}`, // 生成唯一 ID
-            orderNo: item.billNo, // 销售订单号
-            purchaseUnit: item.purchaseCompanyName, // 采购单位
-            quantity: item.saleOrderPrdNum, // 商品数量
-            totalPrice: item.totalAmtAfterDiscount, // 销售总价
-            productCategoryList: item.prdTypeList, // 产品品类清单
-            productModelList: item.prdSrlIDList, // 产品型号清单
-            date: item.transDate, // 日期
-            status: item.restockingStatus, // 状态
-          })),
-          total: total.value, // 总条数
-        };
+    // 将原始数据转换为目标格式
+    const response = {
+      items: (data.value as any[]).map((item: any, index: number) => ({
+        id: `${111 + index}`, // 生成唯一 ID
+        orderNo: item.billNo, // 销售订单号
+        purchaseUnit: item.purchaseCompanyName, // 采购单位
+        quantity: item.saleOrderPrdNum, // 商品数量
+        totalPrice: item.totalAmtAfterDiscount, // 销售总价
+        productCategoryList: item.prdTypeList, // 产品品类清单
+        productModelList: item.prdSrlIDList, // 产品型号清单
+        date: item.transDate, // 日期
+        status: item.restockingStatus, // 状态
+      })),
+      total: total.value, // 总条数
+    };
 
-        // 更新数据源和分页信息
-        dataSource.value = response.items;
-        pagination.value.total = response.total;
-      }
-    });
+    // 更新数据源和分页信息
+    dataSource.value = response.items;
+    pagination.value.total = response.total;
   } finally {
     loading.value = false;
   }
