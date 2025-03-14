@@ -85,6 +85,12 @@ const columns: ColumnsType<OrderItem> = [
     align: 'center',
   },
   {
+    title: '准备进货数量',
+    dataIndex: 'restockingNumReady',
+    width: 120,
+    align: 'center',
+  },
+  {
     title: '销售单价',
     dataIndex: 'unitPrice',
     width: 180,
@@ -211,6 +217,7 @@ async function fetchOrderList() {
             salesQuantity: Number.parseInt(item.prdNum, 10), // 销售数量
             restockingNum: Number.parseInt(item.restockingNum, 10), // 已进货数量
             restockingNumStill: Number.parseInt(item.restockingNumStill, 10), // 待进货数量
+            restockingNumReady: Number.parseInt(item.restockingNumReady, 10), // 准备进货数量
             unitPrice: Number.parseFloat(item.priceAfterDiscount), // 销售单价
             totalPrice: Number.parseFloat(item.totalAmtAfterDiscount), // 销售总价
             status: item.restockingStatus, // 状态

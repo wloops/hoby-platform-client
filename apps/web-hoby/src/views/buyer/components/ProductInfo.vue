@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:51:03
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-13 16:23:44
+ * @LastEditTime: 2025-03-14 11:31:46
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\ProductInfo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<Props>(), {
     product: '',
     restockingNum: 0,
     restockingNumStill: 0,
+    restockingNumReady: 0,
     record: {},
   }),
 });
@@ -99,6 +100,9 @@ const props = withDefaults(defineProps<Props>(), {
           </Descriptions.Item>
           <Descriptions.Item label="待进货数量">
             {{ props.data.restockingNumStill }}
+          </Descriptions.Item>
+          <Descriptions.Item label="准备进货数量">
+            {{ props.data.restockingNumReady }}
           </Descriptions.Item>
         </Descriptions>
       </div>
