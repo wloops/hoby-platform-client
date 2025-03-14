@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-13 16:34:01
+ * @LastEditTime: 2025-03-14 14:23:19
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,7 +20,7 @@ import type { AlignType } from 'ant-design-vue/es/vc-table/interface';
 
 import type { ProductDetail, SourceItem } from './types';
 
-import { h, ref, watch } from 'vue';
+import { h, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { Button, Drawer, Form, Input, Space, Table } from 'ant-design-vue';
@@ -77,6 +77,7 @@ const productDetail = ref<ProductDetail>({
   product: '男士T恤衫',
   restockingNum: 0,
   restockingNumStill: 0,
+  restockingNumReady: 0,
   record: {},
 });
 
@@ -181,64 +182,24 @@ async function fetchList(record: any) {
       srlID: record.srlID,
       wareAttrValueList: record.wareAttrValueList,
     };
-    const { data, total } = useMainGetData(reqParams);
+    const { data, total } = await useMainGetData(reqParams);
     console.warn('data', data.value);
-    // 响应数据:[
-    //  [
-    // 	{
-    // 		"totalNum": "98",
-    // 		"avaNum": "98",
-    // 		"discount": "1.00",
-    // 		"actCmpName": "测试仓商",
-    // 		"prdNo": "1640-20250205193930-00019705-0131",
-    // 		"saleCmpName": "测试仓商",
-    // 		"wareName": "科学城科创大厦店仓库",
-    // 		"priceAfterDiscount": "0.00",
-    // 		"prdUnitPrc": "0.00",
-    // 		"status": "1000"
-    // 	}
-    // ]
-    // ]
-    // 监听 data 的变化
-    watch(data, (newData) => {
-      if (newData) {
-        // 将原始数据转换为目标格式
-        const response = {
-          items: (newData as any[]).map((item: any, index: number) => ({
-            id: `${index + 1}`, // 生成唯一 ID
-            store: item.saleCmpName,
-            price: item.priceAfterDiscount,
-            stock: item.avaNum,
-            warehouse: item.wareName,
-            record: item,
-          })),
-          total: total.value, // 总条数
-        };
+    // 将原始数据转换为目标格式
+    const response = {
+      items: (data.value as any[]).map((item: any, index: number) => ({
+        id: `${index + 1}`, // 生成唯一 ID
+        store: item.saleCmpName,
+        price: item.priceAfterDiscount,
+        stock: item.avaNum,
+        warehouse: item.wareName,
+        record: item,
+      })),
+      total: total.value, // 总条数
+    };
 
-        // 更新数据源和分页信息
-        dataSource.value = response.items;
-        pagination.value.total = response.total;
-      }
-    });
-    // const response = {
-    //   items: Array.from({ length: pageSize }, (_, index) => ({
-    //     id: `${111 + index}`,
-    //     productImage:
-    //       'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cdb109cb051163646151a4a5083b.png~tplv-uwbnlip3yd-webp.webp',
-    //     productName: '示例商品',
-    //     manufacturer: '示例厂商',
-    //     specs: ['规格值', '规格值'],
-    //     quantity: 2,
-    //     salesQuantity: 1,
-    //     unitPrice: 1000,
-    //     totalPrice: 2000,
-    //     status: '待进货',
-    //   })),
-    //   total: 100,
-    // };
-
-    // dataSource.value = response.items;
-    // pagination.value.total = response.total;
+    // 更新数据源和分页信息
+    dataSource.value = response.items;
+    pagination.value.total = response.total;
   } finally {
     loading.value = false;
   }
