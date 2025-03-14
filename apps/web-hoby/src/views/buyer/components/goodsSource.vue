@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 15:14:28
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-14 14:23:19
+ * @LastEditTime: 2025-03-14 16:56:53
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\components\goodsSource.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -30,6 +30,8 @@ import { useMainGetData } from '#/composables';
 import ProductInfo from './ProductInfo.vue';
 import PurchaseModal from './PurchaseModal.vue';
 
+const emit = defineEmits(['update']);
+
 interface SelectedSource {
   source: SourceItem;
   quantity: number;
@@ -41,6 +43,7 @@ const purchaseModalRef = ref();
 const visible = ref(false);
 const loading = ref(false);
 const selectedSources = ref<SelectedSource[]>([]);
+const originRow = ref<any>();
 
 const pagination = ref({
   current: 1,
@@ -56,6 +59,8 @@ const formState = ref({
   minPrice: '',
   maxPrice: '',
 });
+
+const FormItem = Form.Item;
 
 // 模拟商品详情数据
 const productDetail = ref<ProductDetail>({
@@ -165,7 +170,7 @@ const dataSource = ref<SourceItem[]>([
   },
 ]);
 
-// 获取订单列表数据
+// 获取货源列表数据
 async function fetchList(record: any) {
   loading.value = true;
   try {
@@ -231,23 +236,43 @@ const handleTableChange = (pag: any) => {
   fetchList(productDetail.value);
 };
 
+const updateProductDetail = async () => {
+  const row = originRow.value;
+  const reqParams = {
+    pageID: 'sourceOfGoodsShowPage',
+    pageDataGrpID: 'myGoodsForRestockingOnOrderDtlNo',
+    orderDtlNo: row.record.orderDtlNo,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('updateProductDetail:data', data.value);
+  const record = (data.value as any[])[0];
+  productDetail.value = {
+    ...record,
+    record: row.record,
+    orderNo: route.query.id,
+    purchaseUnit: route.query.unit,
+    product: record.productName,
+    model: record.srlID,
+    sku: record.wareAttrValueList,
+    quantity: record.restockingNumNeeded,
+    requiredQuantity: record.prdNum,
+    unitPrice: record.priceAfterDiscount,
+    totalPrice: record.totalAmtAfterDiscount,
+    manufacturer: record.companyName,
+  };
+
+  emit('update');
+};
+
 defineExpose({
-  open: (row: any) => {
-    visible.value = true;
+  open: async (row: any) => {
+    originRow.value = row;
+    await updateProductDetail();
     console.warn('goodsSource', row, route.query.id);
-    productDetail.value = {
-      ...row,
-      orderNo: route.query.id,
-      purchaseUnit: route.query.unit,
-      product: row.record.productName,
-      model: row.record.srlID,
-      sku: row.record.wareAttrValueList,
-      quantity: row.record.restockingNumNeeded,
-      requiredQuantity: row.record.prdNum,
-    };
 
     // 初始加载
     fetchList(row.record);
+    visible.value = true;
   },
 });
 
@@ -261,9 +286,9 @@ defineExpose({
 
 <template>
   <Drawer
-    v-model:visible="visible"
+    v-model:open="visible"
     title="选择货源"
-    width="50%"
+    width="60%"
     :footer-style="{ textAlign: 'right' }"
     @close="close"
   >
@@ -273,21 +298,21 @@ defineExpose({
 
       <!-- 搜索表单 -->
       <Form layout="inline" :model="formState" class="mb-4">
-        <Form-item label="仓商名称" class="flex-grom-1 m-1 ml-0">
+        <FormItem class="flex-grom-1 m-1 ml-0">
           <Input
             v-model:value="formState.store"
             placeholder="请输入仓商名称"
             allow-clear
           />
-        </Form-item>
-        <Form-item label="仓库名称" class="m-1 ml-0 flex-grow-0">
+        </FormItem>
+        <FormItem class="m-1 ml-0 flex-grow-0">
           <Input
             v-model:value="formState.warehouse"
             placeholder="请输入仓库名称"
             allow-clear
           />
-        </Form-item>
-        <Form-item label="价格区间" class="m-1 ml-0 flex-grow-0">
+        </FormItem>
+        <FormItem class="m-1 ml-0 flex-grow-0">
           <Space :size="8">
             <Input
               v-model:value="formState.minPrice"
@@ -303,13 +328,13 @@ defineExpose({
               allow-clear
             />
           </Space>
-        </Form-item>
-        <Form-item class="m-1 ml-0 flex-grow-0">
+        </FormItem>
+        <FormItem class="m-1 ml-0 flex-grow-0">
           <Space :size="8">
             <Button type="primary" @click="handleSearch">搜索</Button>
             <Button @click="handleReset">重置</Button>
           </Space>
-        </Form-item>
+        </FormItem>
       </Form>
 
       <!-- 货源列表 -->
@@ -331,7 +356,11 @@ defineExpose({
         <Button @click="close">取消</Button>
       </div>
     </div>
-    <PurchaseModal ref="purchaseModalRef" :data="productDetail" />
+    <PurchaseModal
+      ref="purchaseModalRef"
+      :data="productDetail"
+      @update="updateProductDetail"
+    />
   </Drawer>
 </template>
 
