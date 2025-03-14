@@ -1,88 +1,15 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { InputNumber, message, Pagination } from 'ant-design-vue';
+import { Button, InputNumber, message, Pagination } from 'ant-design-vue';
 
 import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
+
 // 购物车数据结构重构，改为订单->店铺->商品的层级结构
-const cartData = ref([
-  {
-    orderNumber: '14752408131123201140',
-    selected: true,
-    isExpanded: true,
-    stores: [
-      {
-        name: '美的货比旗舰店',
-        selected: true,
-        isExpanded: true,
-        totalPrice: 2800,
-        totalQuantity: 3,
-        products: [
-          {
-            id: 1,
-            selected: true,
-            name: '厂商+产品+型号',
-            specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
-            price: 800,
-            quantity: 2,
-          },
-          {
-            id: 2,
-            selected: true,
-            name: '厂商+产品+型号',
-            specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
-            price: 1200,
-            quantity: 1,
-          },
-        ],
-      },
-      {
-        name: '格力货比旗舰店',
-        selected: false,
-        isExpanded: false,
-        totalPrice: 1600,
-        totalQuantity: 1,
-        products: [
-          {
-            id: 3,
-            selected: false,
-            name: '厂商+产品+型号',
-            specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
-            price: 1600,
-            quantity: 1,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    orderNumber: '14752408131123201141',
-    selected: false,
-    isExpanded: false,
-    stores: [
-      {
-        name: '格力货比旗舰店',
-        selected: false,
-        isExpanded: false,
-        totalPrice: 3200,
-        totalQuantity: 2,
-        products: [
-          {
-            id: 4,
-            selected: false,
-            name: '厂商+产品+型号',
-            specs: ['规格：规格值', '规格：规格值', '规格：规格值'],
-            price: 1600,
-            quantity: 2,
-          },
-        ],
-      },
-    ],
-  },
-]);
+const cartData = ref([]);
 
 // 使用深度监听cartData中的quantity变化，实时更新总价
 watch(
@@ -150,19 +77,51 @@ const totalPrice = computed(() => {
 });
 
 // 展开/收起订单
-const toggleOrder = (orderIndex) => {
-  cartData.value[orderIndex].isExpanded =
-    !cartData.value[orderIndex].isExpanded;
+const toggleOrder = async (orderIndex) => {
+  const order = cartData.value[orderIndex];
+  order.isExpanded = !order.isExpanded;
+
+  // 如果是展开操作且还没有加载店铺列表
+  if (order.isExpanded && (!order.stores || order.stores.length === 0)) {
+    order.loading = true; // 添加加载状态
+    try {
+      const stores = await fetchStoreList(order);
+      if (Array.isArray(stores) && stores.length > 0) {
+        cartData.value[orderIndex].stores = stores;
+        // 如果是第一次加载，默认展开第一个店铺并加载商品
+        if (stores[0]) {
+          stores[0].isExpanded = true;
+          stores[0].loading = true; // 添加商品加载状态
+          await fetchProductList(stores[0]);
+          stores[0].loading = false;
+        }
+      }
+    } catch (error) {
+      console.error('加载店铺列表失败：', error);
+      message.error('加载店铺列表失败');
+      order.isExpanded = false;
+    } finally {
+      order.loading = false;
+    }
+  }
 };
 
 // 展开/收起店铺
-const toggleStore = (orderIndex, storeIndex, store) => {
-  cartData.value[orderIndex].stores[storeIndex].isExpanded =
-    !cartData.value[orderIndex].stores[storeIndex].isExpanded;
+const toggleStore = async (orderIndex, storeIndex, store) => {
+  store.isExpanded = !store.isExpanded;
 
-  // 展开店铺时，查询商品
-  if (cartData.value[orderIndex].stores[storeIndex].isExpanded) {
-    fetchProductList(store);
+  // 如果是展开操作且还没有加载商品列表
+  if (store.isExpanded && (!store.products || store.products.length === 0)) {
+    store.loading = true; // 添加加载状态
+    try {
+      await fetchProductList(store);
+    } catch (error) {
+      console.error('加载商品列表失败：', error);
+      message.error('加载商品列表失败');
+      store.isExpanded = false;
+    } finally {
+      store.loading = false;
+    }
   }
 };
 
@@ -231,23 +190,6 @@ const updateOrderSelectionState = (orderIndex) => {
   order.selected = order.stores.every((store) => store.selected);
 };
 
-// // 增加商品数量
-// const increaseQuantity = (orderIndex, storeIndex, productIndex) => {
-//   cartData.value[orderIndex].stores[storeIndex].products[productIndex]
-//     .quantity++;
-//   updateTotals(orderIndex, storeIndex);
-// };
-
-// // 减少商品数量
-// const decreaseQuantity = (orderIndex, storeIndex, productIndex) => {
-//   const product =
-//     cartData.value[orderIndex].stores[storeIndex].products[productIndex];
-//   if (product.quantity > 1) {
-//     product.quantity--;
-//     updateTotals(orderIndex, storeIndex);
-//   }
-// };
-
 // 处理数量变化
 const handleQuantityChange = (value, orderIndex, storeIndex, productIndex) => {
   // 确保数量至少为1
@@ -278,13 +220,15 @@ const removeProduct = (orderIndex, storeIndex, productIndex) => {
 
 // 更新店铺总价和总数量
 const updateTotals = (orderIndex, storeIndex) => {
-  const store = cartData.value[orderIndex].stores[storeIndex];
+  const store = cartData.value[orderIndex]?.stores[storeIndex];
+  if (!store || !Array.isArray(store.products)) return;
+
   store.totalQuantity = store.products.reduce(
-    (sum, product) => sum + product.quantity,
+    (sum, product) => sum + (product.quantity || 0),
     0,
   );
   store.totalPrice = store.products.reduce(
-    (sum, product) => sum + product.price * product.quantity,
+    (sum, product) => sum + (product.price || 0) * (product.quantity || 0),
     0,
   );
 };
@@ -320,10 +264,7 @@ const removeSelected = () => {
 };
 
 const generateOrderMainServiceApi = async (order) => {
-  // loading.value = true;
   try {
-    // const userInfo = sessionStorage.getItem('userInfo');
-    // const userInfoObj = JSON.parse(userInfo || '{}');
     const data = {
       pageID: 'mySaleOrderRestockCartPage', // 页面ID
       pageButtonID: 'genRestockOrderForOneShopOfSaleOrder', // 按钮ID
@@ -338,23 +279,19 @@ const generateOrderMainServiceApi = async (order) => {
     return code === '1';
   } catch (error) {
     console.error(error);
-  } finally {
-    // loading.value = false;
+    return false;
   }
 };
 
 // 生成单个订单的进货订单
 const generateOrder = (orderIndex) => {
   const order = cartData.value[orderIndex];
-
-  // 这里可以添加生成订单的逻辑
   message.success(`已为销售订单 ${order.orderNumber} 生成进货订单`);
 };
 
 // 生成单个店铺的进货订单
 const generateStoreOrder = async (orderIndex, storeIndex, store) => {
   const order = cartData.value[orderIndex];
-  // const store = order.stores[storeIndex];
   const result = await generateOrderMainServiceApi(store);
   if (result) {
     message.success(
@@ -403,124 +340,117 @@ const handlePageChange = (page, pageSize) => {
   pagination.current = page;
   pagination.pageSize = pageSize;
   // 这里调用获取数据的方法
-  fetchData();
+  fetchOrderList();
 };
 
-// 获取数据的方法
-const fetchData = async () => {
+// 查询订单列表
+const fetchOrderList = async () => {
   try {
-    // 这里调用接口获取数据
-    const { data, total } = await fetchOrderList({
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    });
-    // 更新数据和总数
-    orderList.value = data;
-    pagination.total = total;
+    const { current, pageSize } = pagination;
+    const reqParams = {
+      pageID: 'mySaleOrderRestockCartPage',
+      pageDataGrpID: 'myRestockCartSaleOrderInfo',
+      currentPage: current,
+      numOfPerPage: pageSize,
+    };
+    const { data, total } = await useMainGetData(reqParams);
+    console.warn('fetchOrderList:data', data.value);
+
+    // 将原始数据转换为目标格式
+    const orderList = (data.value || []).map((item) => ({
+      orderNumber: item.billNo,
+      selected: false,
+      isExpanded: false,
+      record: item,
+      stores: [],
+    }));
+    cartData.value = orderList;
+
+    // 默认展开第一个订单
+    if (cartData.value.length > 0) {
+      cartData.value[0].isExpanded = true;
+
+      // 默认展开第一个店铺并加载其商品
+      const stores = await fetchStoreList(orderList[0]);
+      if (Array.isArray(stores) && stores.length > 0) {
+        cartData.value[0].stores = stores;
+        stores[0].isExpanded = true;
+        await fetchProductList(stores[0]);
+      }
+    }
+
+    // 更新分页信息
+    pagination.total = total.value || 0;
   } catch (error) {
-    console.error('获取数据失败：', error);
+    console.error('获取订单列表失败：', error);
+    message.error('获取订单列表失败');
   }
 };
 
-// // 计算订单总价
-// const getOrderTotalPrice = (orderIndex) => {
-//   const order = cartData.value[orderIndex];
-//   return order.stores.reduce((total, store) => total + store.totalPrice, 0);
-// };
-
-// // 计算订单总数量
-// const getOrderTotalQuantity = (orderIndex) => {
-//   const order = cartData.value[orderIndex];
-//   return order.stores.reduce((total, store) => total + store.totalQuantity, 0);
-// };
-
-// 获取购物车（订单-店铺）列表
-const fetchCartList = () => {
-  const { current, pageSize } = pagination;
+// 根据订单查询店铺列表
+const fetchStoreList = async (order) => {
+  const storeData = order.record;
+  const userInfo = sessionStorage.getItem('userInfo');
+  const userInfoData = JSON.parse(userInfo || '{}');
   const reqParams = {
     pageID: 'mySaleOrderRestockCartPage',
     pageDataGrpID: 'mySaleOrderRestockCartInfo',
-    currentPage: current,
-    numOfPerPage: pageSize,
-  };
-  const { data, total } = useMainGetData(reqParams);
-  // 监听 data 的变化
-  watch(data, (newData) => {
-    if (newData) {
-      // 将原始数据转换为目标格式
-      const orderList = convertOrderStructure(newData);
-      cartData.value = orderList;
-      // 更新数据源和分页信息
-      // dataSource.value = response.items;
-      pagination.total = total.value;
-    }
-  });
-};
-
-fetchCartList();
-
-// 点击店铺展开时查询商品
-const fetchProductList = (store) => {
-  const storeData = store.record;
-  const userInfo = sessionStorage.getItem('userInfo');
-  const userInfoData = JSON.parse(userInfo);
-  const reqParams = {
-    pageID: 'mySaleOrderRestockCartPage',
-    pageDataGrpID: 'mySaleOrderRestockCartGoodsInfo',
     actNo: storeData.actNo,
     saleCmpName: storeData.saleCmpName,
     wareName: storeData.wareName,
-    purchaseCompanyName: userInfoData.TELLERCOMPANY,
-    tellerNo: storeData.tellerNo,
+    purchaseCompanyName: userInfoData.TELLERCOMPANY || '',
+    billNo: storeData.billNo,
   };
-  const { data } = useMainGetData(reqParams);
-
-  watch(data, (newData) => {
-    if (newData) {
-      store.products = newData.map((item, index) => ({
-        id: index + 1,
-        selected: false,
-        name: `${item.companyName}-${item.providePrd}-${item.provideSrlID}`,
-        specs: [`${item.wareAttrValueList}`],
-        price: Number.parseFloat(item.priceAfterDiscount) || 0,
-        quantity: Number.parseInt(item.prdNum) || 0,
-      }));
-    }
-  });
+  const { data } = await useMainGetData(reqParams);
+  console.warn('fetchStoreList:data', data.value);
+  const store = data.value.map((item) => ({
+    name: item.saleCmpName || item.wareName,
+    selected: false,
+    isExpanded: false,
+    totalPrice: item.totalPrice,
+    totalQuantity: item.prdNum,
+    record: item,
+    products: [],
+  }));
+  return store;
 };
 
-function convertOrderStructure(originalData) {
-  const orderMap = new Map();
-
-  originalData.forEach((item) => {
-    // 数值类型转换
-    const totalPrice = Number.parseFloat(item.totalPrice) || 0;
-    const totalQuantity = Number.parseInt(item.prdNum, 10) || 0;
-
-    // 构造订单结构
-    const order = {
-      orderNumber: item.tellerNo, // 使用受理编号作为订单号
-      selected: false, // 默认不选中
-      isExpanded: false, // 默认不展开
-      record: item,
-      stores: [
-        {
-          name: item.saleCmpName, // 店铺名
-          selected: true,
-          isExpanded: true,
-          totalPrice,
-          totalQuantity,
-          record: item,
-          products: [], // 产品列表置为空
-        },
-      ],
+// 根据店铺查询商品列表
+const fetchProductList = async (store) => {
+  try {
+    const storeData = store.record;
+    const userInfo = sessionStorage.getItem('userInfo');
+    const userInfoData = JSON.parse(userInfo || '{}');
+    const reqParams = {
+      pageID: 'mySaleOrderRestockCartPage',
+      pageDataGrpID: 'mySaleOrderRestockCartGoodsInfo',
+      actNo: storeData.actNo,
+      saleCmpName: storeData.saleCmpName,
+      wareName: storeData.wareName,
+      purchaseCompanyName: userInfoData.TELLERCOMPANY || '',
+      tellerNo: storeData.tellerNo,
     };
+    const { data } = await useMainGetData(reqParams);
 
-    orderMap.set(item.tellerNo, order);
-  });
+    store.products = (data.value || []).map((item, index) => ({
+      id: index + 1,
+      selected: false,
+      name: `${item.companyName || ''}-${item.providePrd || ''}-${item.provideSrlID || ''}`,
+      specs: [`${item.wareAttrValueList || ''}`],
+      price: Number.parseFloat(item.priceAfterDiscount) || 0,
+      quantity: Number.parseInt(item.prdNum) || 0,
+    }));
+  } catch (error) {
+    console.error('获取商品列表失败：', error);
+    store.products = [];
+    message.error('获取商品列表失败');
+  }
+};
 
-  return [...orderMap.values()];
-}
+// 页面加载时获取订单列表
+onMounted(() => {
+  fetchOrderList();
+});
 </script>
 
 <template>
@@ -561,23 +491,19 @@ function convertOrderStructure(originalData) {
                 <span class="font-medium"
                   >销售订单号：{{ order.orderNumber }}</span
                 >
-                <!-- <span class="ml-8"
-                  >销售总金额：¥
-                  {{ getOrderTotalPrice(orderIndex).toFixed(2) }}</span
-                >
-                <span class="ml-8"
-                  >待进货数量：{{ getOrderTotalQuantity(orderIndex) }}</span
-                > -->
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <button
+              <Button
+                size="small"
+                type="dashed"
                 class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
                 @click="generateOrder(orderIndex, order)"
               >
                 生成进货订单
-              </button>
-              <button
+              </Button>
+              <Button
+                type="text"
                 class="transform rounded border p-1 text-gray-500 transition-transform duration-200 focus:outline-none"
                 :class="{ 'rotate-180': order.isExpanded }"
                 @click="toggleOrder(orderIndex)"
@@ -594,7 +520,7 @@ function convertOrderStructure(originalData) {
                     clip-rule="evenodd"
                   />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -612,8 +538,9 @@ function convertOrderStructure(originalData) {
               <div
                 v-for="(store, storeIndex) in order.stores"
                 :key="storeIndex"
+                class="border-b"
               >
-                <div class="flex items-center border-b bg-white px-4 py-2">
+                <div class="flex items-center bg-white px-4 py-2">
                   <input
                     type="checkbox"
                     :checked="store.selected"
@@ -630,13 +557,15 @@ function convertOrderStructure(originalData) {
                     >
                   </div>
                   <div class="ml-auto flex items-center space-x-2">
-                    <button
+                    <Button
+                      size="small"
                       class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
                       @click="generateStoreOrder(orderIndex, storeIndex, store)"
                     >
                       生成进货订单
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      type="text"
                       class="transform rounded border p-1 text-gray-500 transition-transform duration-200 focus:outline-none"
                       :class="{ 'rotate-180': store.isExpanded }"
                       @click="toggleStore(orderIndex, storeIndex, store)"
@@ -653,7 +582,7 @@ function convertOrderStructure(originalData) {
                           clip-rule="evenodd"
                         />
                       </svg>
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -667,61 +596,69 @@ function convertOrderStructure(originalData) {
                   leave-to-class="max-h-0 opacity-0"
                 >
                   <div v-show="store.isExpanded" class="overflow-hidden">
+                    <!-- 加载状态 -->
                     <div
-                      v-for="(product, productIndex) in store.products"
-                      :key="productIndex"
-                      class="border-b"
+                      v-if="store.loading"
+                      class="flex items-center justify-center py-8"
                     >
-                      <div class="grid grid-cols-12 items-center px-4 py-4">
-                        <!-- 商品信息 -->
-                        <div class="col-span-6 flex">
-                          <input
-                            type="checkbox"
-                            :checked="product.selected"
-                            @change="
-                              toggleProductSelection(
-                                orderIndex,
-                                storeIndex,
-                                productIndex,
-                              )
-                            "
-                            class="mr-2 h-4 w-4 self-center accent-blue-500"
-                          />
-                          <div class="flex">
-                            <!-- <div class="h-24 w-24 flex-shrink-0 border">
+                      <div class="text-center text-gray-500">
+                        <div class="mb-2">加载中...</div>
+                      </div>
+                    </div>
+                    <!-- 空状态 -->
+                    <div
+                      v-else-if="!store.products || store.products.length === 0"
+                      class="py-8 text-center text-gray-500"
+                    >
+                      暂无商品数据
+                    </div>
+                    <!-- 商品列表 -->
+                    <template v-else>
+                      <div
+                        v-for="(product, productIndex) in store.products"
+                        :key="productIndex"
+                        class="border-t"
+                      >
+                        <div class="grid grid-cols-12 items-center px-4 py-4">
+                          <!-- 商品信息 -->
+                          <div class="col-span-6 flex">
+                            <input
+                              type="checkbox"
+                              :checked="product.selected"
+                              @change="
+                                toggleProductSelection(
+                                  orderIndex,
+                                  storeIndex,
+                                  productIndex,
+                                )
+                              "
+                              class="mr-2 h-4 w-4 self-center accent-blue-500"
+                            />
+                            <div class="flex">
                               <div
-                                class="flex h-full w-full items-center justify-center bg-gray-50 text-gray-400"
+                                class="ml-4 flex flex-col justify-between py-1"
                               >
-                                商品图片
-                              </div>
-                            </div> -->
-                            <div
-                              class="ml-4 flex flex-col justify-between py-1"
-                            >
-                              <div class="text-sm font-medium">
-                                {{ product.name }}
-                              </div>
-                              <div
-                                v-for="(spec, index) in product.specs"
-                                :key="index"
-                                class="text-xs text-gray-500"
-                              >
-                                {{ spec }}
+                                <div class="text-sm font-medium">
+                                  {{ product.name }}
+                                </div>
+                                <div
+                                  v-for="(spec, index) in product.specs"
+                                  :key="index"
+                                  class="text-xs text-gray-500"
+                                >
+                                  {{ spec }}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-
-                        <!-- 单价 -->
-                        <div class="col-span-2 text-center">
-                          <span class="text-red-500"
-                            >¥ {{ product.price.toFixed(2) }}</span
-                          >
-                        </div>
-
-                        <!-- 数量 -->
-                        <div class="col-span-2 flex justify-center">
-                          <div class="flex">
+                          <!-- 单价 -->
+                          <div class="col-span-2 text-center">
+                            <span class="text-red-500"
+                              >¥ {{ product.price.toFixed(2) }}</span
+                            >
+                          </div>
+                          <!-- 数量 -->
+                          <div class="col-span-2 flex justify-center">
                             <InputNumber
                               v-model:value="product.quantity"
                               :min="1"
@@ -737,25 +674,24 @@ function convertOrderStructure(originalData) {
                               class="w-70"
                             />
                           </div>
-                        </div>
-
-                        <!-- 操作 -->
-                        <div class="col-span-2 text-center">
-                          <button
-                            @click="
-                              removeProduct(
-                                orderIndex,
-                                storeIndex,
-                                productIndex,
-                              )
-                            "
-                            class="text-gray-500 hover:text-red-500"
-                          >
-                            删除
-                          </button>
+                          <!-- 操作 -->
+                          <div class="col-span-2 text-center">
+                            <button
+                              @click="
+                                removeProduct(
+                                  orderIndex,
+                                  storeIndex,
+                                  productIndex,
+                                )
+                              "
+                              class="text-gray-500 hover:text-red-500"
+                            >
+                              删除
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </template>
                   </div>
                 </transition>
               </div>
