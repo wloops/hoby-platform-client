@@ -13,7 +13,7 @@ const props = defineProps<{
   data: ProductDetail;
 }>();
 
-const emit = defineEmits(['confirm']);
+const emit = defineEmits(['confirm', 'update']);
 
 // 采购相关
 const loading = ref(false);
@@ -59,6 +59,8 @@ const handleConfirm = async () => {
     const { rs: code } = await mainServiceApi(data);
     if (code === '1') {
       message.success('已添加到采购车');
+      // 更新产品详情
+      emit('update');
     } else {
       message.error(`添加失败: ${code}`);
     }
@@ -68,6 +70,10 @@ const handleConfirm = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleCancel = () => {
+  purchaseModalVisible.value = false;
 };
 
 // 暴露方法给父组件
@@ -113,7 +119,7 @@ defineExpose({
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button @click="purchaseModalVisible = false">取消</Button>
+          <Button @click="handleCancel">取消</Button>
           <Button type="primary" @click="handleConfirm" :loading="loading">
             确定
           </Button>

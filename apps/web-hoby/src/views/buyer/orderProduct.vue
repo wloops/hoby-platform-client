@@ -252,7 +252,7 @@ fetchOrderList();
           @change="handleTableChange"
         />
       </div>
-      <GoodsSource ref="goodsSourceRef" />
+      <GoodsSource ref="goodsSourceRef" @update="fetchOrderList" />
     </div>
   </Page>
 </template>
