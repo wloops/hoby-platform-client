@@ -3,10 +3,11 @@ import type { Router } from 'vue-router';
 import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { useAccessStore, useUserStore } from '@vben/stores';
-import { startProgress, stopProgress } from '@vben/utils';
 
+// import { startProgress, stopProgress } from '@vben/utils';
+import { useDynamicRoutes } from '#/composables';
 import { accessRoutes, coreRouteNames } from '#/router/routes';
-import { useAuthStore } from '#/store';
+// import { useAuthStore } from '#/store';
 
 import { generateAccess } from './access';
 
@@ -23,7 +24,7 @@ function setupCommonGuard(router: Router) {
 
     // 页面加载进度条
     if (!to.meta.loaded && preferences.transition.progress) {
-      startProgress();
+      // startProgress();
     }
     return true;
   });
@@ -35,7 +36,7 @@ function setupCommonGuard(router: Router) {
 
     // 关闭页面加载进度条
     if (preferences.transition.progress) {
-      stopProgress();
+      // stopProgress();
     }
   });
 }
@@ -48,7 +49,7 @@ function setupAccessGuard(router: Router) {
   router.beforeEach(async (to, from) => {
     const accessStore = useAccessStore();
     const userStore = useUserStore();
-    const authStore = useAuthStore();
+    // const authStore = useAuthStore();
 
     // 基本路由，这些路由不需要进入权限拦截
     if (coreRouteNames.includes(to.name as string)) {
@@ -92,21 +93,28 @@ function setupAccessGuard(router: Router) {
 
     // 生成路由表
     // 当前登录用户拥有的角色标识列表
-    const userInfo = userStore.userInfo || (await authStore.fetchUserInfo());
-    const userRoles = userInfo.roles ?? [];
+    const sessionUserInfo = sessionStorage.getItem('userInfo');
+    const userInfo = sessionUserInfo ? JSON.parse(sessionUserInfo) : null;
+    // const userRoles = userInfo?.roles ?? userInfo;
+    // console.warn('userRoles', userRoles);
+    // 手动控制权限
+    const newRoles = getAuthorityByPath(to.path, accessRoutes);
+
+    const dynamicRoutes = useDynamicRoutes(`${newRoles[0]}.ts`);
 
     // 生成菜单和路由
     const { accessibleMenus, accessibleRoutes } = await generateAccess({
-      roles: userRoles,
+      roles: newRoles,
       router,
       // 则会在菜单中显示，但是访问会被重定向到403
-      routes: accessRoutes,
+      routes: dynamicRoutes,
     });
 
     // 保存菜单信息和路由信息
     accessStore.setAccessMenus(accessibleMenus);
     accessStore.setAccessRoutes(accessibleRoutes);
     accessStore.setIsAccessChecked(true);
+
     const redirectPath = (from.query.redirect ??
       (to.path === DEFAULT_HOME_PATH
         ? userInfo.homePath || DEFAULT_HOME_PATH
@@ -117,6 +125,20 @@ function setupAccessGuard(router: Router) {
       replace: true,
     };
   });
+}
+
+// 根据跳转路径,逐层遍历accessRoutes,查出相应的权限
+function getAuthorityByPath(path: string, accessRoutes: any[]): string[] {
+  const authority: string[] = [];
+  for (const route of accessRoutes) {
+    if (route.path === path) {
+      authority.push(...route.meta.authority);
+    }
+    if (route.children) {
+      authority.push(...getAuthorityByPath(path, route.children));
+    }
+  }
+  return authority;
 }
 
 /**

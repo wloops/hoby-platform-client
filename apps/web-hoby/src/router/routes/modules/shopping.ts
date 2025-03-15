@@ -25,6 +25,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.shopping.home'),
           icon: 'mdi:storefront',
+          authority: ['shopping'],
         },
         name: 'ShoppingIndex',
         path: '/shopping',

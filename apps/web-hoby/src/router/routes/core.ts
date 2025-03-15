@@ -5,7 +5,6 @@ import { LOGIN_PATH } from '@vben/constants';
 import { AuthPageLayout, BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
 import Login from '#/views/_core/authentication/login.vue';
-import Home from '#/views/_core/home/index.vue';
 /** 全局404页面 */
 const fallbackNotFoundRoute: RouteRecordRaw = {
   component: () => import('#/views/_core/fallback/not-found.vue'),
@@ -39,12 +38,10 @@ const coreRoutes: RouteRecordRaw[] = [
     children: [],
   },
   {
-    component: Home,
+    component: () => import('#/views/_core/home/index.vue'),
     meta: {
       hideInBreadcrumb: true,
       title: 'Home',
-      ignoreAuth: true,
-      loaded: true,
     },
     name: 'Home',
     path: '/home',
