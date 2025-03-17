@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 16:17:01
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-15 23:18:29
+ * @LastEditTime: 2025-03-17 13:45:56
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\buyer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -61,14 +61,6 @@ const routes: RouteRecordRaw[] = [
     path: '/buyer/purchaseGoodsPage',
     redirect: '/buyer/purchaseGoods',
     children: [
-      // {
-      //   meta: {
-      //     title: $t('page.buyer.purchaseGoods.importOrder'),
-      //   },
-      //   name: 'BuyerImportOrder',
-      //   path: '/buyer/importOrder',
-      //   component: () => import('#/views/buyer/importOrder.vue'),
-      // },
       {
         meta: {
           title: $t('page.buyer.purchaseGoods.purchaseGoodsByOrder'),
@@ -116,9 +108,8 @@ const routes: RouteRecordRaw[] = [
       title: $t('page.buyer.settlement'),
       authority: ['buyer'],
     },
-    name: 'BuyerSettlement',
+    name: 'BuyerSettlementPage',
     path: '/buyer/settlement',
-    redirect: '/buyer/settlement',
     component: () => import('#/views/buyer/settlement.vue'),
     children: [],
   },
@@ -132,7 +123,6 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'BuyerOrder',
     path: '/buyer/orderManagement',
-    redirect: '/buyer/orderManagement',
     children: [
       {
         meta: {
