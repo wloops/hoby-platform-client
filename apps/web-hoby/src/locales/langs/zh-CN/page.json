@@ -14,11 +14,15 @@
     "workspace": "工作台"
   },
   "buyer": {
-    "purchaseGoods": {
-      "title": "政采贷进货",
+    "genSaleOrder": {
+      "title": "生成销售订单",
       "importOrder": "导入销售订单",
+      "inputOrder": "录入销售订单"
+    },
+    "purchaseGoods": {
+      "title": "销售订单进货",
       "purchaseGoodsByOrder": "为订单商品进货",
-      "generateOrder": "采购车",
+      "generateOrder": "生成进货订单",
       "orderDetail": "销售订单详情",
       "orderProduct": "销售订单商品",
       "goodsSource": "货源详情"
