@@ -73,6 +73,24 @@ const contentProps = computed((): HoverCardContentProps => {
   };
 });
 
+onMounted(() => {
+  // 将当前菜单（第一层）的路径添加到 openedMenus
+  if (!rootMenu?.openedMenus.includes(props.path)) {
+    rootMenu?.openedMenus.push(props.path);
+  }
+
+  // 遍历子菜单（第二层），将它们的路径也添加到 openedMenus
+  Object.keys(subMenus.value).forEach((subMenuPath) => {
+    if (!rootMenu?.openedMenus.includes(subMenuPath)) {
+      rootMenu?.openedMenus.push(subMenuPath);
+    }
+  });
+
+  // 将当前菜单注册到父菜单和根菜单
+  // subMenu?.addSubMenu?.(item);
+  rootMenu?.addSubMenu?.(item);
+});
+
 const active = computed(() => {
   let isActive = false;
 
