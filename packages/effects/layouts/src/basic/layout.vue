@@ -4,6 +4,7 @@ import type { SetupContext } from 'vue';
 import type { MenuRecordRaw } from '@vben/types';
 
 import { computed, useSlots, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { useRefresh } from '@vben/hooks';
 import { $t, i18n } from '@vben/locales';
