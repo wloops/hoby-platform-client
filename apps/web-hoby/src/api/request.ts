@@ -13,7 +13,9 @@ import {
 import { useAccessStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
+import qs from 'qs';
 
+import { useParseResponse } from '#/composables';
 import { useAuthStore } from '#/store';
 
 import { refreshTokenApi } from './core';
@@ -90,7 +92,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       config.headers['content-type'] = 'application/x-www-form-urlencoded';
       config.headers['Cache-Control'] = 'no-cache';
       // console.log('request config', config);
-
+      config.data = qs.stringify(config.data);
       return config;
     },
   });
@@ -109,19 +111,19 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     fulfilled: (response) => {
       const { data: responseData, status } = response;
 
-      const code = 0;
+      // const code = 0;
       // const { code, data, message: msg } = responseData;
       const { rs, msg } = responseData;
-
-      const devEnvMsg = import.meta.env.DEV ? `[${response.config.url}]` : '';
-      if (rs && rs !== '1') {
-        if (rs === '-6') {
-          doReAuthenticate();
-        }
-        throw new Error(`${devEnvMsg}${msg || rs}`);
+      const { success, code, message } = useParseResponse(rs);
+      if (!success && rs) {
+        throw new Error(`${message || code}`);
+      }
+      // eslint-disable-next-line unicorn/numeric-separators-style
+      if ((code && code === -11422) || code === -10245) {
+        doReAuthenticate();
       }
 
-      if (status >= 200 && status < 400 && code === 0) {
+      if (status >= 200 && status < 400) {
         return responseData;
       }
       throw new Error(`${status}: ${msg}`);
