@@ -3,8 +3,8 @@ import type { Router } from 'vue-router';
 import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { useAccessStore, useUserStore } from '@vben/stores';
+import { startProgress, stopProgress } from '@vben/utils';
 
-// import { startProgress, stopProgress } from '@vben/utils';
 import { useDynamicRoutes } from '#/composables';
 import { accessRoutes, coreRouteNames } from '#/router/routes';
 // import { useAuthStore } from '#/store';
@@ -24,7 +24,7 @@ function setupCommonGuard(router: Router) {
 
     // 页面加载进度条
     if (!to.meta.loaded && preferences.transition.progress) {
-      // startProgress();
+      startProgress();
     }
     return true;
   });
@@ -36,7 +36,7 @@ function setupCommonGuard(router: Router) {
 
     // 关闭页面加载进度条
     if (preferences.transition.progress) {
-      // stopProgress();
+      stopProgress();
     }
   });
 }
@@ -88,9 +88,28 @@ function setupAccessGuard(router: Router) {
 
     // 是否已经生成过动态路由
     if (accessStore.isAccessChecked) {
+      if (
+        to.meta.authority &&
+        from.meta.authority &&
+        to.meta.authority?.[0] !== from.meta.authority?.[0]
+      ) {
+        const newRoles = getAuthorityByPath(to.path, accessRoutes);
+        const dynamicRoutes = useDynamicRoutes(`${newRoles[0]}.ts`);
+        // 生成菜单和路由
+        const { accessibleMenus } = await generateAccess({
+          roles: newRoles,
+          router,
+          // 则会在菜单中显示，但是访问会被重定向到403
+          // routes: accessRoutes,
+          routes: dynamicRoutes,
+        });
+
+        // 保存菜单信息和路由信息
+        accessStore.setAccessMenus(accessibleMenus);
+        console.warn('重新生成菜单/路由表');
+      }
       return true;
     }
-
     // 生成路由表
     // 当前登录用户拥有的角色标识列表
     const sessionUserInfo = sessionStorage.getItem('userInfo');
@@ -107,6 +126,7 @@ function setupAccessGuard(router: Router) {
       roles: newRoles,
       router,
       // 则会在菜单中显示，但是访问会被重定向到403
+      // routes: accessRoutes,
       routes: dynamicRoutes,
     });
 
