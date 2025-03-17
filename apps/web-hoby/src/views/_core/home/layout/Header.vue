@@ -2,12 +2,11 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-11 10:49:11
+ * @LastEditTime: 2025-03-17 11:41:36
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { UserDropdown } from '@vben/layouts';
@@ -17,26 +16,19 @@ import { useUserStore } from '@vben/stores';
 import hobyLogo from '#/assets/hoby_logo.png';
 import { useAuthStore } from '#/store';
 
+const props = defineProps<{
+  isLoginExpired: boolean;
+}>();
 const router = useRouter();
-const userInfo = sessionStorage.getItem('userInfo')
-  ? JSON.parse(sessionStorage.getItem('userInfo')!)
-  : null;
-
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-const avatar = computed(() => {
-  return userInfo?.avatar ?? preferences.app.defaultAvatar;
-});
-const realName = computed(() => {
-  return userInfo?.realName;
-});
-const company = computed(() => {
-  return userInfo?.TELLERCOMPANY;
-});
-const userName = computed(() => {
-  return userInfo?.tellerNo;
-});
+// const sessionStorageUserInfo = sessionStorage.getItem('userInfo')
+//   ? JSON.parse(sessionStorage.getItem('userInfo')!)
+//   : null;
+// const userInfo = ref(userStore.userInfo || null);
+console.warn('userStore.userInfo', userStore.userInfo);
+
 const toLogin = () => {
   router.push('/auth/login');
 };
@@ -60,12 +52,14 @@ async function handleLogout() {
 
       <!-- 右侧按钮 -->
       <div class="flex items-center space-x-3">
-        <div v-if="userStore.userInfo">
+        <div v-if="!props.isLoginExpired">
           <UserDropdown
-            :avatar
-            :text="realName"
-            :description="company"
-            :tag-text="userName"
+            :avatar="
+              userStore.userInfo?.avatar ?? preferences.app.defaultAvatar
+            "
+            :text="userStore.userInfo?.realName"
+            :description="userStore.userInfo?.companyName"
+            :tag-text="userStore.userInfo?.tellerNo"
             @logout="handleLogout"
           />
         </div>

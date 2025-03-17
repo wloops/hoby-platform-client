@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BasicUserInfo } from '@vben/types';
 
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useAccessStore, useUserStore } from '@vben/stores';
@@ -59,12 +60,14 @@ const goToMainPage = async (page: any) => {
   await router.push(page.link);
 };
 
+const isLoginExpired = computed(() => accessStore.loginExpired);
+console.warn('登录是否过期', isLoginExpired.value);
 // history.replaceState({}, '');
 </script>
 
 <template>
   <div class="min-h-screen bg-gradient-to-br from-orange-50 to-pink-50">
-    <LayoutHeader />
+    <LayoutHeader :is-login-expired="isLoginExpired" />
     <!-- 主导航栏 -->
     <!-- <HomeMainNav /> -->
 
