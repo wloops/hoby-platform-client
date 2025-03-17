@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-03 21:58:41
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-09 13:30:00
+ * @LastEditTime: 2025-03-17 10:21:07
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\preferences.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -19,6 +19,7 @@ export const overridesPreferences = defineOverridesPreferences({
     name: import.meta.env.VITE_APP_TITLE,
     loginExpiredMode: 'modal',
     authPageLayout: 'panel-center',
+    layout: 'header-sidebar-nav',
   },
   logo: {
     source: import.meta.env.VITE_APP_LOGO,
@@ -41,5 +42,20 @@ export const overridesPreferences = defineOverridesPreferences({
   },
   breadcrumb: {
     showHome: true,
+  },
+  copyright: {
+    companyName: '湖南货比信息技术有限公司',
+    companySiteLink: '',
+    date: '2025',
+    enable: false,
+  },
+  footer: {
+    enable: true,
+  },
+  transition: {
+    progress: false,
+  },
+  navigation: {
+    accordion: false,
   },
 });
