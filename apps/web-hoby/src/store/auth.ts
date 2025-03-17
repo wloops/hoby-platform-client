@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:52:42
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-16 00:08:14
+ * @LastEditTime: 2025-03-17 13:37:14
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -96,13 +96,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       // accessStore.setAccessCodes(accessCodes);
 
-      if (accessStore.loginExpired) {
-        accessStore.setLoginExpired(false);
-      } else {
-        onSuccess
-          ? await onSuccess?.()
-          : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
-      }
+      // if (accessStore.loginExpired) {
+      //   accessStore.setLoginExpired(false);
+      // } else {
+      onSuccess
+        ? await onSuccess?.()
+        : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+      // }
+      accessStore.setLoginExpired(false);
 
       if (userInfo?.realName) {
         notification.success({
@@ -161,7 +162,7 @@ export const useAuthStore = defineStore('auth', () => {
     //   // 不做任何处理
     // }
     resetAllStores();
-    accessStore.setLoginExpired(false);
+    accessStore.setLoginExpired(true);
     userStore.setUserInfo(null);
     sessionStorage.removeItem('userInfo');
     sessionStorage.removeItem('accessToken');

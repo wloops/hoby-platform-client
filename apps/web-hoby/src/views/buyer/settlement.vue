@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 17:24:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-14 14:24:53
+ * @LastEditTime: 2025-03-17 13:48:29
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,7 +10,7 @@
 import type { ColumnsType } from 'ant-design-vue/es/table';
 import type { Dayjs } from 'dayjs';
 
-import { computed, h, ref, watch } from 'vue';
+import { computed, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
@@ -203,32 +203,27 @@ async function fetchList() {
     };
     const { data, total } = await useMainGetData(reqParams);
 
-    // 监听 data 的变化
-    watch(data, (newData) => {
-      if (newData) {
-        // 将原始数据转换为目标格式
-        const response = {
-          items: (newData as any[]).map((item: any, index: number) => ({
-            id: `${index + 1}`, // 生成唯一 ID
-            orderNo: item.billNo,
-            voucherType: item.billCate,
-            purchaseUnit: item.recvCompany,
-            amount: item.predictedInterest,
-            period: item.accountPeriodID,
-            interest: item.interestRate,
-            estimatedInterest: item.predictedInterest,
-            dueDate: item.endDate,
-            paymentStatus: item.payStatus,
-            paidAmount: item.paidAmt,
-          })),
-          total: total.value, // 总条数
-        };
+    // 将原始数据转换为目标格式
+    const response = {
+      items: (data.value as any[]).map((item: any, index: number) => ({
+        id: `${index + 1}`, // 生成唯一 ID
+        orderNo: item.billNo,
+        voucherType: item.billCate,
+        purchaseUnit: item.recvCompany,
+        amount: item.predictedInterest,
+        period: item.accountPeriodID,
+        interest: item.interestRate,
+        estimatedInterest: item.predictedInterest,
+        dueDate: item.endDate,
+        paymentStatus: item.payStatus,
+        paidAmount: item.paidAmt,
+      })),
+      total: total.value, // 总条数
+    };
 
-        // 更新数据源和分页信息
-        dataSource.value = response.items;
-        pagination.value.total = response.total;
-      }
-    });
+    // 更新数据源和分页信息
+    dataSource.value = response.items;
+    pagination.value.total = response.total;
   } finally {
     loading.value = false;
   }
