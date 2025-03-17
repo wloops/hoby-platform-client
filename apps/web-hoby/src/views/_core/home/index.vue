@@ -3,7 +3,7 @@ import type { BasicUserInfo } from '@vben/types';
 
 import { useRouter } from 'vue-router';
 
-import { useUserStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
 import CommonBanner from './components/CommonBanner.vue';
 import LayoutFooter from './layout/Footer.vue';
@@ -11,6 +11,7 @@ import LayoutHeader from './layout/Header.vue';
 
 const userStore = useUserStore();
 const router = useRouter();
+const accessStore = useAccessStore();
 
 const navigationItems = [
   {
@@ -46,6 +47,7 @@ const navigationItems = [
 ];
 
 const goToMainPage = async (page: any) => {
+  accessStore.setIsAccessChecked(false);
   const access: string[] = page.authority;
   const userInfo = userStore.userInfo;
   const addRolesUserInfo = {
