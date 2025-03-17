@@ -152,7 +152,7 @@ function clearPreferencesAndLogout() {
 
 const router = useRouter();
 function handleClickToHome() {
-  router.push(import.meta.env.VITE_HOME_PATH);
+  router.push('/home');
 }
 
 watch(
