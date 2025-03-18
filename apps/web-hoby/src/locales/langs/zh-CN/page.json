@@ -72,7 +72,7 @@
       },
       "generalLedger": {
         "title": "私仓货物总账",
-        "openWarehouseService": "开通的私仓",
+        "openWarehouse": "开通的私仓",
         "storageCatalog": "库存的产品",
         "warehouseTypeLog": "库存的型号",
         "warehouseSKULog": "库存的SKU"
