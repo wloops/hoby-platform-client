@@ -60,7 +60,7 @@
       "title": "我的私仓",
       "management": {
         "title": "私仓库存管理",
-        "warehouseType": "私仓仓库型号",
+        "warehouseModel": "私仓仓库型号",
         "warehouseSKU": "私仓库存SKU",
         "warehouseBatch": "私仓库存管理批次",
         "batchGoods": "私仓管理批次货物",
@@ -73,16 +73,16 @@
       "generalLedger": {
         "title": "私仓货物总账",
         "openWarehouse": "开通的私仓",
-        "storageCatalog": "库存的产品",
-        "warehouseTypeLog": "库存的型号",
-        "warehouseSKULog": "库存的SKU"
+        "storageProduct": "库存的产品",
+        "storageModel": "库存的型号",
+        "storageSKU": "库存的SKU"
       },
       "warehouseLedger": {
         "title": "私仓货物仓库账",
         "openPrivateWarehouse": "开通的私仓",
-        "productList": "仓库库存的产品",
-        "typeList": "仓库库存的型号",
-        "skuList": "仓库库存的SKU"
+        "storageProduct": "仓库库存的产品",
+        "storageModel": "仓库库存的型号",
+        "storageSKU": "仓库库存的SKU"
       }
     },
     "myBranchWarehouse": {
@@ -91,14 +91,14 @@
         "title": "分仓货物总账",
         "branchService": "分仓服务协议",
         "branchProducts": "库存的产品",
-        "branchTypes": "库存的型号",
+        "branchModel": "库存的型号",
         "branchSKU": "库存的SKU"
       },
       "warehouseLedger": {
         "title": "分仓货物仓库账",
         "consultedWarehouse": "开通的分仓仓库",
         "consultedProducts": "仓库库存的产品",
-        "consultedTypes": "仓库库存的型号",
+        "consultedModel": "仓库库存的型号",
         "consultedSKU": "仓库库存的SKU"
       }
     },
