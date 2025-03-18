@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 14:37:22
+ * @LastEditTime: 2025-03-18 16:04:02
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,10 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+
+const pageTitle = $t(
+  'page.warehouse.myPrivateWarehouse.management.warehouseType',
+);
 
 // 表格列配置
 const columns: ColumnConfig[] = [
@@ -387,11 +391,7 @@ defineExpose({
 </script>
 
 <template>
-  <Page
-    auto-content-height
-    :title="$t('page.warehouse.myPrivateWarehouse.management.warehouseType')"
-    class="warehouse-type-page"
-  >
+  <Page auto-content-height :title="pageTitle" class="warehouse-type-page">
     <!-- 使用v-model绑定方式 -->
     <DataTable
       ref="dataTableRef"

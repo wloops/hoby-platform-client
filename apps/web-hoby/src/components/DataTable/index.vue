@@ -389,7 +389,7 @@ defineExpose({
               <template v-if="field.type === FieldType.SELECT && field.options">
                 <Select
                   v-model:value="searchForm[field.dataIndex]"
-                  :placeholder="`请选择${field.title}`"
+                  placeholder="请选择"
                   allow-clear
                   style="width: 200px"
                 >
@@ -483,6 +483,7 @@ defineExpose({
   display: flex;
   flex: 1;
   flex-wrap: wrap;
+  gap: 5px;
 }
 
 .search-buttons {
