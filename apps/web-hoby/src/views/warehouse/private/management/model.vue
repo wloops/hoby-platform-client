@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 16:04:02
+ * @LastEditTime: 2025-03-18 23:00:36
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,7 +24,7 @@ import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
 
 const pageTitle = $t(
-  'page.warehouse.myPrivateWarehouse.management.warehouseType',
+  'page.warehouse.myPrivateWarehouse.management.warehouseModel',
 );
 
 // 表格列配置

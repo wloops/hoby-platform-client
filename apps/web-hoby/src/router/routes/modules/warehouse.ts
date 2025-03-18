@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 17:50:29
+ * @LastEditTime: 2025-03-18 23:05:58
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\warehouse.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -31,14 +31,14 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.management.warehouseType',
+                'page.warehouse.myPrivateWarehouse.management.warehouseModel',
               ),
               authority: ['warehouse'],
             },
-            name: 'PrivateWarehouseType',
-            path: '/warehouse/private/management/type',
+            name: 'PrivateWarehouseModel',
+            path: '/warehouse/private/management/model',
             component: () =>
-              import('#/views/warehouse/private/management/type.vue'),
+              import('#/views/warehouse/private/management/model.vue'),
           },
           {
             meta: {
@@ -166,35 +166,35 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.generalLedger.storageCatalog',
+                'page.warehouse.myPrivateWarehouse.generalLedger.storageProduct',
               ),
               authority: ['warehouse'],
             },
-            name: 'StorageCatalog',
-            path: '/warehouse/private/general-ledger/catalog',
+            name: 'StorageProduct',
+            path: '/warehouse/private/general-ledger/product',
             component: () =>
-              import('#/views/warehouse/private/general-ledger/catalog.vue'),
+              import('#/views/warehouse/private/general-ledger/product.vue'),
           },
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.generalLedger.warehouseTypeLog',
+                'page.warehouse.myPrivateWarehouse.generalLedger.storageModel',
               ),
               authority: ['warehouse'],
             },
-            name: 'WarehouseTypeLog',
-            path: '/warehouse/private/general-ledger/type',
+            name: 'StorageModel',
+            path: '/warehouse/private/general-ledger/model',
             component: () =>
-              import('#/views/warehouse/private/general-ledger/type.vue'),
+              import('#/views/warehouse/private/general-ledger/model.vue'),
           },
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.generalLedger.warehouseSKULog',
+                'page.warehouse.myPrivateWarehouse.generalLedger.storageSKU',
               ),
               authority: ['warehouse'],
             },
-            name: 'WarehouseSKULog',
+            name: 'StorageSKU',
             path: '/warehouse/private/general-ledger/sku',
             component: () =>
               import('#/views/warehouse/private/general-ledger/sku.vue'),
@@ -216,7 +216,7 @@ const routes: RouteRecordRaw[] = [
               ),
               authority: ['warehouse'],
             },
-            name: 'OpenPrivateWarehouse',
+            name: 'PrivateWarehouseLedgerOpenPrivateWarehouse',
             path: '/warehouse/private/ledger/open',
             component: () =>
               import('#/views/warehouse/private/ledger/open.vue'),
@@ -224,11 +224,11 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.warehouseLedger.productList',
+                'page.warehouse.myPrivateWarehouse.warehouseLedger.storageProduct',
               ),
               authority: ['warehouse'],
             },
-            name: 'PrivateWarehouseProductList',
+            name: 'PrivateWarehouseLedgerStorageProduct',
             path: '/warehouse/private/ledger/products',
             component: () =>
               import('#/views/warehouse/private/ledger/products.vue'),
@@ -236,23 +236,23 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.warehouseLedger.typeList',
+                'page.warehouse.myPrivateWarehouse.warehouseLedger.storageModel',
               ),
               authority: ['warehouse'],
             },
-            name: 'PrivateWarehouseTypeList',
-            path: '/warehouse/private/ledger/types',
+            name: 'PrivateWarehouseLedgerStorageModel',
+            path: '/warehouse/private/ledger/model',
             component: () =>
-              import('#/views/warehouse/private/ledger/types.vue'),
+              import('#/views/warehouse/private/ledger/model.vue'),
           },
           {
             meta: {
               title: $t(
-                'page.warehouse.myPrivateWarehouse.warehouseLedger.skuList',
+                'page.warehouse.myPrivateWarehouse.warehouseLedger.storageSKU',
               ),
               authority: ['warehouse'],
             },
-            name: 'PrivateWarehouseSKUList',
+            name: 'PrivateWarehouseLedgerStorageSKU',
             path: '/warehouse/private/ledger/sku',
             component: () => import('#/views/warehouse/private/ledger/sku.vue'),
           },
@@ -304,14 +304,14 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myBranchWarehouse.generalLedger.branchTypes',
+                'page.warehouse.myBranchWarehouse.generalLedger.branchModel',
               ),
               authority: ['warehouse'],
             },
-            name: 'BranchType',
-            path: '/warehouse/branch/general-ledger/type',
+            name: 'BranchModel',
+            path: '/warehouse/branch/general-ledger/model',
             component: () =>
-              import('#/views/warehouse/branch/general-ledger/type.vue'),
+              import('#/views/warehouse/branch/general-ledger/model.vue'),
           },
           {
             meta: {
@@ -362,13 +362,14 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t(
-                'page.warehouse.myBranchWarehouse.warehouseLedger.consultedTypes',
+                'page.warehouse.myBranchWarehouse.warehouseLedger.consultedModel',
               ),
               authority: ['warehouse'],
             },
-            name: 'ConsultedType',
-            path: '/warehouse/branch/ledger/type',
-            component: () => import('#/views/warehouse/branch/ledger/type.vue'),
+            name: 'ConsultedModel',
+            path: '/warehouse/branch/ledger/model',
+            component: () =>
+              import('#/views/warehouse/branch/ledger/model.vue'),
           },
           {
             meta: {
