@@ -55,7 +55,59 @@
   },
   "warehouse": {
     "title": "我的仓库",
-    "home": "仓库首页"
+    "home": "仓库首页",
+    "myPrivateWarehouse": {
+      "title": "我的私仓",
+      "management": {
+        "title": "私仓库存管理",
+        "warehouseType": "私仓仓库型号",
+        "warehouseSKU": "私仓库存SKU",
+        "warehouseBatch": "私仓库存管理批次",
+        "batchGoods": "私仓管理批次货物",
+        "purchaseOrder": "私仓订单配货单",
+        "storageIn": "私仓库存待入库",
+        "storageOut": "私仓库存待拨出",
+        "storageTransfer": "私仓库存待拨入",
+        "storageBatch": "私仓库存管理单"
+      },
+      "generalLedger": {
+        "title": "私仓货物总账",
+        "openWarehouseService": "开通的私仓服务",
+        "storageCatalog": "私仓产品库存目录",
+        "warehouseTypeLog": "私仓库存型号目录",
+        "warehouseSKULog": "私仓库存SKU目录"
+      },
+      "warehouseLedger": {
+        "title": "私仓货物仓库账",
+        "openPrivateWarehouse": "开通的私仓仓库",
+        "productList": "私仓仓库产品目录",
+        "typeList": "私仓仓库型号目录",
+        "skuList": "私仓仓库SKU目录"
+      }
+    },
+    "myBranchWarehouse": {
+      "title": "我的分仓",
+      "generalLedger": {
+        "title": "分仓货物总账",
+        "branchService": "分仓服务协议",
+        "branchProducts": "分仓仓储的产品",
+        "branchTypes": "分仓仓储的型号",
+        "branchSKU": "分仓仓储的SKU"
+      },
+      "warehouseLedger": {
+        "title": "分仓货物仓库账",
+        "consultedWarehouse": "仓商的分仓仓库",
+        "consultedProducts": "仓商分仓仓库产品",
+        "consultedTypes": "仓商分仓仓库型号",
+        "consultedSKU": "仓商分仓仓库SKU"
+      }
+    },
+    "myWarehouse": {
+      "title": "我的仓库",
+      "info": "仓库信息",
+      "shelf": "仓库货架",
+      "deficit": "缺省仓库"
+    }
   },
   "products": {
     "productStandards": {
