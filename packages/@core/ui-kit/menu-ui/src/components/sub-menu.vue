@@ -76,7 +76,7 @@ const contentProps = computed((): HoverCardContentProps => {
 onMounted(() => {
   // 将当前菜单（第一层）的路径添加到 openedMenus
   const strNum = props.path.split('/').length - 1;
-  if (!rootMenu?.openedMenus.includes(props.path) && strNum <= 1) {
+  if (!rootMenu?.openedMenus.includes(props.path) && strNum <= 2) {
     rootMenu?.openedMenus.push(props.path);
   }
 
