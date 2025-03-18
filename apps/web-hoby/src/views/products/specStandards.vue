@@ -1,18 +1,72 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 
+import { useMainGetData } from '#/composables';
+
 // 模拟规格标准数据
-const specs = ref([
-  { id: 1, name: '颜色', values: ['红色', '白色', '蓝色'] },
-  { id: 2, name: '尺寸', values: ['M', 'L', 'XL'] },
-  { id: 3, name: '材质', values: ['棉', '涤纶', '丝绸'] },
-  { id: 4, name: '重量', values: ['100g', '200g', '300g'] },
-  { id: 6, name: '风格', values: ['简约', '复古', '现代'] },
-  { id: 7, name: '品牌', values: ['A品牌', 'B品牌', 'C品牌'] },
-  { id: 8, name: '产地', values: ['中国', '美国', '日本'] },
-  { id: 9, name: '工艺', values: ['手工', '机器'] },
-  { id: 10, name: '包装', values: ['盒装', '袋装'] },
-]);
+// const specs = ref([
+//   { id: 1, name: '颜色', values: ['红色', '白色', '蓝色'] },
+//   { id: 2, name: '尺寸', values: ['M', 'L', 'XL'] },
+//   { id: 3, name: '材质', values: ['棉', '涤纶', '丝绸'] },
+//   { id: 4, name: '重量', values: ['100g', '200g', '300g'] },
+//   { id: 6, name: '风格', values: ['简约', '复古', '现代'] },
+//   { id: 7, name: '品牌', values: ['A品牌', 'B品牌', 'C品牌'] },
+//   { id: 8, name: '产地', values: ['中国', '美国', '日本'] },
+//   { id: 9, name: '工艺', values: ['手工', '机器'] },
+//   { id: 10, name: '包装', values: ['盒装', '袋装'] },
+// ]);
+
+// 规格类型数据
+const specs = ref([]);
+async function fetchSpecs() {
+  // loading.value = true;
+  try {
+    // const { current, pageSize } = pagination.value;
+    const reqParams = {
+      pageID: 'specStandards',
+      pageDataGrpID: 'querySpecCate',
+      // currentPage: current,
+      // numOfPerPage: pageSize,
+    };
+    const { data } = await useMainGetData(reqParams);
+    specs.value = data.value.map((item, index) => ({
+      id: `${111 + index}`,
+      name: item.specCate,
+      values: [],
+    }));
+
+    initializeCollapsedState();
+  } catch (error) {
+    console.error('Failed to fetch specs:', error);
+  } finally {
+    // loading.value = false;
+  }
+}
+// 根据规格类型查询规格值
+const fetchSpecValue = async (spec) => {
+  console.warn('fetchSpecValue:specs', spec, specs.value);
+  const reqParams = {
+    pageID: 'specStandards',
+    pageDataGrpID: 'querySpecValue',
+    specCate: spec.name,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('fetchSpecValue:data', data.value);
+  specs.value.forEach((item) => {
+    if (item.id === spec.id) {
+      item.values = data.value;
+    }
+  });
+  const specValues = data.value.map((item) => ({
+    values: item.specValue,
+  }));
+  return specValues;
+};
+
+// 初始加载
+onMounted(async () => {
+  fetchSpecs();
+});
 
 const collapsedState = ref({}); // 用于存储展开/折叠状态
 const currentPage = ref(1); // 当前页码
@@ -26,9 +80,9 @@ const initializeCollapsedState = () => {
 };
 
 // 在组件挂载时初始化 collapsedState
-onMounted(() => {
-  initializeCollapsedState();
-});
+// onMounted(() => {
+//   initializeCollapsedState();
+// });
 
 // 计算总页数
 const totalPages = computed(() =>
@@ -43,8 +97,9 @@ const paginatedSpecs = computed(() => {
 });
 
 // 切换展开/折叠状态
-const toggleCollapse = (id) => {
+const toggleCollapse = (id, spec) => {
   collapsedState.value[id] = !collapsedState.value[id];
+  fetchSpecValue(spec);
 };
 
 // 判断是否折叠
@@ -169,7 +224,7 @@ const resetPage = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              @click="toggleCollapse(spec.id)"
+              @click="toggleCollapse(spec.id, spec)"
             >
               <path
                 stroke-linecap="round"
@@ -187,11 +242,11 @@ const resetPage = () => {
             <div
               v-for="value in spec.values"
               :key="value"
-              class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
+              class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 pr-0 text-sm text-gray-700 shadow-sm"
             >
-              <span>{{ value }}</span>
+              <span>{{ value.specValue }}</span>
               <button
-                class="btn-text-danger flex-none pr-0"
+                class="btn-text-danger flex-none"
                 @click="deleteSpecValue(spec.id, value)"
               >
                 <svg

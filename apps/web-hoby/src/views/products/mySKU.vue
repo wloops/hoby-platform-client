@@ -9,12 +9,14 @@
 <script setup lang="ts">
 import type { ColumnsType } from 'ant-design-vue/es/table';
 
-import { computed, h, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { Button, Form, Input, Table } from 'ant-design-vue';
+
+import { useMainGetData } from '#/composables';
 
 interface MySKUItem {
   id: string;
@@ -83,14 +85,14 @@ const columns: ColumnsType<MySKUItem> = [
     dataIndex: 'distributionPrice',
     align: 'center',
     width: 120,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '终端价格',
     dataIndex: 'terminalPrice',
     align: 'center',
     width: 120,
-    customRender: ({ text }) => `¥${text.toFixed(2)}`,
+    customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '库存总数',
@@ -157,7 +159,7 @@ function viewDetail(row: MySKUItem) {
 const handleTableChange = async (pag: any) => {
   pagination.value.current = pag.current;
   pagination.value.pageSize = pag.pageSize;
-  await fetchSettlementList();
+  await fetchMySKUList();
 };
 
 // 重置搜索
@@ -173,39 +175,50 @@ const resetSearch = () => {
 // 搜索
 const handleSearch = () => {
   pagination.value.current = 1;
-  fetchSettlementList();
+  fetchMySKUList();
 };
 
-// 获取结算列表数据
-async function fetchSettlementList() {
+// 获取SKU列表数据
+async function fetchMySKUList() {
   loading.value = true;
   try {
-    const { pageSize } = pagination.value;
+    const { current, pageSize } = pagination.value;
+    const reqParams = {
+      pageID: 'mySKU',
+      pageDataGrpID: 'queryProductSKU',
+      currentPage: current,
+      numOfPerPage: pageSize,
+    };
+    const { data, total } = await useMainGetData(reqParams);
+
     const response = {
-      items: Array.from({ length: pageSize }, (_, index) => ({
+      items: (data.value as any[]).map((item: any, index: number) => ({
         id: `${111 + index}`,
-        product: '男士T恤衫',
-        srlID: '圆领文化衫',
-        skuValue: 'L.白色',
-        allSKU: '尺寸=L,颜色=白色',
-        distributionPrice: 50,
-        terminalPrice: 100,
-        totalInventory: 10,
-        soldQuantity: 5,
-        divisionRules: '厂商50%-经销商49.5%-平台0.5%',
+        product: item.product,
+        srlID: item.srlID,
+        skuValue: item.skuValue,
+        allSKU: item.allSKU,
+        distributionPrice: item.distributionPrice,
+        terminalPrice: item.terminalPrice,
+        totalInventory: item.totalInventory,
+        soldQuantity: item.soldQuantity,
+        divisionRules: item.divisionRules,
       })),
-      total: 100,
+      total: total.value,
     };
 
     dataSource.value = response.items;
     pagination.value.total = response.total;
+    loading.value = false;
   } finally {
     loading.value = false;
   }
 }
 
 // 初始加载
-fetchSettlementList();
+onMounted(async () => {
+  fetchMySKUList();
+});
 </script>
 
 <template>

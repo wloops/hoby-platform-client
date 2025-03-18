@@ -1,5 +1,7 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+
+import { useMainGetData } from '#/composables';
 
 import EditSpecificationModal from './components/EditSpecificationModal.vue';
 
@@ -12,14 +14,16 @@ const expandedProducts = reactive({
 const expandedSpecs = reactive({});
 
 // 切换产品展开状态
-const toggleProduct = (productId) => {
+const toggleProduct = (productId, product) => {
   expandedProducts[productId] = !expandedProducts[productId];
+  getSpecTypeNameList(product);
 };
 
 // 切换规格展开状态
-const toggleSpec = (productId, specType) => {
+const toggleSpec = (productId, specType, product) => {
   const key = `${productId}-${specType}`;
   expandedSpecs[key] = !expandedSpecs[key];
+  getSpecValueList(product, specType);
 };
 
 // 检查规格是否展开
@@ -29,14 +33,53 @@ const isSpecExpanded = (productId, specType) => {
 };
 
 // 获取规格类型名称
-const getSpecTypeName = (specType) => {
-  const names = {
-    colors: '颜色',
-    sizes: '尺寸',
-    materials: '材质',
+const getSpecTypeNameList = async (product) => {
+  console.warn('getSpecTypeNameList:product', product);
+  const reqParams = {
+    pageID: 'productStandards',
+    pageDataGrpID: 'queryProductSpecCate',
+    productName: product.name,
   };
-  return names[specType] || specType;
+  const { data } = await useMainGetData(reqParams);
+  console.warn('getSpecTypeName:data', product, data.value);
+  // 根据product.name查找products中的规格类型
+  products.value.forEach((item) => {
+    if (item.name === product.name) {
+      item.specifications = data.value.map((item) => ({
+        title: item.specCate,
+        value: [],
+      }));
+    }
+  });
 };
+// 根据规格类型查询规格值
+const getSpecValueList = async (spec, index) => {
+  console.warn('getSpecValueList:', spec.specifications[0]);
+  const reqParams = {
+    pageID: 'productStandards',
+    pageDataGrpID: 'queryProductSpecValue',
+    productName: spec.name,
+    specCate: spec.specifications[index].title,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('getSpecValueList:data', data.value, products.value, spec);
+  spec.specifications.forEach((item) => {
+    if (item.title === spec.specifications[index].title) {
+      item.value = data.value.map((item) => ({
+        title: item.specValue,
+      }));
+    }
+  });
+};
+
+// const getSpecTypeName = (specType) => {
+//   const names = {
+//     colors: '颜色',
+//     sizes: '尺寸',
+//     materials: '材质',
+//   };
+//   return names[specType] || specType;
+// };
 
 // 编辑模态框状态
 const isEditModalOpen = ref(false);
@@ -67,41 +110,67 @@ const getColorValue = (color) => {
 };
 
 // 获取规格值显示文本
-const getSpecValue = (specType, item) => {
-  if (typeof item === 'string') return item;
-  if (specType === 'colors') return `${item.name} - ${item.description}`;
-  if (specType === 'sizes') return `${item.label} - ${item.description}`;
-  if (specType === 'materials') return `${item.name} - ${item.description}`;
-  return JSON.stringify(item);
-};
+// const getSpecValue = (specType, item) => {
+//   if (typeof item === 'string') return item;
+//   if (specType === 'colors') return `${item.name} - ${item.description}`;
+//   if (specType === 'sizes') return `${item.label} - ${item.description}`;
+//   if (specType === 'materials') return `${item.name} - ${item.description}`;
+//   return JSON.stringify(item);
+// };
+// 产品
+const products = ref([]);
+async function fetchProducts() {
+  try {
+    const reqParams = {
+      pageID: 'productStandards',
+      pageDataGrpID: 'queryProduct',
+      // currentPage: current,
+      // numOfPerPage: pageSize,
+    };
+    const { data } = await useMainGetData(reqParams);
+    products.value = data.value.map((item, index) => ({
+      id: `${111 + index}`,
+      name: item.productName,
+      status: '上架',
+      specifications: {},
+    }));
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+  }
+}
+
+// 初始加载
+onMounted(async () => {
+  fetchProducts();
+});
 
 // 示例数据
-const products = ref([
-  {
-    id: 1,
-    name: '男士内衣',
-    type: '服装',
-    status: '上架',
-    createdAt: '2023-05-15 10:30:00',
-    specifications: {
-      colors: ['白色', '红色', '黑色', '紫色'],
-      sizes: ['M', 'L', 'XL'],
-      materials: ['纯棉', '莫代尔'],
-    },
-  },
-  {
-    id: 2,
-    name: '女士连衣裙',
-    type: '服装',
-    status: '上架',
-    createdAt: '2023-06-20 14:15:00',
-    specifications: {
-      colors: ['白色', '黑色', '蓝色'],
-      sizes: ['S', 'M', 'L'],
-      materials: ['棉麻混纺', '真丝'],
-    },
-  },
-]);
+// const products = ref([
+//   {
+//     id: 1,
+//     name: '男士内衣',
+//     type: '服装',
+//     status: '上架',
+//     createdAt: '2023-05-15 10:30:00',
+//     specifications: {
+//       colors: ['白色', '红色', '黑色', '紫色'],
+//       sizes: ['M', 'L', 'XL'],
+//       materials: ['纯棉', '莫代尔'],
+//     },
+//   },
+//   {
+//     id: 2,
+//     name: '女士连衣裙',
+//     type: '服装',
+//     status: '上架',
+//     createdAt: '2023-06-20 14:15:00',
+//     specifications: {
+//       colors: ['白色', '黑色', '蓝色'],
+//       sizes: ['S', 'M', 'L'],
+//       materials: ['棉麻混纺', '真丝'],
+//     },
+//   },
+// ]);
 </script>
 
 <template>
@@ -211,7 +280,7 @@ const products = ref([
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              @click="toggleProduct(product.id)"
+              @click="toggleProduct(product.id, product)"
             >
               <path
                 stroke-linecap="round"
@@ -229,51 +298,6 @@ const products = ref([
           class="transition-all duration-300"
         >
           <dl class="divide-y divide-gray-100">
-            <!-- <div
-              class="grid grid-cols-12 transition-colors duration-150 hover:bg-gray-50"
-            >
-              <dt
-                class="col-span-2 px-6 py-4 text-sm font-medium text-gray-600"
-              >
-                产品类型
-              </dt>
-              <dd class="col-span-4 px-4 py-4 text-sm text-gray-800">
-                {{ product.type }}
-              </dd>
-              <dt
-                class="col-span-2 px-6 py-4 text-sm font-medium text-gray-600"
-              >
-                创建时间
-              </dt>
-              <dd class="col-span-4 px-4 py-4 text-sm text-gray-800">
-                {{ product.createdAt }}
-              </dd>
-            </div> -->
-
-            <!-- <div
-              class="grid grid-cols-12 transition-colors duration-150 hover:bg-gray-50"
-            >
-              <dt
-                class="col-span-2 px-6 py-4 text-sm font-medium text-gray-600"
-              >
-                状态
-              </dt>
-              <dd class="col-span-10 px-4 py-4 text-sm text-gray-800">
-                <div class="flex items-center">
-                  <span
-                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                    :class="
-                      product.status === '上架'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    "
-                  >
-                    {{ product.status }}
-                  </span>
-                </div>
-              </dd>
-            </div> -->
-
             <!-- 规格部分 -->
             <div
               v-for="(spec, specType) in product.specifications"
@@ -282,7 +306,7 @@ const products = ref([
             >
               <div
                 class="flex cursor-pointer items-center justify-between px-6 py-4"
-                @click="toggleSpec(product.id, specType)"
+                @click="toggleSpec(product.id, specType, product, specCates)"
               >
                 <dt class="flex items-center text-sm font-medium text-gray-700">
                   <svg
@@ -298,12 +322,12 @@ const products = ref([
                       d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
                     />
                   </svg>
-                  规格：{{ getSpecTypeName(specType) }}
+                  规格：{{ spec.title }}
                 </dt>
                 <div class="flex items-center">
-                  <span class="mr-2 text-sm text-gray-500"
+                  <!-- <span class="mr-2 text-sm text-gray-500"
                     >{{ spec.length }}个选项</span
-                  >
+                  > -->
                   <svg
                     class="h-5 w-5 transform text-gray-500 transition-transform duration-200"
                     :class="{
@@ -328,7 +352,7 @@ const products = ref([
               >
                 <div class="flex flex-wrap gap-3 p-4">
                   <div
-                    v-for="(item, index) in spec"
+                    v-for="(item, index) in spec.value"
                     :key="index"
                     class="flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
                   >
@@ -337,7 +361,7 @@ const products = ref([
                       class="mr-2 h-4 w-4 rounded-full border"
                       :style="{ backgroundColor: getColorValue(item) }"
                     ></div>
-                    {{ getSpecValue(specType, item) }}
+                    {{ item.title }}
                   </div>
                 </div>
               </dd>
