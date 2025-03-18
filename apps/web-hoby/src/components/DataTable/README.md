@@ -1,162 +1,30 @@
-# DataTable 组件使用文档
+# DataTable 组件
 
-## 组件概述
+DataTable 是一个功能完整的数据表格组件，支持搜索、排序、分页、选择行、自定义列渲染及操作按钮等功能。
 
-DataTable 是一个功能丰富的表格组件，基于 Ant Design Vue 的 Table 组件进行封装，支持搜索、分页、行选择、自定义数据加载等功能。该组件专为数据展示和管理场景设计，拥有灵活的配置项和良好的性能表现。
+## 特性
 
-## 基本使用
+- 自动生成搜索表单
+- 支持分页和数据加载
+- 支持列排序和筛选
+- 支持行选择
+- 支持自定义渲染列内容
+- 支持操作按钮配置（查看、编辑、删除等）
+- 支持条件显示和权限控制
+- 支持确认对话框
+- 支持 SELECT 类型的自动值转换（数据值和显示值分离）
 
-```vue
-<template>
-  <DataTable
-    ref="dataTableRef"
-    :columns="columns"
-    :data-source="tableData"
-    v-model:current-page="currentPage"
-    v-model:page-size="pageSize"
-    v-model:loading="loading"
-    :total="total"
-    :fetch-data-func="fetchData"
-    :row-selection="true"
-    row-key="id"
-    @search="handleSearch"
-    @pageChange="handlePageChange"
-    @selectionChange="handleSelectionChange"
-  />
-</template>
-```
-
-## 属性（Props）
-
-| 属性名 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| columns | `ColumnConfig[]` | 必填 | 表格列配置 |
-| currentPage | `number` | 1 | 当前页码，支持 v-model:current-page |
-| dataSource | `TableItem[]` | [] | 表格数据源 |
-| emptyText | `string` | "暂无数据" | 空数据提示文本 |
-| fetchDataFunc | `Function` | null | 自定义数据加载函数，接收搜索参数、分页信息 |
-| loading | `boolean` | false | 加载状态，支持 v-model:loading |
-| pageSize | `number` | 10 | 每页条数，支持 v-model:page-size |
-| resetButtonText | `string` | "重置" | 重置按钮文本 |
-| rowKey | `string` | "id" | 表格行唯一标识字段 |
-| rowSelection | `boolean \| object` | false | 行选择配置 |
-| searchButtonText | `string` | "搜索" | 搜索按钮文本 |
-| showPagination | `boolean` | true | 是否显示分页 |
-| showSearch | `boolean` | true | 是否显示搜索面板 |
-| total | `number` | 0 | 数据总数 |
-
-## 列配置（ColumnConfig）
-
-每个列配置对象支持以下属性：
-
-```typescript
-interface ColumnConfig {
-  title: string; // 列标题
-  dataIndex: string; // 数据字段名
-  visible?: boolean; // 是否显示该列，默认 true
-  searchable?: boolean; // 是否可搜索，默认 false
-  type?: FieldType; // 字段类型，用于搜索表单
-  width?: number | string; // 列宽度
-  options?: Array<{ label: string; value: string | number }>; // 选项，用于 SELECT 类型
-}
-```
-
-字段类型枚举：
-
-```typescript
-enum FieldType {
-  STRING = 'string',
-  NUMBER = 'number',
-  SELECT = 'select',
-  DATE = 'date',
-  DATETIME = 'datetime',
-}
-```
-
-## 事件（Events）
-
-| 事件名 | 参数 | 说明 |
-| --- | --- | --- |
-| search | `formData: Record<string, any>` | 点击搜索按钮时触发 |
-| reset | 无 | 点击重置按钮时触发 |
-| pageChange | `{ current, pageSize, filters, sorter }` | 分页、筛选或排序变化时触发 |
-| rowClick | `record: TableItem` | 点击行时触发 |
-| selectionChange | `{ keys: (string \| number)[], rows: TableItem[] }` | 选择行变化时触发 |
-| update:currentPage | `page: number` | 当前页变化时触发 |
-| update:pageSize | `size: number` | 每页条数变化时触发 |
-| update:loading | `loading: boolean` | 加载状态变化时触发 |
-
-## 方法（Methods）
-
-通过 ref 可以访问以下组件方法：
-
-| 方法名 | 参数 | 返回值 | 说明 |
-| --- | --- | --- | --- |
-| clearSelection | 无 | 无 | 清除当前选中行 |
-| getCurrentPage | 无 | `number` | 获取当前页码 |
-| getPageSize | 无 | `number` | 获取每页条数 |
-| getSearchParams | 无 | `Record<string, any>` | 获取当前搜索参数 |
-| refresh | 无 | 无 | 刷新表格数据 |
-| resetSearch | 无 | 无 | 重置搜索条件 |
-| setSelection | `(keys: (string \| number)[], rows: TableItem[])` | 无 | 设置选中行 |
-
-## 高级用法
-
-### 自定义数据加载
-
-```typescript
-const fetchData = async (params) => {
-  try {
-    // params 包含搜索条件和分页信息
-    const { page, pageSize, ...searchParams } = params;
-    const result = await api.getList({
-      pageNum: page,
-      pageSize,
-      ...searchParams,
-    });
-
-    return {
-      data: result.records || [],
-      total: result.total || 0,
-    };
-  } catch (error) {
-    console.error('获取数据失败', error);
-    return { data: [], total: 0 };
-  }
-};
-```
-
-### 动态高度计算
-
-组件会自动计算表格的可用高度，考虑：
-
-- 搜索面板高度
-- 表头高度
-- 分页高度
-- 页面其他元素高度
-
-表格内容区域会自动滚动，表头和分页区域固定不动。
-
-### 完整示例
+## 基本用法
 
 ```vue
 <template>
   <DataTable
-    ref="dataTableRef"
     :columns="columns"
-    v-model:current-page="currentPage"
-    v-model:page-size="pageSize"
-    v-model:loading="loading"
     :data-source="tableData"
     :total="total"
     :fetch-data-func="fetchData"
-    :row-selection="true"
     row-key="id"
-    search-button-text="查询"
-    reset-button-text="清空"
     @search="handleSearch"
-    @pageChange="handlePageChange"
-    @selectionChange="handleSelectionChange"
   />
 </template>
 
@@ -164,16 +32,16 @@ const fetchData = async (params) => {
 import { ref } from 'vue';
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
-import type { ColumnConfig, TableItem } from '#/components/DataTable/types';
 
-// 表格列配置
-const columns: ColumnConfig[] = [
+// 列定义
+const columns = [
   {
     title: '名称',
     dataIndex: 'name',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
+    width: 200,
   },
   {
     title: '状态',
@@ -181,74 +49,211 @@ const columns: ColumnConfig[] = [
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
+    width: 100,
     options: [
-      { label: '正常', value: 'normal' },
-      { label: '禁用', value: 'disabled' },
+      { label: '正常', value: 1 },
+      { label: '禁用', value: 2 },
+    ],
+  },
+  {
+    title: '操作',
+    dataIndex: 'operation',
+    visible: true,
+    actionColumnProps: {
+      width: 200,
+      fixed: 'right',
+      align: 'center',
+    },
+    actions: [
+      {
+        text: '查看',
+        type: 'link',
+        onClick: (record) => {
+          console.warn('查看详情', record);
+        },
+      },
+      {
+        text: '编辑',
+        type: 'link',
+        onClick: (record) => {
+          console.warn('编辑记录', record);
+        },
+        // 条件显示
+        show: (record) => record.status === 1,
+      },
+      {
+        text: '删除',
+        type: 'link',
+        danger: true,
+        onClick: (record) => {
+          console.warn('删除记录', record);
+        },
+        confirm: '确定要删除此记录吗？',
+        confirmTitle: '删除确认',
+      },
     ],
   },
 ];
 
-// 状态
-const tableData = ref<TableItem[]>([]);
-const currentPage = ref(1);
-const pageSize = ref(10);
+// 表格数据和状态
+const tableData = ref([]);
 const total = ref(0);
-const loading = ref(false);
-const dataTableRef = ref();
 
-// 获取数据方法
+// 获取数据的方法
 const fetchData = async (params) => {
   try {
-    const result = await api.getList(params);
+    const res = await api.getList(params);
     return {
-      data: result.records,
-      total: result.total,
+      data: res.list,
+      total: res.total,
     };
   } catch (error) {
-    console.error('获取数据失败', error);
+    console.error('获取数据失败:', error);
     return { data: [], total: 0 };
   }
 };
 
-// 事件处理
+// 处理搜索事件
 const handleSearch = (formData) => {
-  console.log('搜索条件:', formData);
+  console.warn('搜索条件：', formData);
 };
-
-const handlePageChange = (info) => {
-  console.log('分页信息:', info);
-};
-
-const handleSelectionChange = ({ keys, rows }) => {
-  console.log('选中行:', rows);
-};
-
-// 暴露方法
-defineExpose({
-  refreshTable: () => {
-    dataTableRef.value?.refresh();
-  },
-});
 </script>
+```
+
+## API
+
+### Props
+
+| 属性名           | 说明                 | 类型                | 默认值       |
+| ---------------- | -------------------- | ------------------- | ------------ |
+| columns          | 表格列的配置         | `ColumnConfig[]`    | 必填         |
+| dataSource       | 数据源               | `TableItem[]`       | `[]`         |
+| currentPage      | 当前页数             | `number`            | `1`          |
+| pageSize         | 每页条数             | `number`            | `10`         |
+| total            | 总记录数             | `number`            | `0`          |
+| loading          | 加载状态             | `boolean`           | `false`      |
+| fetchDataFunc    | 获取数据的函数       | `Function`          | -            |
+| rowKey           | 表格行的唯一标识字段 | `string`            | `'id'`       |
+| rowSelection     | 是否显示复选框       | `boolean \| object` | `false`      |
+| showSearch       | 是否显示搜索面板     | `boolean`           | `true`       |
+| showPagination   | 是否显示分页         | `boolean`           | `true`       |
+| emptyText        | 空数据提示文本       | `string`            | `'暂无数据'` |
+| searchButtonText | 搜索按钮文本         | `string`            | `'搜索'`     |
+| resetButtonText  | 重置按钮文本         | `string`            | `'重置'`     |
+
+### Events
+
+| 事件名称 | 说明 | 回调参数 |
+| --- | --- | --- |
+| search | 搜索按钮点击触发 | `formData: object` |
+| reset | 重置按钮点击触发 | - |
+| pageChange | 分页变化触发 | `{ current, pageSize, filters, sorter }` |
+| rowClick | 点击行触发 | `record: object` |
+| selectionChange | 选择项变化触发 | `{ keys: (string\|number)[], rows: object[] }` |
+| update:currentPage | 更新当前页码 | `pageNumber: number` |
+| update:pageSize | 更新每页条数 | `size: number` |
+| update:loading | 更新加载状态 | `loading: boolean` |
+
+### Methods
+
+| 方法名 | 说明 | 参数 |
+| --- | --- | --- |
+| refresh | 刷新表格数据 | - |
+| clearSelection | 清除选择 | - |
+| resetSearch | 重置搜索条件 | - |
+| getCurrentPage | 获取当前页数 | - |
+| getPageSize | 获取每页条数 | - |
+| getSearchParams | 获取搜索参数 | - |
+| setSelection | 设置选中项 | `(keys: (string\|number)[], rows: object[])` |
+
+## 类型定义
+
+### ColumnConfig
+
+```typescript
+interface ColumnConfig {
+  title: string; // 列标题
+  dataIndex: string; // 数据字段名
+  visible: boolean; // 是否显示
+  searchable?: boolean; // 是否可搜索
+  type: FieldType; // 字段类型
+  width?: number; // 列宽度
+  fixed?: 'left' | 'right' | boolean; // 是否固定列
+  align?: 'left' | 'center' | 'right'; // 对齐方式
+  options?: SelectOption[]; // 下拉选项
+  render?: (text: any, record: TableItem, index: number) => VNodeChild; // 自定义渲染函数
+  actions?: ActionButton[]; // 操作按钮配置
+  actionColumnProps?: {
+    // 操作列属性
+    width?: number | string;
+    fixed?: 'left' | 'right' | boolean;
+    align?: 'left' | 'center' | 'right';
+    title?: string;
+  };
+}
+```
+
+### FieldType
+
+```typescript
+enum FieldType {
+  CHECKBOX = 'checkbox', // 复选框
+  DATE = 'date', // 日期
+  DATETIME = 'datetime', // 日期时间
+  NUMBER = 'number', // 数字
+  SELECT = 'select', // 下拉选择
+  STRING = 'string', // 字符串
+  SWITCH = 'switch', // 开关
+}
+```
+
+### ActionButton
+
+```typescript
+interface ActionButton {
+  text: string; // 按钮文本
+  type?: 'default' | 'primary' | 'ghost' | 'dashed' | 'link' | 'text'; // 按钮类型
+  danger?: boolean; // 是否危险按钮
+  icon?: string; // 图标名称
+  onClick: (record: TableItem) => void; // 点击事件
+  show?: (record: TableItem) => boolean; // 条件显示
+  disabled?: (record: TableItem) => boolean; // 条件禁用
+  confirm?: string; // 确认提示文本
+  confirmTitle?: string; // 确认对话框标题
+  permission?: string; // 权限控制
+}
+```
+
+### SelectOption
+
+```typescript
+interface SelectOption {
+  label: string; // 显示文本
+  value: number | string; // 实际值
+}
 ```
 
 ## 注意事项
 
-1. `fetchDataFunc` 函数需要返回特定格式的对象 `{ data: TableItem[], total: number }`
-2. 组件内部使用 v-model 进行双向绑定，确保 currentPage、pageSize 和 loading 的更新
-3. 表格高度会自动计算，无需手动设置固定高度
-4. 如果需要使用组件提供的方法，请使用 ref 获取组件实例
+1. **SELECT 类型字段**：
 
-## 最佳实践
+   - 自动处理值和显示文本的转换
+   - 表格中显示 options 中定义的标签文本
+   - 搜索框中显示下拉选择框
 
-1. 对于复杂表格，建议提前定义好列配置和数据模型
-2. 使用 v-model 双向绑定分页和加载状态
-3. 在父组件处理搜索和分页逻辑，保持组件的纯展示职责
-4. 对于频繁变化的数据，考虑添加防抖或节流处理
+2. **操作按钮**：
 
-## 性能优化
+   - `show` 函数可控制按钮是否显示
+   - `confirm` 属性设置后点击会出现确认对话框
+   - `danger` 设为 true 会显示为红色
+   - `permission` 属性可用于权限控制（需自行实现权限检查逻辑）
 
-1. 仅在必要时才在列中使用 `searchable: true`
-2. 对于大量数据，可以关闭行选择功能
-3. 合理设置每页条数，避免一次加载过多数据
-4. 使用 v-if 条件渲染，在不需要表格时不渲染组件
+3. **数据获取**：
+
+   - `fetchDataFunc` 需要返回 `{ data: any[], total: number }` 格式的数据
+   - 搜索、分页变化时会自动调用此函数
+   - 组件内部会自动处理加载状态
+
+4. **双向绑定**：
+   - 组件支持通过 v-model 绑定 currentPage、pageSize 和 loading
+   - 例如: `v-model:current-page="currentPage"`

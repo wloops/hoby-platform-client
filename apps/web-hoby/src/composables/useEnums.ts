@@ -11,12 +11,14 @@ interface EnumItem {
   label: string;
   color?: string; // color 非必填
 }
-
 interface Enums {
-  restockingStatus: Record<string, EnumItem>; // 进货状态
-  voucherType: Record<string, EnumItem>; // 结算凭证类型
-  paymentStatus: Record<string, EnumItem>; // 付款状态
+  [key: string]: Record<string, EnumItem>;
 }
+// interface Enums {
+//   restockingStatus: Record<string, EnumItem>; // 进货状态
+//   voucherType: Record<string, EnumItem>; // 结算凭证类型
+//   paymentStatus: Record<string, EnumItem>; // 付款状态
+// }
 
 // 本地枚举值
 const localEnums: Enums = {
@@ -105,7 +107,7 @@ export function useEnums() {
    * @returns 枚举值的描述（如 '不需要进货'）
    */
   const getEnumLabel = (type: keyof Enums, key: string): string => {
-    return enums.value[type][key]?.label || '未知';
+    return (enums.value[type] && enums.value[type][key]?.label) || '未知';
   };
 
   /**
@@ -115,7 +117,7 @@ export function useEnums() {
    * @returns 枚举值的颜色（如 'default'），如果未定义则返回默认值
    */
   const getEnumColor = (type: keyof Enums, key: string): string => {
-    return enums.value[type][key]?.color || '#434B52'; // 默认灰色
+    return (enums.value[type] && enums.value[type][key]?.color) || '#434B52'; // 默认灰色
   };
 
   /**
@@ -126,11 +128,15 @@ export function useEnums() {
   const getEnumList = (
     type: keyof Enums,
   ): Array<{ color?: string; key: string; label: string }> => {
-    return Object.entries(enums.value[type]).map(([key, item]) => ({
-      key,
-      label: item.label,
-      color: item.color, // color 非必填
-    }));
+    return (
+      (enums.value[type] &&
+        Object.entries(enums.value[type]).map(([key, item]) => ({
+          key,
+          label: item.label,
+          color: item.color, // color 非必填
+        }))) ||
+      []
+    );
   };
 
   return {

@@ -1,16 +1,19 @@
 <script lang="ts" setup>
 import type {
+  ActionButton,
   ColumnConfig,
   FilterValue,
   SearchFormState,
   SorterResult,
   TableItem,
+  ValueTransformer,
 } from './types';
 
 import {
   computed,
   defineEmits,
   defineProps,
+  h,
   nextTick,
   onMounted,
   reactive,
@@ -18,25 +21,21 @@ import {
   watch,
 } from 'vue';
 
-import { Button, Card, Form, Input, Select, Table } from 'ant-design-vue';
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Tag,
+} from 'ant-design-vue';
+
+import { useEnums } from '#/composables';
 
 import { FieldType } from './types';
-
-// 使用自定义类型定义
-interface TablePaginationConfig {
-  [key: string]: any;
-  current?: number;
-  pageSize?: number;
-  total?: number;
-}
-
-type TableColumn = {
-  [key: string]: any;
-  dataIndex: string;
-  key: string;
-  title: string;
-  width?: number | string;
-};
 
 // 定义属性
 const props = defineProps({
@@ -124,6 +123,27 @@ const emit = defineEmits([
   'update:loading',
 ]);
 
+const { getEnumLabel, getEnumColor } = useEnums();
+
+// 使用自定义类型定义
+interface TablePaginationConfig {
+  [key: string]: any;
+  current?: number;
+  pageSize?: number;
+  total?: number;
+}
+
+// 在文件顶部添加 TableColumn 类型定义
+interface TableColumn {
+  dataIndex: string;
+  key: string;
+  title: string;
+  width?: number;
+  align?: 'center' | 'left' | 'right';
+  fixed?: 'left' | 'right' | boolean;
+  customRender?: (params: { record: TableItem; text: any }) => any;
+}
+
 // 内部状态
 const internalLoading = ref(props.loading);
 const internalCurrent = ref(props.currentPage);
@@ -195,16 +215,140 @@ props.columns.forEach((col) => {
   }
 });
 
-// 计算可见的表格列
+// 权限检查函数（如果有权限系统）
+// const hasPermission = (permission: string) => {
+//   // 实现权限检查逻辑，没有权限系统时可以直接返回true
+//   return true;
+// };
+
+// 渲染操作按钮
+const renderActionButton = (button: ActionButton, record: TableItem) => {
+  // 如果设置了show条件且不满足，则不显示该按钮
+  if (button.show && !button.show(record)) {
+    return null;
+  }
+
+  // 如果设置了权限且用户没有该权限，则不显示该按钮
+  // if (button.permission && !hasPermission(button.permission)) {
+  //   return null;
+  // }
+
+  // 按钮点击处理函数
+  const handleClick = (e: Event) => {
+    e.stopPropagation(); // 阻止事件冒泡，防止触发行点击事件
+
+    // 如果设置了确认提示，则显示确认对话框
+    if (button.confirm) {
+      Modal.confirm({
+        title: button.confirmTitle || '确认操作',
+        icon: h(ExclamationCircleOutlined),
+        content: button.confirm,
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => {
+          button.onClick(record);
+        },
+      });
+    } else {
+      // 直接执行点击事件
+      button.onClick(record);
+    }
+  };
+
+  // 渲染按钮
+  return h(
+    Button,
+    {
+      ...button, // 传递其他属性
+      type: button.type || 'link',
+      danger: button.danger,
+      disabled: button.disabled ? button.disabled(record) : false,
+      onClick: handleClick,
+      size: 'small',
+    },
+    {
+      default: () =>
+        button.icon
+          ? h('span', {}, [
+              // 如果有图标配置，可以使用图标组件
+              // h(Icon, { type: button.icon }),
+              // h('span', { style: { marginLeft: '4px' } }, button.text)
+              button.text,
+            ])
+          : button.text,
+    },
+  );
+};
+
+// 渲染操作按钮组
+const renderActionButtons = (actions: ActionButton[], record: TableItem) => {
+  const buttons = actions
+    .map((button) => renderActionButton(button, record))
+    .filter(Boolean); // 过滤掉不显示的按钮
+
+  if (buttons.length === 0) {
+    return null;
+  }
+
+  return h('div', { class: 'data-table-action-buttons' }, buttons);
+};
+
+// 修改 visibleColumns 的类型声明
 const visibleColumns = computed<TableColumn[]>(() => {
-  return props.columns
-    .filter((col) => col.visible !== false)
+  // 基础列
+  const basicColumns = props.columns
+    .filter((col) => col.visible !== false && !col.actions)
     .map((col) => ({
       dataIndex: col.dataIndex,
       key: col.dataIndex,
       title: col.title,
       width: col.width,
+      align: col.align,
+      fixed: col.fixed,
+      customRender: ({ text, record }: { record: TableItem; text: any }) => {
+        // 如果有自定义渲染函数，优先使用
+        if (col.render) {
+          return col.render(text, record, 0);
+        }
+
+        // 根据字段类型渲染
+        if (col.type === FieldType.SELECT) {
+          return col.options
+            ? renderCellContent(record[col.dataIndex], col)
+            : h(
+                Tag,
+                { color: getEnumColor(col.dataIndex, text) || 'default' },
+                () => getEnumLabel(col.dataIndex, text) || text,
+              );
+        }
+
+        return text;
+      },
     }));
+
+  // 查找是否有操作列
+  const actionColumn = props.columns.find(
+    (col) => col.actions && col.actions.length > 0,
+  );
+
+  // 如果有操作列，添加到表格列中
+  if (actionColumn) {
+    const actionColumnProps = actionColumn.actionColumnProps || {};
+
+    basicColumns.push({
+      title: actionColumnProps.title || '操作',
+      key: 'action',
+      dataIndex: 'action',
+      fixed: actionColumnProps.fixed || 'right',
+      align: actionColumnProps.align || 'center',
+      width: (actionColumnProps.width as number) || 180,
+      customRender: ({ record }: { record: TableItem }) => {
+        return renderActionButtons(actionColumn.actions || [], record);
+      },
+    });
+  }
+
+  return basicColumns;
 });
 
 // 计算可搜索的字段
@@ -368,6 +512,55 @@ defineExpose({
     selectedRows.value = rows;
   },
 });
+
+// 值转换器实现
+const valueTransformers: Record<FieldType, ValueTransformer> = {
+  [FieldType.SELECT]: {
+    toDisplay: (value: any, column: ColumnConfig) => {
+      if (!column.options) return String(value);
+      const option = column.options.find((opt) => opt.value === value);
+      return option ? option.label : String(value);
+    },
+    toValue: (displayValue: string, column: ColumnConfig) => {
+      if (!column.options) return displayValue;
+      const option = column.options.find((opt) => opt.label === displayValue);
+      return option ? option.value : displayValue;
+    },
+  },
+  [FieldType.STRING]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+  [FieldType.NUMBER]: {
+    toDisplay: String,
+    toValue: Number,
+  },
+  [FieldType.CHECKBOX]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+  [FieldType.DATE]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+  [FieldType.DATETIME]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+  [FieldType.SWITCH]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+};
+
+// 渲染单元格内容
+const renderCellContent = (value: any, column: ColumnConfig) => {
+  const transformer = valueTransformers[column.type as FieldType];
+  if (transformer) {
+    return transformer.toDisplay(value, column);
+  }
+  return value;
+};
 </script>
 
 <template>
@@ -554,5 +747,24 @@ defineExpose({
 
 :deep(.ant-pagination-options) {
   margin-left: 16px;
+}
+
+/* 操作按钮组样式 */
+:deep(.ant-space) {
+  display: flex;
+  justify-content: center;
+}
+
+/* 添加操作按钮样式 */
+:deep(.data-table-action-buttons) {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.data-table-action-buttons .ant-btn) {
+  padding: 0 4px;
 }
 </style>
