@@ -139,6 +139,7 @@ interface TableColumn {
   key: string;
   title: string;
   width?: number;
+  ellipsis?: boolean;
   align?: 'center' | 'left' | 'right';
   fixed?: 'left' | 'right' | boolean;
   customRender?: (params: { record: TableItem; text: any }) => any;
@@ -305,6 +306,7 @@ const visibleColumns = computed<TableColumn[]>(() => {
       width: col.width,
       align: col.align,
       fixed: col.fixed,
+      ellipsis: col.ellipsis,
       customRender: ({ text, record }: { record: TableItem; text: any }) => {
         // 如果有自定义渲染函数，优先使用
         if (col.render) {
@@ -339,6 +341,7 @@ const visibleColumns = computed<TableColumn[]>(() => {
       title: actionColumnProps.title || '操作',
       key: 'action',
       dataIndex: 'action',
+      ellipsis: false,
       fixed: actionColumnProps.fixed || 'right',
       align: actionColumnProps.align || 'center',
       width: (actionColumnProps.width as number) || 180,
@@ -548,6 +551,10 @@ const valueTransformers: Record<FieldType, ValueTransformer> = {
     toValue: (value: string) => value,
   },
   [FieldType.SWITCH]: {
+    toDisplay: String,
+    toValue: (value: string) => value,
+  },
+  [FieldType.OPERATION]: {
     toDisplay: String,
     toValue: (value: string) => value,
   },

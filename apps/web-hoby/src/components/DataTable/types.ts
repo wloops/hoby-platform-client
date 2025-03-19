@@ -1,11 +1,22 @@
 import type { VNodeChild } from 'vue';
 
 // 定义字段类型枚举
+/**
+ * @CHECKBOX 复选框
+ * @DATE 日期
+ * @DATETIME 日期时间
+ * @NUMBER 数字
+ * @OPERATION 操作
+ * @SELECT 选择
+ * @STRING 字符串
+ * @SWITCH 开关
+ */
 export enum FieldType {
   CHECKBOX = 'checkbox', // 新增复选框类型
   DATE = 'date', // 新增日期类型
   DATETIME = 'datetime', // 新增日期时间类型
   NUMBER = 'number',
+  OPERATION = 'operation', // 新增操作类型
   SELECT = 'select',
   STRING = 'string',
   SWITCH = 'switch', // 新增开关类型
@@ -63,24 +74,25 @@ export interface ActionButton {
 
 // 定义表头配置接口
 export interface ColumnConfig {
-  title: string;
-  dataIndex: string;
-  visible: boolean;
-  searchable?: boolean;
-  type: FieldType;
-  width?: number;
-  fixed?: 'left' | 'right' | boolean;
-  align?: 'center' | 'left' | 'right';
-  options?: SelectOption[];
-  render?: (text: any, record: TableItem, index: number) => VNodeChild;
+  title: string; // 列标题
+  dataIndex: string; // 列数据索引
+  visible: boolean; // 是否显示
+  searchable?: boolean; // 是否可搜索
+  type: FieldType; // 列类型
+  width?: number; // 列宽度
+  fixed?: 'left' | 'right' | boolean; // 是否固定
+  align?: 'center' | 'left' | 'right'; // 对齐方式
+  ellipsis?: boolean; // 是否显示省略号
+  options?: SelectOption[]; // 选项列表
+  render?: (text: any, record: TableItem, index: number) => VNodeChild; // 自定义渲染
   // 列操作按钮配置
-  actions?: ActionButton[];
+  actions?: ActionButton[]; // 操作按钮配置
   // 操作列样式
   actionColumnProps?: {
-    align?: 'center' | 'left' | 'right';
-    fixed?: 'left' | 'right' | boolean;
-    title?: string;
-    width?: number | string;
+    align?: 'center' | 'left' | 'right'; // 对齐方式
+    fixed?: 'left' | 'right' | boolean; // 是否固定
+    title?: string; // 标题
+    width?: number | string; // 宽度
   };
 }
 
