@@ -143,6 +143,7 @@ interface TableColumn {
   width?: number;
   ellipsis?: boolean;
   align?: 'center' | 'left' | 'right';
+  enumName?: string;
   fixed?: 'left' | 'right' | boolean;
   customRender?: (params: { record: TableItem; text: any }) => any;
 }
@@ -386,8 +387,14 @@ const visibleColumns = computed<TableColumn[]>(() => {
             ? renderCellContent(record[col.dataIndex], col)
             : h(
                 Tag,
-                { color: getEnumColor(col.dataIndex, text) || 'default' },
-                () => getEnumLabel(col.dataIndex, text) || text,
+                {
+                  color:
+                    getEnumColor(`${col.enumName}|${col.dataIndex}`, text) ||
+                    'default',
+                },
+                () =>
+                  getEnumLabel(`${col.enumName}|${col.dataIndex}`, text) ||
+                  text,
               );
         }
 

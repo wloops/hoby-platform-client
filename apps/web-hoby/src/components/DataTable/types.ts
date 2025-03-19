@@ -91,6 +91,7 @@ export interface ColumnConfig {
   fixed?: 'left' | 'right' | boolean; // 是否固定
   align?: 'center' | 'left' | 'right'; // 对齐方式
   ellipsis?: boolean; // 是否显示省略号
+  enumName?: string; // 枚举名称
   options?: SelectOptionType[]; // 选项列表
   render?: (text: any, record: TableItem, index: number) => VNodeChild; // 自定义渲染
   // 列操作按钮配置
