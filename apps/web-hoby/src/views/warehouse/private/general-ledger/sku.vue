@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-17 17:48:23
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-17 17:48:46
+ * @LastEditTime: 2025-03-19 11:02:12
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\general-ledger\service.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -128,33 +128,6 @@ const columns: ColumnConfig[] = [
       { label: '正常', value: 1 },
       { label: '缺货', value: 2 },
       { label: '停用', value: 3 },
-    ],
-  },
-  {
-    title: '操作',
-    dataIndex: 'operation',
-    visible: true,
-    actionColumnProps: {
-      width: 180,
-      fixed: 'right',
-      align: 'center',
-    },
-    actions: [
-      {
-        text: '查看',
-        type: 'link',
-        onClick: (record) => {
-          console.warn('查看详情', record);
-        },
-      },
-      {
-        text: '编辑',
-        type: 'link',
-        onClick: (record) => {
-          console.warn('编辑记录', record);
-        },
-        show: (record) => record.status === 1,
-      },
     ],
   },
 ];
