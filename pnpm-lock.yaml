@@ -711,6 +711,9 @@ importers:
       '@iconify-json/lucide':
         specifier: ^1.2.28
         version: 1.2.28
+      '@iconify-json/solar':
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify/tailwind':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3519,6 +3522,9 @@ packages:
 
   '@iconify-json/simple-icons@1.2.27':
     resolution: {integrity: sha512-FtZwp/H7ih5rY9FPfDR+k6toOo/cuwpHWY8faNhxLs5O5uW6Q8TeqdNWfjVfgFtrs5tUUzWysjqNGL234v8EMA==}
+
+  '@iconify-json/solar@1.2.2':
+    resolution: {integrity: sha512-lcTb6DWL4HZObiY1W3fHfuxxuQHUc6CFHFeywKEx7Ry0k+dU6POZCMC7oVLr0F8vuf+KgaQ3oOoGO/yFzOwrNg==}
 
   '@iconify-json/vscode-icons@1.2.16':
     resolution: {integrity: sha512-hstc2yVq2UJ6v6FrgjftzXRvphGZBsKxvSeXoFLP1Hgx89TPZKrGE5SV6vqsoeIlLYaQ7OZbXmAoVGroTfGmVQ==}
@@ -12275,6 +12281,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/simple-icons@1.2.27':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/solar@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
