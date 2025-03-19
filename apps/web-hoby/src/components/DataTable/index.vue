@@ -35,6 +35,7 @@ import {
 
 import { useEnums } from '#/composables';
 
+import EditableCell from './components/EditableCell.vue';
 import { FieldType } from './types';
 
 // 定义属性
@@ -121,6 +122,7 @@ const emit = defineEmits([
   'update:currentPage',
   'update:pageSize',
   'update:loading',
+  'cellSave',
 ]);
 
 const { getEnumLabel, getEnumColor } = useEnums();
@@ -294,27 +296,91 @@ const renderActionButtons = (actions: ActionButton[], record: TableItem) => {
   return h('div', { class: 'data-table-action-buttons' }, buttons);
 };
 
-// 修改 visibleColumns 的类型声明
+// 处理单元格保存事件
+const handleCellSave = async ({
+  record,
+  value,
+  column,
+}: {
+  column: ColumnConfig;
+  record: TableItem;
+  value: any;
+}) => {
+  try {
+    // 如果列配置了保存回调，调用它
+    if (column.editConfig?.onSave) {
+      await column.editConfig.onSave(record, value);
+    }
+
+    // 触发全局保存事件
+    emit('cellSave', { record, column, value });
+
+    // 如果存在获取数据函数，刷新表格
+    if (props.fetchDataFunc) {
+      await fetchData();
+    }
+  } catch (error) {
+    console.error('保存单元格数据失败:', error);
+  }
+};
+
+// 修改 visibleColumns 的渲染逻辑
 const visibleColumns = computed<TableColumn[]>(() => {
-  // 基础列
   const basicColumns = props.columns
     .filter((col) => col.visible !== false && !col.actions)
     .map((col) => ({
-      ...col.antdvTableProps, // 添加 ant-design-vue 表格组件的其他配置
+      ...col.antdvTableProps,
       dataIndex: col.dataIndex,
       key: col.dataIndex,
       title: col.title,
       width: col.width,
       align: col.align,
       fixed: col.fixed,
-      ellipsis: col.ellipsis,
+      ellipsis: col.ellipsis ?? false,
       customRender: ({ text, record }: { record: TableItem; text: any }) => {
-        // 如果有自定义渲染函数，优先使用
+        // 判断当前单元格是否可编辑
+        const editable =
+          typeof col.editable === 'function'
+            ? col.editable(record)
+            : col.editable;
+
+        // 如果单元格可编辑，使用EditableCell组件包装
+        if (editable) {
+          return h(
+            EditableCell,
+            {
+              text,
+              record,
+              editable: true,
+              type: col.editConfig?.type || 'input',
+              options: col.editConfig?.options || [],
+              rules: col.editConfig?.rules || [],
+              onSave: ({ value }) =>
+                handleCellSave({
+                  record,
+                  value,
+                  column: col,
+                }),
+            },
+            {
+              default: () => {
+                // 默认显示内容
+                if (col.type === FieldType.SELECT && col.options) {
+                  return renderCellContent(record[col.dataIndex], col);
+                } else if (col.render) {
+                  return col.render(text, record, 0);
+                }
+                return text;
+              },
+            },
+          );
+        }
+
+        // 非可编辑单元格的现有渲染逻辑
         if (col.render) {
           return col.render(text, record, 0);
         }
 
-        // 根据字段类型渲染
         if (col.type === FieldType.SELECT) {
           return col.options
             ? renderCellContent(record[col.dataIndex], col)

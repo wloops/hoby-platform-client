@@ -13,6 +13,8 @@ DataTable 是一个功能完整的数据表格组件，支持搜索、排序、�
 - 支持条件显示和权限控制
 - 支持确认对话框
 - 支持 SELECT 类型的自动值转换（数据值和显示值分离）
+- **支持单元格编辑功能（新增）**
+- **支持日期和时间类型编辑（新增）**
 
 ## 基本用法
 
@@ -120,6 +122,101 @@ const handleSearch = (formData) => {
 </script>
 ```
 
+## 单元格编辑功能（新增）
+
+DataTable 组件现在支持单元格编辑功能，可以直接在表格中编辑数据。
+
+```vue
+<template>
+  <DataTable
+    :columns="columns"
+    :data-source="tableData"
+    :fetch-data-func="fetchData"
+    @cellSave="handleCellSave"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import DataTable from '#/components/DataTable/index.vue';
+import { FieldType } from '#/components/DataTable/types';
+
+// 列定义（包含可编辑列）
+const columns = [
+  {
+    title: '名称',
+    dataIndex: 'name',
+    visible: true,
+    type: FieldType.STRING,
+    editable: true, // 设置为可编辑
+    editConfig: {
+      type: 'input', // 编辑器类型
+      rules: [{ required: true, message: '名称不能为空' }], // 校验规则
+    },
+  },
+  {
+    title: '价格',
+    dataIndex: 'price',
+    visible: true,
+    type: FieldType.NUMBER,
+    editable: true,
+    editConfig: {
+      type: 'number',
+    },
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    visible: true,
+    type: FieldType.SELECT,
+    editable: true,
+    editConfig: {
+      type: 'select',
+      options: [
+        { label: '正常', value: 1 },
+        { label: '禁用', value: 2 },
+      ],
+    },
+    options: [
+      { label: '正常', value: 1 },
+      { label: '禁用', value: 2 },
+    ],
+  },
+  {
+    title: '创建日期',
+    dataIndex: 'createdAt',
+    visible: true,
+    type: FieldType.DATE,
+    editable: true,
+    editConfig: {
+      type: 'date',
+    },
+  },
+  {
+    title: '更新时间',
+    dataIndex: 'updatedAt',
+    visible: true,
+    type: FieldType.DATETIME,
+    editable: true,
+    editConfig: {
+      type: 'datetime',
+    },
+  },
+];
+
+// 处理单元格保存事件
+const handleCellSave = async ({ record, column, value }) => {
+  try {
+    // 调用API保存数据
+    await api.updateItem(record.id, { [column.dataIndex]: value });
+    message.success('更新成功');
+  } catch (error) {
+    message.error('更新失败');
+  }
+};
+</script>
+```
+
 ## API
 
 ### Props
@@ -153,6 +250,7 @@ const handleSearch = (formData) => {
 | update:currentPage | 更新当前页码 | `pageNumber: number` |
 | update:pageSize | 更新每页条数 | `size: number` |
 | update:loading | 更新加载状态 | `loading: boolean` |
+| cellSave | 单元格保存时触发 | `{ record, column, value }` |
 
 ### Methods
 
@@ -180,6 +278,7 @@ interface ColumnConfig {
   width?: number; // 列宽度
   fixed?: 'left' | 'right' | boolean; // 是否固定列
   align?: 'left' | 'center' | 'right'; // 对齐方式
+  ellipsis?: boolean; // 是否显示省略号
   options?: SelectOption[]; // 下拉选项
   render?: (text: any, record: TableItem, index: number) => VNodeChild; // 自定义渲染函数
   actions?: ActionButton[]; // 操作按钮配置
@@ -190,6 +289,20 @@ interface ColumnConfig {
     align?: 'left' | 'center' | 'right';
     title?: string;
   };
+  editable?: ((record: TableItem) => boolean) | boolean; // 是否可编辑或根据记录动态决定
+  editConfig?: EditableCellConfig; // 编辑配置
+}
+```
+
+### EditableCellConfig（新增）
+
+```typescript
+interface EditableCellConfig {
+  editable?: boolean; // 是否可编辑
+  type?: 'input' | 'number' | 'select' | 'date' | 'datetime'; // 编辑器类型
+  options?: SelectOptionType[]; // 如果是select类型，提供选项
+  rules?: any[]; // 校验规则
+  onSave?: (record: TableItem, value: any) => Promise<void> | void; // 保存回调
 }
 ```
 
@@ -201,6 +314,7 @@ enum FieldType {
   DATE = 'date', // 日期
   DATETIME = 'datetime', // 日期时间
   NUMBER = 'number', // 数字
+  OPERATION = 'operation', // 操作
   SELECT = 'select', // 下拉选择
   STRING = 'string', // 字符串
   SWITCH = 'switch', // 开关
@@ -235,25 +349,38 @@ interface SelectOption {
 
 ## 注意事项
 
-1. **SELECT 类型字段**：
+1. **单元格编辑功能**：
+
+   - 点击单元格右侧的编辑图标可进入编辑模式
+   - 支持的编辑器类型：input（文本）、number（数字）、select（下拉选择）、date（日期）、datetime（日期时间）
+   - 可以配置校验规则和保存回调
+   - 编辑时按回车或点击确认图标可保存，点击外部区域也会自动保存
+
+2. **SELECT 类型字段**：
 
    - 自动处理值和显示文本的转换
    - 表格中显示 options 中定义的标签文本
    - 搜索框中显示下拉选择框
 
-2. **操作按钮**：
+3. **DATE 和 DATETIME 类型字段**：
+
+   - DATE 类型显示为 YYYY-MM-DD 格式
+   - DATETIME 类型显示为 YYYY-MM-DD HH:mm:ss 格式
+   - 编辑时使用对应的日期选择器组件
+
+4. **操作按钮**：
 
    - `show` 函数可控制按钮是否显示
    - `confirm` 属性设置后点击会出现确认对话框
    - `danger` 设为 true 会显示为红色
    - `permission` 属性可用于权限控制（需自行实现权限检查逻辑）
 
-3. **数据获取**：
+5. **数据获取**：
 
    - `fetchDataFunc` 需要返回 `{ data: any[], total: number }` 格式的数据
    - 搜索、分页变化时会自动调用此函数
    - 组件内部会自动处理加载状态
 
-4. **双向绑定**：
+6. **双向绑定**：
    - 组件支持通过 v-model 绑定 currentPage、pageSize 和 loading
    - 例如: `v-model:current-page="currentPage"`
