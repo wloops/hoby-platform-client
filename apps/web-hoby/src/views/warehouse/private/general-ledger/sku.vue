@@ -6,18 +6,320 @@
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\general-ledger\service.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
-<script setup lang="ts">
+<script lang="ts" setup>
+import type {
+  ColumnConfig,
+  PageChangeInfo,
+  SearchParams,
+  SelectionChangeEvent,
+  TableItem,
+} from '#/components/DataTable/types';
+
+import { ref } from 'vue';
+
 import { Page } from '@vben/common-ui';
+import { $t } from '@vben/locales';
+
+import DataTable from '#/components/DataTable/index.vue';
+import { FieldType } from '#/components/DataTable/types';
+
+const pageTitle = $t(
+  'page.warehouse.myPrivateWarehouse.generalLedger.storageSKU',
+);
+
+// 表格列配置
+const columns: ColumnConfig[] = [
+  {
+    title: '仓商',
+    dataIndex: 'merchant',
+    visible: true,
+    searchable: true,
+    type: FieldType.STRING,
+    width: 120,
+  },
+  {
+    title: '产品',
+    dataIndex: 'product',
+    visible: true,
+    searchable: true,
+    type: FieldType.STRING,
+    width: 120,
+  },
+  {
+    title: '型号',
+    dataIndex: 'model',
+    visible: true,
+    searchable: true,
+    type: FieldType.STRING,
+    width: 180,
+  },
+  {
+    title: '库存规格',
+    dataIndex: 'specification',
+    visible: true,
+    searchable: true,
+    type: FieldType.STRING,
+    width: 120,
+  },
+  {
+    title: '库存总数',
+    dataIndex: 'totalStock',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '可用数量',
+    dataIndex: 'availableQuantity',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '锁住数量',
+    dataIndex: 'lockedQuantity',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '报废数量',
+    dataIndex: 'scrapQuantity',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '在售',
+    dataIndex: 'forSale',
+    visible: true,
+    type: FieldType.STRING,
+    width: 70,
+  },
+  {
+    title: '单价',
+    dataIndex: 'price',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '折扣',
+    dataIndex: 'discount',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 70,
+  },
+  {
+    title: '折后单价',
+    dataIndex: 'discountedPrice',
+    visible: true,
+    type: FieldType.NUMBER,
+    width: 90,
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    visible: true,
+    searchable: true,
+    type: FieldType.SELECT,
+    width: 80,
+    options: [
+      { label: '正常', value: 1 },
+      { label: '缺货', value: 2 },
+      { label: '停用', value: 3 },
+    ],
+  },
+  {
+    title: '操作',
+    dataIndex: 'operation',
+    visible: true,
+    actionColumnProps: {
+      width: 180,
+      fixed: 'right',
+      align: 'center',
+    },
+    actions: [
+      {
+        text: '查看',
+        type: 'link',
+        onClick: (record) => {
+          console.warn('查看详情', record);
+        },
+      },
+      {
+        text: '编辑',
+        type: 'link',
+        onClick: (record) => {
+          console.warn('编辑记录', record);
+        },
+        show: (record) => record.status === 1,
+      },
+    ],
+  },
+];
+
+// 表格数据和状态
+const tableData = ref<TableItem[]>([]);
+const total = ref<number>(0);
+const currentPage = ref<number>(1);
+const pageSize = ref<number>(10);
+const loading = ref<boolean>(false);
+
+// 引用组件实例
+const dataTableRef = ref<null | {
+  clearSelection: () => void;
+  getCurrentPage: () => number;
+  getPageSize: () => number;
+  getSearchParams: () => Record<string, any>;
+  refresh: () => void;
+  resetSearch: () => void;
+  searchForm: Record<string, any>;
+  selectedRowKeys: Array<number | string>;
+  selectedRows: TableItem[];
+  setSelection: (keys: Array<number | string>, rows: TableItem[]) => void;
+}>(null);
+
+// API服务（模拟）
+const skuApi = {
+  getList: async (_params: SearchParams) => {
+    // 模拟API调用延迟
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return {
+      data: [
+        {
+          id: 1,
+          merchant: '测试厂商',
+          product: '空调',
+          model: 'TEST壁挂式空调-Ver1.0',
+          specification: '无',
+          totalStock: 2100,
+          availableQuantity: 2100,
+          lockedQuantity: 0,
+          scrapQuantity: 0,
+          forSale: '是',
+          price: 1000,
+          discount: 1,
+          discountedPrice: 1000,
+          status: 1,
+        },
+        {
+          id: 2,
+          merchant: '测试厂商',
+          product: '男士T恤衫',
+          model: '圆领文化衫',
+          specification: 'XL.黄色',
+          totalStock: 2200,
+          availableQuantity: 2200,
+          lockedQuantity: 0,
+          scrapQuantity: 0,
+          forSale: '是',
+          price: 32,
+          discount: 1,
+          discountedPrice: 32,
+          status: 1,
+        },
+      ],
+      total: 2,
+    };
+  },
+};
+
+// 获取数据的方法
+const fetchSkuData = async (params: SearchParams) => {
+  try {
+    loading.value = true;
+    const result = await skuApi.getList(params);
+    tableData.value = result.data;
+    total.value = result.total;
+    return result;
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    return {
+      data: [],
+      total: 0,
+    };
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 处理搜索事件
+const handleSearch = (formData: Record<string, any>) => {
+  console.warn('搜索条件：', formData);
+  fetchSkuData({
+    ...formData,
+    page: 1,
+    pageSize: pageSize.value,
+  });
+};
+
+// 处理分页变化
+const handlePageChange = (pagination: PageChangeInfo) => {
+  console.warn('分页变化：', pagination);
+};
+
+// 处理选择变化
+const handleSelectionChange = (event: SelectionChangeEvent) => {
+  const { keys, rows } = event;
+  console.warn('选中行变化：', keys, rows);
+};
+
+// 工具方法
+function refreshTable() {
+  if (dataTableRef.value) {
+    dataTableRef.value.refresh();
+  }
+}
+
+function getCurrentState() {
+  if (dataTableRef.value) {
+    const page = dataTableRef.value.getCurrentPage();
+    const size = dataTableRef.value.getPageSize();
+    const params = dataTableRef.value.getSearchParams();
+    console.warn('当前状态：', { page, size, params });
+  }
+}
+
+// 暴露给外部组件调用的方法
+defineExpose({
+  refreshTable,
+  getCurrentState,
+});
 </script>
 
 <template>
-  <Page>
-    <div class="p-6">
-      <h1 class="mb-6 text-lg font-medium">暂未开放</h1>
-      <!-- 店铺列表 -->
-      <div class="rounded-lg bg-white p-6 shadow-sm">
-        <div class="text-center text-gray-500">页面开发中...</div>
-      </div>
-    </div>
+  <Page auto-content-height :title="pageTitle" class="sku-page">
+    <DataTable
+      ref="dataTableRef"
+      :columns="columns"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      v-model:loading="loading"
+      :data-source="tableData"
+      :total="total"
+      :fetch-data-func="fetchSkuData"
+      :row-selection="true"
+      row-key="id"
+      @search="handleSearch"
+      @page-change="handlePageChange"
+      @selection-change="handleSelectionChange"
+    />
   </Page>
 </template>
+
+<style scoped>
+.sku-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:deep(.vben-page-content) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+</style>

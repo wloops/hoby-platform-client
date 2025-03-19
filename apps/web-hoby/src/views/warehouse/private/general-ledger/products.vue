@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-17 17:48:23
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-19 10:29:10
+ * @LastEditTime: 2025-03-19 10:06:43
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\general-ledger\service.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,14 +24,14 @@ import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
 
 const pageTitle = $t(
-  'page.warehouse.myPrivateWarehouse.warehouseLedger.openPrivateWarehouse',
+  'page.warehouse.myPrivateWarehouse.generalLedger.storageProduct',
 );
 
 // 表格列配置
 const columns: ColumnConfig[] = [
   {
-    title: '仓库',
-    dataIndex: 'warehouse',
+    title: '仓商',
+    dataIndex: 'merchant',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -49,33 +49,29 @@ const columns: ColumnConfig[] = [
     title: '库存总数',
     dataIndex: 'totalStock',
     visible: true,
-    searchable: false,
     type: FieldType.NUMBER,
-    width: 120,
+    width: 100,
   },
   {
     title: '可用数量',
     dataIndex: 'availableQuantity',
     visible: true,
-    searchable: false,
     type: FieldType.NUMBER,
-    width: 120,
+    width: 100,
   },
   {
     title: '锁定数量',
     dataIndex: 'lockedQuantity',
     visible: true,
-    searchable: false,
     type: FieldType.NUMBER,
-    width: 120,
+    width: 100,
   },
   {
     title: '报废数量',
     dataIndex: 'scrapQuantity',
     visible: true,
-    searchable: false,
     type: FieldType.NUMBER,
-    width: 120,
+    width: 100,
   },
   {
     title: '状态',
@@ -83,11 +79,11 @@ const columns: ColumnConfig[] = [
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
-    width: 120,
+    width: 100,
     options: [
       { label: '正常', value: 1 },
-      { label: '即将到期', value: 2 },
-      { label: '已到期', value: 3 },
+      { label: '缺货', value: 2 },
+      { label: '停用', value: 3 },
     ],
   },
 ];
@@ -99,7 +95,7 @@ const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const loading = ref<boolean>(false);
 
-// 引用组件实例
+// 引用组件实例并添加类型定义
 const dataTableRef = ref<null | {
   clearSelection: () => void;
   getCurrentPage: () => number;
@@ -114,7 +110,7 @@ const dataTableRef = ref<null | {
 }>(null);
 
 // API服务（模拟）
-const warehouseApi = {
+const productApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -123,20 +119,20 @@ const warehouseApi = {
       data: [
         {
           id: 1,
-          warehouse: '广州天润大厦仓',
-          product: '产品1',
-          totalStock: 100,
-          availableQuantity: 100,
+          merchant: '测试厂商',
+          product: '空调',
+          totalStock: 2100,
+          availableQuantity: 2100,
           lockedQuantity: 0,
           scrapQuantity: 0,
           status: 1,
         },
         {
           id: 2,
-          warehouse: '广州天润大厦仓',
-          product: '产品2',
-          totalStock: 100,
-          availableQuantity: 100,
+          merchant: '测试厂商',
+          product: '男士T恤衫',
+          totalStock: 2200,
+          availableQuantity: 2200,
           lockedQuantity: 0,
           scrapQuantity: 0,
           status: 1,
@@ -147,16 +143,16 @@ const warehouseApi = {
   },
 };
 
-// 获取数据的方法
-const fetchWarehouseData = async (params: SearchParams) => {
+// 获取商品数据的方法
+const fetchProductData = async (params: SearchParams) => {
   try {
     loading.value = true;
-    const result = await warehouseApi.getList(params);
+    const result = await productApi.getList(params);
     tableData.value = result.data;
     total.value = result.total;
     return result;
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error('获取商品数据失败:', error);
     return {
       data: [],
       total: 0,
@@ -169,7 +165,7 @@ const fetchWarehouseData = async (params: SearchParams) => {
 // 处理搜索事件
 const handleSearch = (formData: Record<string, any>) => {
   console.warn('搜索条件：', formData);
-  fetchWarehouseData({
+  fetchProductData({
     ...formData,
     page: 1,
     pageSize: pageSize.value,
@@ -179,6 +175,11 @@ const handleSearch = (formData: Record<string, any>) => {
 // 处理分页变化
 const handlePageChange = (pagination: PageChangeInfo) => {
   console.warn('分页变化：', pagination);
+  // 获取选中数据示例
+  if (dataTableRef.value) {
+    const { selectedRows } = dataTableRef.value;
+    console.warn('当前选中行：', selectedRows);
+  }
 };
 
 // 处理选择变化
@@ -211,7 +212,8 @@ defineExpose({
 </script>
 
 <template>
-  <Page auto-content-height :title="pageTitle" class="warehouse-open-page">
+  <Page auto-content-height :title="pageTitle" class="product-page">
+    <!-- 使用v-model绑定方式 -->
     <DataTable
       ref="dataTableRef"
       :columns="columns"
@@ -220,7 +222,7 @@ defineExpose({
       v-model:loading="loading"
       :data-source="tableData"
       :total="total"
-      :fetch-data-func="fetchWarehouseData"
+      :fetch-data-func="fetchProductData"
       :row-selection="true"
       row-key="id"
       @search="handleSearch"
@@ -231,7 +233,7 @@ defineExpose({
 </template>
 
 <style scoped>
-.warehouse-open-page {
+.product-page {
   display: flex;
   flex-direction: column;
   height: 100%;

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 23:05:58
+ * @LastEditTime: 2025-03-19 10:42:46
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\warehouse.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,6 +24,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myPrivateWarehouse.management.title'),
           authority: ['warehouse'],
+          icon: 'mdi:animation',
         },
         name: 'PrivateWarehouseManagement',
         path: '/warehouse/private/management',
@@ -145,6 +146,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myPrivateWarehouse.generalLedger.title'),
           authority: ['warehouse'],
+          icon: 'solar:bill-list-bold',
         },
         name: 'PrivateWarehouseGeneralLedger',
         path: '/warehouse/private/general-ledger',
@@ -157,11 +159,9 @@ const routes: RouteRecordRaw[] = [
               authority: ['warehouse'],
             },
             name: 'OpenWarehouse',
-            path: '/warehouse/private/general-ledger/opened-warehouse',
+            path: '/warehouse/private/general-ledger/open',
             component: () =>
-              import(
-                '#/views/warehouse/private/general-ledger/opened-warehouse.vue'
-              ),
+              import('#/views/warehouse/private/general-ledger/open.vue'),
           },
           {
             meta: {
@@ -170,10 +170,10 @@ const routes: RouteRecordRaw[] = [
               ),
               authority: ['warehouse'],
             },
-            name: 'StorageProduct',
-            path: '/warehouse/private/general-ledger/product',
+            name: 'StorageProducts',
+            path: '/warehouse/private/general-ledger/products',
             component: () =>
-              import('#/views/warehouse/private/general-ledger/product.vue'),
+              import('#/views/warehouse/private/general-ledger/products.vue'),
           },
           {
             meta: {
@@ -205,6 +205,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myPrivateWarehouse.warehouseLedger.title'),
           authority: ['warehouse'],
+          icon: 'solar:bill-list-broken',
         },
         name: 'PrivateWarehouseLedger',
         path: '/warehouse/private/ledger',
@@ -273,6 +274,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myBranchWarehouse.generalLedger.title'),
           authority: ['warehouse'],
+          icon: 'solar:bill-list-bold',
         },
         name: 'MyBranchWarehouseGeneralLedger',
         path: '/warehouse/branch/general-ledger',
@@ -331,6 +333,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myBranchWarehouse.warehouseLedger.title'),
           authority: ['warehouse'],
+          icon: 'solar:bill-list-broken',
         },
         name: 'BranchWarehouseLedger',
         path: '/warehouse/branch/ledger',
@@ -399,6 +402,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myWarehouse.info'),
           authority: ['warehouse'],
+          icon: 'solar:info-square-bold-duotone',
         },
         name: 'WarehouseInfoManagement',
         path: '/warehouse/info/management',
@@ -408,6 +412,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myWarehouse.shelf'),
           authority: ['warehouse'],
+          icon: 'solar:bedside-table-linear',
         },
         name: 'WarehouseShelf',
         path: '/warehouse/info/shelf',
@@ -417,6 +422,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.warehouse.myWarehouse.deficit'),
           authority: ['warehouse'],
+          icon: 'solar:home-smile-bold-duotone',
         },
         name: 'WarehouseDeficit',
         path: '/warehouse/info/deficit',
