@@ -94,6 +94,10 @@ export interface ColumnConfig {
     title?: string; // 标题
     width?: number | string; // 宽度
   };
+  // ant-design-vue 表格组件的其他配置
+  antdvTableProps?: {
+    [key: string]: any;
+  };
 }
 
 // 定义搜索表单接口

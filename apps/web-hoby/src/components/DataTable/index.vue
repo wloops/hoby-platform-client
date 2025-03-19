@@ -300,6 +300,7 @@ const visibleColumns = computed<TableColumn[]>(() => {
   const basicColumns = props.columns
     .filter((col) => col.visible !== false && !col.actions)
     .map((col) => ({
+      ...col.antdvTableProps, // 添加 ant-design-vue 表格组件的其他配置
       dataIndex: col.dataIndex,
       key: col.dataIndex,
       title: col.title,
