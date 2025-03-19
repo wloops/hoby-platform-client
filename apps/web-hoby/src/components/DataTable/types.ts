@@ -27,7 +27,7 @@ export interface TableItem {
 }
 
 // 定义选项接口
-export interface SelectOption {
+export interface SelectOptionType {
   label: string;
   value: number | string;
 }
@@ -44,6 +44,14 @@ export interface SorterResult {
   columnKey: string;
   field: string;
   order?: SorterOrder;
+}
+// 单元格编辑配置接口
+export interface EditableCellConfig {
+  editable?: boolean; // 是否可编辑
+  type?: 'date' | 'datetime' | 'input' | 'number' | 'select'; // 编辑器类型
+  options?: SelectOptionType[]; // 如果是select类型，提供选项
+  rules?: any[]; // 校验规则
+  onSave?: (record: TableItem, value: any) => Promise<void> | void; // 保存回调
 }
 
 // 定义操作按钮接口 (放在ColumnConfig之前定义)
@@ -83,7 +91,7 @@ export interface ColumnConfig {
   fixed?: 'left' | 'right' | boolean; // 是否固定
   align?: 'center' | 'left' | 'right'; // 对齐方式
   ellipsis?: boolean; // 是否显示省略号
-  options?: SelectOption[]; // 选项列表
+  options?: SelectOptionType[]; // 选项列表
   render?: (text: any, record: TableItem, index: number) => VNodeChild; // 自定义渲染
   // 列操作按钮配置
   actions?: ActionButton[]; // 操作按钮配置
@@ -98,6 +106,8 @@ export interface ColumnConfig {
   antdvTableProps?: {
     [key: string]: any;
   };
+  editable?: ((record: TableItem) => boolean) | boolean; // 是否可编辑或根据记录动态决定
+  editConfig?: EditableCellConfig; // 编辑配置
 }
 
 // 定义搜索表单接口
