@@ -53,6 +53,23 @@
       "myApply": "我的开店申请"
     }
   },
+  "shop": {
+    "title": "我的店铺",
+    "myPrivateWarehouse": {
+      "title": "我的私仓店铺",
+      "shop": "私仓店铺",
+      "products": "私仓店铺产品",
+      "model": "私仓店铺型号",
+      "sku": "私仓店铺SKU"
+    },
+    "myBranchWarehouse": {
+      "title": "我的分仓店铺",
+      "shop": "分仓店铺",
+      "products": "分仓店铺产品",
+      "model": "分仓店铺型号",
+      "sku": "分仓店铺SKU"
+    }
+  },
   "warehouse": {
     "title": "我的仓库",
     "home": "仓库首页",

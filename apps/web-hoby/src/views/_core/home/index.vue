@@ -24,8 +24,10 @@ const navigationItems = [
   {
     title: '我的店铺',
     icon: 'icon-[lucide--store]',
-    link: '/seller',
-    authority: ['seller'],
+    link: '/shop',
+    authority: ['shop'],
+    // link: '/seller',
+    // authority: ['seller'],
   },
   {
     title: '我的仓库',
