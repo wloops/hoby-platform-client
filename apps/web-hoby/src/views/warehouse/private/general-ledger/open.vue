@@ -54,7 +54,7 @@ const columns: ColumnConfig[] = [
     title: '操作',
     dataIndex: 'operation',
     visible: true,
-    type: FieldType.STRING,
+    type: FieldType.OPERATION,
     actionColumnProps: {
       width: 200,
       fixed: 'right',
