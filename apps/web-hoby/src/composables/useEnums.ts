@@ -103,7 +103,7 @@ const localEnums: Enums = {
       color: 'success',
     },
   },
-  // 仓库状态
+  // 仓库状态（摇奖活动状态）
   warehouseStatus: {
     '0': {
       label: '已停止',
@@ -190,15 +190,15 @@ export function useEnums() {
   /**
    * 获取枚举列表
    * @param type 枚举类型（如 'restockingStatus'）
-   * @returns 枚举键值对列表（如 [{ key: '0', label: '不需要进货', color: 'default' }]）
+   * @returns 枚举键值对列表（如 [{ value: '0', label: '不需要进货', color: 'default' }]）
    */
   const getEnumList = (
     type: keyof Enums,
-  ): Array<{ color?: string; key: string; label: string }> => {
+  ): Array<{ color?: string; label: string; value: string }> => {
     return (
       (enums.value[type] &&
         Object.entries(enums.value[type]).map(([key, item]) => ({
-          key,
+          value: key,
           label: item.label,
           color: item.color, // color 非必填
         }))) ||

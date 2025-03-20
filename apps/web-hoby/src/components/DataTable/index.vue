@@ -215,7 +215,7 @@ watch(
 // 赋值枚举列表
 if (props.columns.length > 0) {
   props.columns.forEach((col) => {
-    if (col.enumName) {
+    if (col.enumName && getEnumList(col.enumName)) {
       col.options = getEnumList(col.enumName) as any[];
     }
   });
@@ -347,6 +347,14 @@ const visibleColumns = computed<TableColumn[]>(() => {
       align: col.align,
       fixed: col.fixed,
       ellipsis: col.ellipsis ?? false,
+      customCell: () => ({
+        style: {
+          padding: '8px 12px',
+          borderRight: '1px solid #f0f0f0',
+          // overflow: 'hidden',
+          // textOverflow: 'ellipsis',
+        },
+      }),
       customRender: ({ text, record }: { record: TableItem; text: any }) => {
         // 判断当前单元格是否可编辑
         const editable =
@@ -392,7 +400,7 @@ const visibleColumns = computed<TableColumn[]>(() => {
         }
 
         if (col.type === FieldType.SELECT) {
-          return col.options
+          return col.options && !col.enumName
             ? renderCellContent(record[col.dataIndex], col)
             : h(
                 Tag,
@@ -428,6 +436,13 @@ const visibleColumns = computed<TableColumn[]>(() => {
       fixed: actionColumnProps.fixed || 'right',
       align: actionColumnProps.align || 'center',
       width: (actionColumnProps.width as number) || 180,
+      customCell: () => ({
+        style: {
+          padding: '8px',
+          borderRight: '1px solid #f0f0f0',
+          // textAlign: 'center',
+        },
+      }),
       customRender: ({ record }: { record: TableItem }) => {
         return renderActionButtons(actionColumn.actions || [], record);
       },
@@ -535,8 +550,37 @@ const fetchData = async () => {
   }
 };
 
-// 组件挂载时获取数据
+// 添加一个自动调整列宽度的工具函数
+const adjustColumnWidths = () => {
+  // 计算除了操作列以外所有列的总宽度
+  // const contentColumns = props.columns.filter(
+  //   (col) => col.visible !== false && !col.actions,
+  // );
+
+  // const totalContentWidth = contentColumns.reduce((sum, col) => {
+  //   return sum + (col.width || 100);
+  // }, 0);
+
+  // 找到操作列
+  const actionColumn = props.columns.find(
+    (col) => col.actions && col.actions.length > 0,
+  );
+
+  // 如果有操作列，调整其宽度
+  if (actionColumn && actionColumn.actionColumnProps) {
+    // 计算每个操作按钮的平均宽度 (大约65px)
+    const buttonsCount = actionColumn.actions?.length || 0;
+    const estimatedWidth = Math.max(buttonsCount * 65, 120);
+
+    // 调整操作列宽度
+    actionColumn.actionColumnProps.width = estimatedWidth;
+  }
+};
+
+// 在组件挂载时调整列宽度
 onMounted(() => {
+  adjustColumnWidths();
+
   if (props.fetchDataFunc && props.dataSource.length === 0) {
     fetchData();
   }
@@ -707,7 +751,7 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
 
     <!-- 表格区域 -->
     <Card
-      :bordered="false"
+      :bordered="true"
       :class="{ 'margin-top': showSearch && searchableFields.length > 0 }"
       class="table-card"
     >
@@ -733,9 +777,10 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
         :row-key="rowKey"
         :row-selection="rowSelectionConfig"
         :scroll="{ x: '100%', y: tableScrollY }"
+        table-layout="fixed"
         @change="handleTableChange as any"
         @row-click="handleRowClick"
-        bordered
+        :bordered="false"
       />
     </Card>
   </div>
@@ -780,14 +825,14 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   flex: 1;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid #f0f0f0;
+  border-radius: 2px;
 }
 
 :deep(.ant-card-body) {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  flex-direction: row;
   padding: 0;
-  overflow: hidden;
 }
 
 :deep(.ant-table-wrapper) {
@@ -811,6 +856,7 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: none !important;
 }
 
 :deep(.ant-table-header) {
@@ -852,9 +898,35 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   gap: 8px;
   align-items: center;
   justify-content: center;
+  width: calc(100% + 16px);
+  padding: 0 8px;
+  margin: 0 -8px;
 }
 
 :deep(.data-table-action-buttons .ant-btn) {
   padding: 0 4px;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  border-top: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+}
+
+:deep(.ant-table-thead > tr > th:first-child),
+:deep(.ant-table-tbody > tr > td:first-child) {
+  border-left: 1px solid #f0f0f0;
+}
+
+:deep(.ant-table-tbody > tr) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  border-right: 1px solid #f0f0f0;
+}
+
+:deep(.ant-table-tbody > tr > td:last-child),
+:deep(.ant-table-thead > tr > th:last-child) {
+  border-right: 1px solid #f0f0f0 !important;
 }
 </style>
