@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-04 16:17:01
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-15 22:56:09
+ * @LastEditTime: 2025-03-20 14:50:01
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\buyer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -21,7 +21,7 @@ import { $t } from '#/locales';
 const routes: RouteRecordRaw[] = [
   {
     meta: {
-      icon: 'lucide:layout-dashboard',
+      icon: 'solar:qr-code-line-duotone',
       order: 1,
       title: $t('page.products.productStandards.title'),
       authority: ['products'],
@@ -40,6 +40,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.products.productStandards.productStandards'),
+          icon: 'solar:ruler-broken',
           authority: ['products'],
         },
         name: 'ProductProductStandards',
@@ -49,6 +50,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.products.productStandards.productModel'),
+          icon: 'solar:text-circle-broken',
           authority: ['products'],
         },
         name: 'ProductProductModel',
@@ -58,6 +60,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.products.productStandards.mySKU'),
+          icon: 'solar:palette-round-line-duotone',
           authority: ['products'],
         },
         name: 'ProductMySKU',
@@ -67,6 +70,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.products.productStandards.specStandards'),
+          icon: 'solar:ruler-angular-broken',
           authority: ['products'],
         },
         name: 'ProductSpecStandards',
@@ -77,7 +81,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     meta: {
-      icon: 'lucide:layout-dashboard',
+      icon: 'solar:call-dropped-bold-duotone',
       order: 1,
       title: $t('page.products.agentAuthByMe'),
       authority: ['products'],
@@ -89,7 +93,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     meta: {
-      icon: 'lucide:layout-dashboard',
+      icon: 'solar:home-bold-duotone',
       order: 2,
       title: $t('page.products.wareTraderByMe'),
       authority: ['products'],
