@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-19 16:46:32
+ * @LastEditTime: 2025-03-20 17:20:03
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\shop\branch\products.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.shop.myBranchWarehouse.products');
 
@@ -29,7 +30,7 @@ const pageTitle = $t('page.shop.myBranchWarehouse.products');
 const columns: ColumnConfig[] = [
   {
     title: '授权厂商',
-    dataIndex: 'authorizedManufacturer',
+    dataIndex: 'actCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -37,7 +38,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -53,7 +54,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '生产厂家',
-    dataIndex: 'manufacturer',
+    dataIndex: 'companyName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -61,15 +62,12 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '在售',
-    dataIndex: 'isSale',
+    dataIndex: 'onCateStatus',
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
     width: 180,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
+    enumName: 'boolean',
   },
   {
     title: '状态',
@@ -78,11 +76,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '缺货', value: 2 },
-      { label: '停用', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -110,40 +104,15 @@ const dataTableRef = ref<null | {
 // API服务（模拟）
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
-    // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    const params = {
+      pageID: 'myBranchWareShopProductPage',
+      pageDataGrpID: 'myBranchWareShopProduct',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          authorizedManufacturer: '授权厂商1',
-          warehouseName: '仓库1',
-          productName: '产品1',
-          manufacturer: '生产厂家1',
-          isSale: 1,
-          status: 1,
-        },
-        {
-          id: 2,
-          authorizedManufacturer: '授权厂商2',
-          warehouseName: '仓库2',
-          productName: '产品2',
-          manufacturer: '生产厂家2',
-          isSale: 0,
-          status: 1,
-        },
-        {
-          id: 3,
-          authorizedManufacturer: '授权厂商3',
-          warehouseName: '仓库3',
-          productName: '产品3',
-          manufacturer: '生产厂家3',
-          isSale: 1,
-          status: 1,
-        },
-      ],
-      total: 3,
+      data: data.value,
+      total: total.value,
     };
   },
 };
