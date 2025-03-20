@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myPrivateWarehouse.warehouseLedger.storageModel',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouse',
+    dataIndex: 'saleCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -39,7 +40,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'productName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -47,7 +48,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号',
-    dataIndex: 'model',
+    dataIndex: 'srlID',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -55,7 +56,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存规格',
-    dataIndex: 'stockSpecification',
+    dataIndex: 'wareAttrValueList',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -63,7 +64,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存总数',
-    dataIndex: 'totalStock',
+    dataIndex: 'totalNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -71,7 +72,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '可用数量',
-    dataIndex: 'availableQuantity',
+    dataIndex: 'avaNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -79,7 +80,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '锁定数量',
-    dataIndex: 'lockedQuantity',
+    dataIndex: 'lockedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -87,27 +88,15 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '报废数量',
-    dataIndex: 'scrapQuantity',
+    dataIndex: 'destoriedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
     width: 120,
   },
   {
-    title: '在售',
-    dataIndex: 'onSale',
-    visible: true,
-    searchable: false,
-    type: FieldType.SELECT,
-    width: 120,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
-  },
-  {
     title: '单价',
-    dataIndex: 'price',
+    dataIndex: 'prdUnitPrc',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -123,7 +112,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '折后单价',
-    dataIndex: 'discountPrice',
+    dataIndex: 'priceAfterDiscount',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -136,11 +125,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 120,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '即将到期', value: 2 },
-      { label: '已到期', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -169,44 +154,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'privateWareStoreSKUPage',
+      pageDataGrpID: 'privateWareStoreSKU',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouse: '广州天润大厦仓',
-          product: '产品1',
-          model: '型号1',
-          stockSpecification: '规格1',
-          totalStock: 100,
-          availableQuantity: 100,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          onSale: 1,
-          price: 100,
-          discount: 0.9,
-          discountPrice: 90,
-          status: 1,
-        },
-        {
-          id: 2,
-          warehouse: '广州天润大厦仓',
-          product: '产品2',
-          model: '型号2',
-          stockSpecification: '规格2',
-          totalStock: 100,
-          availableQuantity: 100,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          onSale: 0,
-          price: 100,
-          discount: 0.9,
-          discountPrice: 90,
-          status: 1,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
@@ -214,19 +172,13 @@ const warehouseApi = {
 // 获取数据的方法
 const fetchWarehouseData = async (params: SearchParams) => {
   try {
-    loading.value = true;
-    const result = await warehouseApi.getList(params);
-    tableData.value = result.data;
-    total.value = result.total;
-    return result;
+    return await warehouseApi.getList(params);
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error('获取仓库数据失败:', error);
     return {
       data: [],
       total: 0,
     };
-  } finally {
-    loading.value = false;
   }
 };
 

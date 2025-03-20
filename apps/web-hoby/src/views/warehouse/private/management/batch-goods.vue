@@ -22,13 +22,14 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.warehouse.myPrivateWarehouse.management.batchGoods');
 // 表格列配置
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -36,19 +37,16 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '类型',
-    dataIndex: 'type',
+    dataIndex: 'planCate',
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
     width: 140,
-    options: [
-      { label: '调拨单', value: '1' },
-      { label: '盘点单', value: '2' },
-    ],
+    enumName: 'warehouseBillCateStatus',
   },
   {
     title: '厂商',
-    dataIndex: 'manufacturer',
+    dataIndex: 'provideCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -56,7 +54,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'providePrd',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -64,7 +62,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号',
-    dataIndex: 'model',
+    dataIndex: 'provideSrlID',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -72,7 +70,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存规格',
-    dataIndex: 'stockSpecification',
+    dataIndex: 'wareAttrValueList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -80,7 +78,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '商品数量',
-    dataIndex: 'goodsCount',
+    dataIndex: 'prdNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -113,32 +111,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'privateWarehouseMngBatchGoodsPage',
+      pageDataGrpID: 'privateWarehouseMngBatchGoods',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouseName: '仓库1',
-          type: '1',
-          manufacturer: '厂商1',
-          product: '产品1',
-          model: '型号1',
-          stockSpecification: '库存规格1',
-          goodsCount: 100,
-        },
-        {
-          id: 2,
-          warehouseName: '仓库2',
-          type: '2',
-          manufacturer: '厂商2',
-          product: '产品2',
-          model: '型号2',
-          stockSpecification: '库存规格2',
-          goodsCount: 200,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };

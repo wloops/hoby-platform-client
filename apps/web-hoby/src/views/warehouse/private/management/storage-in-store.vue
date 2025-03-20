@@ -22,13 +22,14 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.warehouse.myPrivateWarehouse.management.storageIn');
 // 表格列配置
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -36,7 +37,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '货物数量',
-    dataIndex: 'goodsCount',
+    dataIndex: 'prdNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -44,7 +45,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品种类数量',
-    dataIndex: 'typeCount',
+    dataIndex: 'prdCateNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -52,7 +53,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品清单',
-    dataIndex: 'productList',
+    dataIndex: 'prdList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -60,7 +61,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号种类数量',
-    dataIndex: 'modelCount',
+    dataIndex: 'srlIDNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -68,7 +69,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号清单',
-    dataIndex: 'modelList',
+    dataIndex: 'prdSrlIDList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -76,7 +77,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: 'SKU种类数量',
-    dataIndex: 'skuCount',
+    dataIndex: 'dtlNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -84,7 +85,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '批次号',
-    dataIndex: 'batchNumber',
+    dataIndex: 'batchSsn',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -117,34 +118,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'privateWareWaitingStoragePage',
+      pageDataGrpID: 'privateWareWaitingStorage',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouseName: '仓库1',
-          goodsCount: 100,
-          typeCount: 10,
-          productList: '产品1,产品2',
-          modelCount: 10,
-          modelList: '型号1,型号2',
-          skuCount: 10,
-          batchNumber: '202502011754530297150009',
-        },
-        {
-          id: 2,
-          warehouseName: '仓库2',
-          goodsCount: 200,
-          typeCount: 20,
-          productList: '产品3,产品4',
-          modelCount: 20,
-          modelList: '型号3,型号4',
-          skuCount: 20,
-          batchNumber: '202502011754530297150000',
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };

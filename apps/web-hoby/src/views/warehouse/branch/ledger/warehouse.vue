@@ -60,18 +60,18 @@ const columns: ColumnConfig[] = [
     type: FieldType.STRING,
     width: 180,
   },
-  {
-    title: '开店',
-    dataIndex: 'open',
-    visible: true,
-    searchable: true,
-    type: FieldType.SELECT,
-    width: 100,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
-  },
+  // {
+  //   title: '开店',
+  //   dataIndex: 'open',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.SELECT,
+  //   width: 100,
+  //   options: [
+  //     { label: '是', value: 1 },
+  //     { label: '否', value: 0 },
+  //   ],
+  // },
   {
     title: '状态',
     dataIndex: 'status',

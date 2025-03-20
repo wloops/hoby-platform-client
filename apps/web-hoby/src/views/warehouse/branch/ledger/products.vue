@@ -53,18 +53,18 @@ const columns: ColumnConfig[] = [
     type: FieldType.STRING,
     width: 180,
   },
-  {
-    title: '在售',
-    dataIndex: 'onSale',
-    visible: true,
-    searchable: true,
-    type: FieldType.SELECT,
-    width: 180,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
-  },
+  // {
+  //   title: '在售',
+  //   dataIndex: 'onSale',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.SELECT,
+  //   width: 180,
+  //   options: [
+  //     { label: '是', value: 1 },
+  //     { label: '否', value: 0 },
+  //   ],
+  // },
   {
     title: '库存总数',
     dataIndex: 'totalStock',
