@@ -1,116 +1,248 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
+
+import { useMainGetData } from '#/composables';
 
 // 数据
-const productSearch = ref('');
-const modelSearch = ref('');
+// const productSearch = ref('');
+// const modelSearch = ref('');
 const activeTab = ref('introduction');
 // 默认折叠
 const expandedIndex = ref();
 const expandedSpecs = ref([]);
-const products = ref([
-  {
-    id: 1,
-    name: '男士裤子',
-    model: '长裤',
-    logo: 'https://img2.baidu.com/it/u=2862876734,471387334&fm=253&fmt=auto&app=120&f=JPEG?w=475&h=475',
-    description:
-      '这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介',
-    prices: [
-      {
-        id: 1,
-        sellingPrice: '1490-20241229084904-00008765-0001',
-        quoteSpec: '标准',
-        distributorPrice: '￥80.00',
-        retailPrice: '￥100.00',
-      },
-      {
-        id: 2,
-        sellingPrice: '1490-20241229084904-00008765-0002',
-        quoteSpec: '高级',
-        distributorPrice: '￥80.00',
-        retailPrice: '￥100.00',
-      },
-    ],
-    specifications: [
-      { id: 1, name: '颜色', values: ['白色', '灰色', '黑色', '蓝色'] },
-      { id: 2, name: '尺寸', values: ['M', 'L', 'XL', 'XXL'] },
-    ],
-    images: [
-      {
-        id: 1,
-        url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
-      },
-      {
-        id: 2,
-        url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
-      },
-      {
-        id: 3,
-        url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: '男士裤子',
-    model: '短裤',
-    logo: 'https://via.placeholder.com/150',
-    description: '这是男士短裤的简介这是男士短裤的简介这是男士短裤的简介',
-    prices: [
-      {
-        id: 1,
-        sellingPrice: '1490-20241229084904-00008765-0001',
-        quoteSpec: '标准',
-        distributorPrice: '￥80.00',
-        retailPrice: '￥100.00',
-      },
-      {
-        id: 2,
-        sellingPrice: '1490-20241229084904-00008765-0002',
-        quoteSpec: '高级',
-        distributorPrice: '￥80.00',
-        retailPrice: '￥100.00',
-      },
-    ],
-    specifications: [
-      { id: 1, name: '颜色', values: ['白色', '灰色', '黑色', '蓝色'] },
-      { id: 2, name: '尺寸', values: ['M', 'L', 'XL', 'XXL'] },
-    ],
-    images: [
-      { id: 1, url: 'https://via.placeholder.com/300' },
-      { id: 2, url: 'https://via.placeholder.com/300' },
-    ],
-  },
-]);
+
+// 切换产品型号展开状态
+const toggleExpand = (index, product) => {
+  expandedIndex.value = expandedIndex.value === index ? null : index;
+  fetchSpecsList(product);
+  fetchPricesList(product);
+  // fetchImgsList(product);
+  console.warn('产品型号', product);
+};
+
+const toggleSpecExpand = (specId, specType, product) => {
+  if (expandedSpecs.value.includes(specId)) {
+    expandedSpecs.value = expandedSpecs.value.filter((id) => id !== specId);
+  } else {
+    expandedSpecs.value.push(specId);
+  }
+  fetchSpecValueList(product, specType);
+  console.warn('序号', specId, specType, product);
+};
+
+// 根据产品型号查询规格类型名称
+const fetchSpecsList = async (product) => {
+  console.warn('fetchSpecsList:product', product);
+
+  const reqParams = {
+    pageID: 'productModel',
+    pageDataGrpID: 'queryProductModelSpecCate',
+    productName: product.name,
+    srlID: product.model,
+    // currentPage: current,
+    // numOfPerPage: pageSize,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('fetchSpecsList:data', data.value);
+  products.value.forEach((item) => {
+    if (item.name === product.name && item.model === product.model) {
+      item.specifications = data.value.map((item, index) => ({
+        id: index,
+        name: item.specCate,
+        values: [],
+      }));
+    }
+  });
+};
+// 根据规格类型查询规格值
+const fetchSpecValueList = async (spec, index) => {
+  console.warn('fetchSpecValueList:', spec, index, spec.specifications[0].name);
+  const reqParams = {
+    pageID: 'productModel',
+    pageDataGrpID: 'queryProductModelSpecValue',
+    productName: spec.name,
+    srlID: spec.model,
+    specCate: spec.specifications[index].name,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('fetchSpecValueList:data', data.value, products.value, spec);
+  spec.specifications.forEach((item) => {
+    if (item.name === spec.specifications[index].name) {
+      item.values = data.value.map((item) => ({
+        title: item.specValue,
+      }));
+    }
+  });
+};
+// 根据产品型号查询产品报价
+const fetchPricesList = async (product) => {
+  console.warn('fetchPricesList:product', product);
+
+  const reqParams = {
+    pageID: 'productModel',
+    pageDataGrpID: 'queryProductQuotation',
+    productName: product.name,
+    srlID: product.model,
+    // currentPage: current,
+    // numOfPerPage: pageSize,
+  };
+  const { data } = await useMainGetData(reqParams);
+  console.warn('fetchPricesList:data', data.value);
+  products.value.forEach((item) => {
+    if (item.name === product.name && item.model === product.model) {
+      item.prices = data.value.map((item, index) => ({
+        id: index,
+        sellingPrice: item.salePriceID,
+        quoteSpec: item.quotationsSpec,
+        distributorPrice: item.distributorPrice,
+        retailPrice: item.terminalPrice,
+      }));
+    }
+  });
+};
+// 根据产品型号查询产品图片
+// const fetchImgsList = async (product) => {
+//   console.warn('fetchImgsList:product', product);
+
+//   const reqParams = {
+//     pageID: 'productModel',
+//     pageDataGrpID: 'queryProductQuotation',
+//     operObjectID: product.objectID,
+//     // currentPage: current,
+//     // numOfPerPage: pageSize,
+//   };
+//   const { data } = await useMainGetData(reqParams);
+//   console.warn('fetchImgsList:data', data.value);
+//   products.value.forEach((item) => {
+//     if (item.name === product.name && item.model === product.model) {
+//       item.images = data.value.map((item, index) => ({
+//         id: index,
+//         url: item.imgFile,
+//       }));
+//     }
+//   });
+// };
+// 产品型号
+const products = ref([]);
+async function fetchProductsList() {
+  try {
+    const reqParams = {
+      pageID: 'productModel',
+      pageDataGrpID: 'queryProductModel',
+      // currentPage: current,
+      // numOfPerPage: pageSize,
+    };
+    const { data } = await useMainGetData(reqParams);
+    products.value = data.value.map((item) => ({
+      id: item.objectID,
+      name: item.productName,
+      model: item.srlID,
+      logo: '',
+      description: '',
+      prices: [],
+      specifications: [],
+      images: [],
+      objectID: item.objectID,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+  }
+}
+// 初始加载
+onMounted(async () => {
+  fetchProductsList();
+});
+// const products = ref([
+//   {
+//     id: 1,
+//     name: '男士裤子',
+//     model: '长裤',
+//     logo: 'https://img2.baidu.com/it/u=2862876734,471387334&fm=253&fmt=auto&app=120&f=JPEG?w=475&h=475',
+//     description:
+//       '这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介这是男士长裤的简介',
+//     prices: [
+//       {
+//         id: 1,
+//         sellingPrice: '1490-20241229084904-00008765-0001',
+//         quoteSpec: '标准',
+//         distributorPrice: '￥80.00',
+//         retailPrice: '￥100.00',
+//       },
+//       {
+//         id: 2,
+//         sellingPrice: '1490-20241229084904-00008765-0002',
+//         quoteSpec: '高级',
+//         distributorPrice: '￥80.00',
+//         retailPrice: '￥100.00',
+//       },
+//     ],
+//     specifications: [
+//       { id: 1, name: '颜色', values: ['白色', '灰色', '黑色', '蓝色'] },
+//       { id: 2, name: '尺寸', values: ['M', 'L', 'XL', 'XXL'] },
+//     ],
+//     images: [
+//       {
+//         id: 1,
+//         url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
+//       },
+//       {
+//         id: 2,
+//         url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
+//       },
+//       {
+//         id: 3,
+//         url: 'https://img0.baidu.com/it/u=430812883,221253080&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069',
+//       },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     name: '男士裤子',
+//     model: '短裤',
+//     logo: 'https://via.placeholder.com/150',
+//     description: '这是男士短裤的简介这是男士短裤的简介这是男士短裤的简介',
+//     prices: [
+//       {
+//         id: 1,
+//         sellingPrice: '1490-20241229084904-00008765-0001',
+//         quoteSpec: '标准',
+//         distributorPrice: '￥80.00',
+//         retailPrice: '￥100.00',
+//       },
+//       {
+//         id: 2,
+//         sellingPrice: '1490-20241229084904-00008765-0002',
+//         quoteSpec: '高级',
+//         distributorPrice: '￥80.00',
+//         retailPrice: '￥100.00',
+//       },
+//     ],
+//     specifications: [
+//       { id: 1, name: '颜色', values: ['白色', '灰色', '黑色', '蓝色'] },
+//       { id: 2, name: '尺寸', values: ['M', 'L', 'XL', 'XXL'] },
+//     ],
+//     images: [
+//       { id: 1, url: 'https://via.placeholder.com/300' },
+//       { id: 2, url: 'https://via.placeholder.com/300' },
+//     ],
+//   },
+// ]);
 
 // 计算属性
-const filteredProducts = computed(() => {
-  return products.value.filter((product) => {
-    return (
-      product.name.includes(productSearch.value) &&
-      product.model.includes(modelSearch.value)
-    );
-  });
-});
+// const filteredProducts = computed(() => {
+//   return products.value.filter((product) => {
+//     return (
+//       product.name.includes(productSearch.value) &&
+//       product.model.includes(modelSearch.value)
+//     );
+//   });
+// });
 
 // 重置
 // const resetSearch = () => {
 //   productSearch.value = '';
 //   modelSearch.value = '';
 // };
-
-const toggleExpand = (index) => {
-  expandedIndex.value = expandedIndex.value === index ? null : index;
-};
-
-const toggleSpecExpand = (specId) => {
-  if (expandedSpecs.value.includes(specId)) {
-    expandedSpecs.value = expandedSpecs.value.filter((id) => id !== specId);
-  } else {
-    expandedSpecs.value.push(specId);
-  }
-};
 
 // const editPrice = (price) => {};
 
@@ -193,7 +325,7 @@ const toggleSpecExpand = (specId) => {
     <div v-if="activeTab === 'introduction'" class="mt-4">
       <!-- 产品列表 -->
       <div
-        v-for="(product, index) in filteredProducts"
+        v-for="(product, index) in products"
         :key="product.id"
         class="mb-4 rounded-lg shadow-sm hover:shadow-md"
       >
@@ -225,7 +357,7 @@ const toggleSpecExpand = (specId) => {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            @click="toggleExpand(index)"
+            @click="toggleExpand(index, product)"
           >
             <path
               stroke-linecap="round"
@@ -296,7 +428,7 @@ const toggleSpecExpand = (specId) => {
     <!-- 产品规格选项卡 -->
     <div v-if="activeTab === 'specifications'" class="mt-4">
       <div
-        v-for="(product, index) in filteredProducts"
+        v-for="(product, index) in products"
         :key="product.id"
         class="mb-4 shadow-sm hover:shadow-md"
       >
@@ -344,7 +476,7 @@ const toggleSpecExpand = (specId) => {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            @click="toggleExpand(index)"
+            @click="toggleExpand(index, product)"
           >
             <path
               stroke-linecap="round"
@@ -359,12 +491,12 @@ const toggleSpecExpand = (specId) => {
           class="rounded-b-lg border bg-white"
         >
           <div
-            v-for="spec in product.specifications"
-            :key="spec.id"
+            v-for="(spec, specType) in product.specifications"
+            :key="specType"
             class="border-b border-gray-100 hover:bg-gray-50"
           >
             <div
-              @click="toggleSpecExpand(spec.id)"
+              @click="toggleSpecExpand(spec.id, specType, product)"
               class="flex cursor-pointer items-center justify-between bg-white px-4 py-3"
             >
               <dt class="flex items-center text-sm font-medium text-gray-700">
@@ -387,7 +519,9 @@ const toggleSpecExpand = (specId) => {
               </dt>
               <svg
                 class="h-6 w-6 transform text-gray-600 transition-transform"
-                :class="{ 'rotate-180': expandedSpecs.includes(spec.id) }"
+                :class="{
+                  'rotate-180': expandedSpecs.includes(spec.id),
+                }"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -407,9 +541,9 @@ const toggleSpecExpand = (specId) => {
               <div
                 v-for="value in spec.values"
                 :key="value.id"
-                class="mb-1 mr-4"
+                class="mb-1 mr-4 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
               >
-                {{ value }}
+                {{ value.title }}
               </div>
             </div>
           </div>
@@ -420,7 +554,7 @@ const toggleSpecExpand = (specId) => {
     <!-- 产品图片选项卡 -->
     <div v-if="activeTab === 'images'" class="mt-4">
       <div
-        v-for="(product, index) in filteredProducts"
+        v-for="(product, index) in products"
         :key="product.id"
         class="mb-4 shadow-sm hover:shadow-md"
       >
@@ -452,7 +586,7 @@ const toggleSpecExpand = (specId) => {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            @click="toggleExpand(index)"
+            @click="toggleExpand(index, product)"
           >
             <path
               stroke-linecap="round"
