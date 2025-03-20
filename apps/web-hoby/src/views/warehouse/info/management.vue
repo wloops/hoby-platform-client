@@ -169,11 +169,6 @@ const fetchWarehouseData = async (params: SearchParams) => {
 // 处理搜索事件
 const handleSearch = (formData: Record<string, any>) => {
   console.warn('搜索条件：', formData);
-  fetchWarehouseData({
-    ...formData,
-    page: 1,
-    pageSize: pageSize.value,
-  });
 };
 
 // 处理分页变化
