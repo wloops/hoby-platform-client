@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.shop.myBranchWarehouse.model');
 
@@ -29,7 +30,7 @@ const pageTitle = $t('page.shop.myBranchWarehouse.model');
 const columns: ColumnConfig[] = [
   {
     title: '授权厂商',
-    dataIndex: 'authorizedManufacturer',
+    dataIndex: 'actCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -37,7 +38,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -45,7 +46,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'productName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -53,7 +54,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号',
-    dataIndex: 'model',
+    dataIndex: 'srlID',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -61,19 +62,16 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '在售',
-    dataIndex: 'isSale',
+    dataIndex: 'onCateStatus',
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
     width: 180,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
+    enumName: 'boolean',
   },
   {
     title: '库存总数',
-    dataIndex: 'stockTotal',
+    dataIndex: 'totalNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -81,7 +79,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '可用数量',
-    dataIndex: 'stockAvailable',
+    dataIndex: 'avaNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -89,7 +87,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '锁住数量',
-    dataIndex: 'stockLocked',
+    dataIndex: 'lockedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -97,7 +95,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '报废数量',
-    dataIndex: 'stockScrap',
+    dataIndex: 'destoriedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -105,7 +103,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '生产厂家',
-    dataIndex: 'manufacturer',
+    dataIndex: 'companyName',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -118,11 +116,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '缺货', value: 2 },
-      { label: '停用', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
   {
     title: '操作',
@@ -179,61 +173,15 @@ const dataTableRef = ref<null | {
 // API服务（模拟）
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
-    // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    const params = {
+      pageID: 'myBranchWareShopSrlIDPage',
+      pageDataGrpID: 'myBranchWareShopSrlID',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          authorizedManufacturer: '授权厂商1',
-          warehouseName: '仓库1',
-          status: 1,
-          signDate: '2025-01-01',
-          validityPeriod: '2025-01-01 至 2025-01-01',
-          product: '产品1',
-          model: '型号1',
-          isSale: 1,
-          stockTotal: 100,
-          stockAvailable: 100,
-          stockLocked: 0,
-          stockScrap: 0,
-          manufacturer: '生产厂家1',
-        },
-        {
-          id: 2,
-          authorizedManufacturer: '授权厂商2',
-          warehouseName: '仓库2',
-          status: 2,
-          signDate: '2025-01-01',
-          validityPeriod: '2025-01-01 至 2025-01-01',
-          product: '产品2',
-          model: '型号2',
-          isSale: 0,
-          stockTotal: 100,
-          stockAvailable: 100,
-          stockLocked: 0,
-          stockScrap: 0,
-          manufacturer: '生产厂家2',
-        },
-        {
-          id: 3,
-          authorizedManufacturer: '授权厂商3',
-          warehouseName: '仓库3',
-          status: 3,
-          signDate: '2025-01-01',
-          validityPeriod: '2025-01-01 至 2025-01-01',
-          product: '产品3',
-          model: '型号3',
-          isSale: 0,
-          stockTotal: 100,
-          stockAvailable: 100,
-          stockLocked: 0,
-          stockScrap: 0,
-          manufacturer: '生产厂家3',
-        },
-      ],
-      total: 3,
+      data: data.value,
+      total: total.value,
     };
   },
 };
