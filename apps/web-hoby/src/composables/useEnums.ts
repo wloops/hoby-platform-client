@@ -22,6 +22,16 @@ interface Enums {
 
 // 本地枚举值
 const localEnums: Enums = {
+  boolean: {
+    '0': {
+      label: '否',
+      color: 'default',
+    },
+    '1': {
+      label: '是',
+      color: 'success',
+    },
+  },
   restockingStatus: {
     '0': {
       label: '不需要进货',
