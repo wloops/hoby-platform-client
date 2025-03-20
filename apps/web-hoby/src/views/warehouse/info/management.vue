@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-17 17:48:23
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-19 11:38:01
+ * @LastEditTime: 2025-03-20 17:47:47
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\info\management.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.warehouse.myWarehouse.info');
 
@@ -29,7 +30,7 @@ const pageTitle = $t('page.warehouse.myWarehouse.info');
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouse',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -37,15 +38,12 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '是否店铺',
-    dataIndex: 'isShop',
+    dataIndex: 'isStore',
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
     width: 120,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
+    enumName: 'boolean',
   },
   {
     title: '区属',
@@ -65,7 +63,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '联系人',
-    dataIndex: 'contact',
+    dataIndex: 'contactor',
     visible: true,
     type: FieldType.STRING,
     width: 120,
@@ -79,15 +77,12 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '有效',
-    dataIndex: 'valid',
+    dataIndex: 'status',
     visible: true,
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 },
-    ],
+    enumName: 'boolean',
   },
 ];
 
@@ -115,34 +110,15 @@ const dataTableRef = ref<null | {
 // API服务（模拟）
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
-    // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    const params = {
+      pageID: 'myWarehouseInformationPage',
+      pageDataGrpID: 'myWarehouseInformation',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouse: '广州天润大厦仓',
-          isShop: 1,
-          area: '广东省广州市白云区',
-          address: '白云大道北路1号',
-          contact: '张三',
-          phone: '13800138000',
-          valid: 1,
-        },
-        {
-          id: 2,
-          warehouse: '广州天润大厦仓',
-          isShop: 0,
-          area: '广东省广州市白云区',
-          address:
-            '白云大道北路1号白云大道北路1号白云大道北路1号白云大道北路1号白云大道北路1号',
-          contact: '李四',
-          phone: '13800138001',
-          valid: 0,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
@@ -150,19 +126,13 @@ const warehouseApi = {
 // 获取数据的方法
 const fetchWarehouseData = async (params: SearchParams) => {
   try {
-    loading.value = true;
-    const result = await warehouseApi.getList(params);
-    tableData.value = result.data;
-    total.value = result.total;
-    return result;
+    return await warehouseApi.getList(params);
   } catch (error) {
     console.error('获取数据失败:', error);
     return {
       data: [],
       total: 0,
     };
-  } finally {
-    loading.value = false;
   }
 };
 
