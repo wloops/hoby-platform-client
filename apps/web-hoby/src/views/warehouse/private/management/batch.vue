@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 16:08:42
+ * @LastEditTime: 2025-03-20 10:24:50
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myPrivateWarehouse.management.warehouseSKU',
@@ -30,7 +31,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -38,19 +39,15 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '类型',
-    dataIndex: 'type',
+    dataIndex: 'planCate',
     visible: true,
     searchable: true,
-    type: FieldType.SELECT,
+    type: FieldType.STRING,
     width: 140,
-    options: [
-      { label: '调拨单', value: '1' },
-      { label: '盘点单', value: '2' },
-    ],
   },
   {
     title: '产品清单',
-    dataIndex: 'productList',
+    dataIndex: 'productNameList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -58,7 +55,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号清单',
-    dataIndex: 'modelList',
+    dataIndex: 'prdSrlIDList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -66,7 +63,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品种类数量',
-    dataIndex: 'productTypeCount',
+    dataIndex: 'prdCateNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -74,7 +71,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号种类数量',
-    dataIndex: 'modelTypeCount',
+    dataIndex: 'srlIDNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -82,7 +79,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '商品种类数量',
-    dataIndex: 'goodsTypeCount',
+    dataIndex: 'orderDtINum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -90,7 +87,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '商品数量',
-    dataIndex: 'goodsCount',
+    dataIndex: 'prdNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -122,35 +119,15 @@ const dataTableRef = ref<null | {
 // API服务（模拟）
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
-    // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    const params = {
+      pageID: 'privateWarehouseMngBatchPage',
+      pageDataGrpID: 'privateWarehouseMngBatch',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouseName: '仓库1',
-          type: '1',
-          productList: '产品1,产品2',
-          modelList: '型号1,型号2',
-          productTypeCount: 2,
-          modelTypeCount: 2,
-          goodsTypeCount: 2,
-          goodsCount: 2,
-        },
-        {
-          id: 2,
-          warehouseName: '仓库2',
-          type: '2',
-          productList: '产品3,产品4',
-          modelList: '型号3,型号4',
-          productTypeCount: 2,
-          modelTypeCount: 2,
-          goodsTypeCount: 2,
-          goodsCount: 2,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
