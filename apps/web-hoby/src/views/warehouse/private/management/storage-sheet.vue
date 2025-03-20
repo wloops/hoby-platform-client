@@ -22,13 +22,14 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t('page.warehouse.myPrivateWarehouse.management.storageIn');
 // 表格列配置
 const columns: ColumnConfig[] = [
   {
     title: '仓商',
-    dataIndex: 'supplier',
+    dataIndex: 'saleCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -36,7 +37,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '仓商仓库',
-    dataIndex: 'supplierWarehouse',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -44,21 +45,12 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '类型',
-    dataIndex: 'type',
+    dataIndex: 'wareBillCate',
     visible: true,
     searchable: false,
     type: FieldType.SELECT,
-    width: 80,
-    options: [
-      {
-        label: '入库单',
-        value: '1',
-      },
-      {
-        label: '订单配货单',
-        value: '2',
-      },
-    ],
+    width: 100,
+    enumName: 'warehouseBillCateStatus',
   },
   {
     title: '状态',
@@ -67,28 +59,19 @@ const columns: ColumnConfig[] = [
     searchable: false,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      {
-        label: '已入库',
-        value: '1',
-      },
-      {
-        label: '已出库',
-        value: '2',
-      },
-    ],
+    enumName: 'warehouseBillStatus',
   },
   {
     title: '产品数量',
-    dataIndex: 'productCount',
+    dataIndex: 'prdCateNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
-    width: 150,
+    width: 140,
   },
   {
     title: '型号数量',
-    dataIndex: 'modelCount',
+    dataIndex: 'srlIDNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -96,7 +79,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '货物数量',
-    dataIndex: 'goodsCount',
+    dataIndex: 'prdNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -104,7 +87,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品清单',
-    dataIndex: 'productList',
+    dataIndex: 'prdList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -112,15 +95,15 @@ const columns: ColumnConfig[] = [
   },
   {
     title: 'SKU数量',
-    dataIndex: 'skuCount',
+    dataIndex: 'dtlNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
-    width: 100,
+    width: 90,
   },
   {
     title: '目标仓商',
-    dataIndex: 'targetSupplier',
+    dataIndex: 'desCmpName',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -128,7 +111,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '目标仓库',
-    dataIndex: 'targetWarehouse',
+    dataIndex: 'desWareName',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -136,7 +119,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '批次号',
-    dataIndex: 'batchNumber',
+    dataIndex: 'batchSsn',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -169,42 +152,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'privateWareInventoryMngNotePage',
+      pageDataGrpID: 'privateWareInventoryMngNote',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          supplier: '仓商1',
-          supplierWarehouse: '仓商仓库1',
-          type: '0',
-          status: '1',
-          productCount: 10,
-          modelCount: 10,
-          goodsCount: 100,
-          productList: '产品1,产品2',
-          skuCount: 10,
-          targetSupplier: '目标仓商1',
-          targetWarehouse: '目标仓库1',
-          batchNumber: '202502011754530297150009',
-        },
-        {
-          id: 2,
-          supplier: '仓商2',
-          supplierWarehouse: '仓商仓库2',
-          type: '1',
-          status: '2',
-          productCount: 10,
-          modelCount: 10,
-          goodsCount: 100,
-          productList: '产品1,产品2',
-          skuCount: 10,
-          targetSupplier: '目标仓商2',
-          targetWarehouse: '目标仓库2',
-          batchNumber: '202502011754530297150000',
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };

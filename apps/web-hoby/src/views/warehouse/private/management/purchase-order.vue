@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myPrivateWarehouse.management.purchaseOrder',
@@ -30,7 +31,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -43,14 +44,11 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 140,
-    options: [
-      { label: '调拨单', value: '1' },
-      { label: '盘点单', value: '2' },
-    ],
+    enumName: 'warehouseBillStatus',
   },
   {
     title: '货物数量',
-    dataIndex: 'goodsCount',
+    dataIndex: 'prdNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -58,7 +56,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品种类数目',
-    dataIndex: 'productTypeCount',
+    dataIndex: 'prdCateNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -66,7 +64,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号种类数目',
-    dataIndex: 'modelTypeCount',
+    dataIndex: 'srlIDNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -74,7 +72,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号清单',
-    dataIndex: 'modelList',
+    dataIndex: 'prdList',
     visible: true,
     searchable: false,
     type: FieldType.STRING,
@@ -82,7 +80,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: 'SKU种类数量',
-    dataIndex: 'skuTypeCount',
+    dataIndex: 'dtlNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -90,7 +88,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '批次号',
-    dataIndex: 'batchNumber',
+    dataIndex: 'batchSsn',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -123,34 +121,16 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    const params = {
+      pageID: 'privateWareOrderDistributeNotePage',
+      pageDataGrpID: 'privateWareOrderDistributeNote',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouseName: '仓库1',
-          status: '1',
-          goodsCount: 100,
-          productTypeCount: 10,
-          modelTypeCount: 10,
-          modelList: '型号1,型号2',
-          skuTypeCount: 10,
-          batchNumber: '批次号1',
-        },
-        {
-          id: 2,
-          warehouseName: '仓库2',
-          status: '2',
-          goodsCount: 200,
-          productTypeCount: 20,
-          modelTypeCount: 20,
-          modelList: '型号3,型号4',
-          skuTypeCount: 20,
-          batchNumber: '批次号2',
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };

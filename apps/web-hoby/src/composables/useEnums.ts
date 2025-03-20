@@ -154,6 +154,56 @@ const localEnums: Enums = {
       color: 'warning',
     },
   },
+  // HOBY库存单据类型
+  warehouseBillCateStatus: {
+    '0': {
+      label: '未知',
+      color: 'default',
+    },
+    '1': {
+      label: '入库单',
+      color: 'success',
+    },
+    '2': {
+      label: '出库单',
+      color: 'processing',
+    },
+    '3': {
+      label: '调拨单',
+      color: 'success',
+    },
+    '4': {
+      label: '订单配货单',
+      color: 'processing',
+    },
+    '20': {
+      label: '仓储购物车',
+      color: 'default',
+    },
+  },
+  // HOBY库存单据状态
+  warehouseBillStatus: {
+    '0': {
+      label: '待审核',
+      color: 'success',
+    },
+    '11': {
+      label: '待入库',
+      color: 'success',
+    },
+    '12': {
+      label: '已入库',
+      color: 'processing',
+    },
+    '21': {
+      label: '待出库',
+      color: 'processing',
+    },
+    '22': {
+      label: '已出库',
+      color: 'default',
+    },
+  },
 };
 
 // 自定义 Hook

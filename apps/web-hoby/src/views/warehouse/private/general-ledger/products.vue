@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myPrivateWarehouse.generalLedger.storageProduct',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '仓商',
-    dataIndex: 'merchant',
+    dataIndex: 'saleCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -39,7 +40,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'productName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -47,28 +48,28 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存总数',
-    dataIndex: 'totalStock',
+    dataIndex: 'totalNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 100,
   },
   {
     title: '可用数量',
-    dataIndex: 'availableQuantity',
+    dataIndex: 'avaNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 100,
   },
   {
     title: '锁定数量',
-    dataIndex: 'lockedQuantity',
+    dataIndex: 'lockedNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 100,
   },
   {
     title: '报废数量',
-    dataIndex: 'scrapQuantity',
+    dataIndex: 'destoriedNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 100,
@@ -80,11 +81,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '缺货', value: 2 },
-      { label: '停用', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -113,32 +110,17 @@ const dataTableRef = ref<null | {
 const productApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'privateWareStoreProductPage',
+      pageDataGrpID: 'privateWareStoreProduct',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          merchant: '测试厂商',
-          product: '空调',
-          totalStock: 2100,
-          availableQuantity: 2100,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          status: 1,
-        },
-        {
-          id: 2,
-          merchant: '测试厂商',
-          product: '男士T恤衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          status: 1,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
@@ -146,19 +128,13 @@ const productApi = {
 // 获取商品数据的方法
 const fetchProductData = async (params: SearchParams) => {
   try {
-    loading.value = true;
-    const result = await productApi.getList(params);
-    tableData.value = result.data;
-    total.value = result.total;
-    return result;
+    return await productApi.getList(params);
   } catch (error) {
-    console.error('获取商品数据失败:', error);
+    console.error('获取仓库数据失败:', error);
     return {
       data: [],
       total: 0,
     };
-  } finally {
-    loading.value = false;
   }
 };
 
