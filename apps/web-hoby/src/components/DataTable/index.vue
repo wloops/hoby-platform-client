@@ -125,7 +125,7 @@ const emit = defineEmits([
   'cellSave',
 ]);
 
-const { getEnumLabel, getEnumColor } = useEnums();
+const { getEnumLabel, getEnumColor, getEnumList } = useEnums();
 
 // 使用自定义类型定义
 interface TablePaginationConfig {
@@ -211,6 +211,15 @@ watch(
     internalLoading.value = val;
   },
 );
+
+// 赋值枚举列表
+if (props.columns.length > 0) {
+  props.columns.forEach((col) => {
+    if (col.enumName) {
+      col.options = getEnumList(col.enumName) as any[];
+    }
+  });
+}
 
 // 初始化搜索表单字段
 props.columns.forEach((col) => {
