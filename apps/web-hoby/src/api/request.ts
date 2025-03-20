@@ -10,7 +10,7 @@ import {
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 import qs from 'qs';
@@ -66,12 +66,13 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
-      // const userStore = useUserStore();
-      let userInfo: any = null;
-      const userStore = sessionStorage.getItem('userInfo');
-      if (userStore) {
-        userInfo = JSON.parse(userStore);
-      }
+      const userStore = useUserStore();
+      // let userInfo: any = null;
+      // const userStore = sessionStorage.getItem('userInfo');
+      // if (userStore) {
+      // userInfo = JSON.parse(userStore);
+      // }
+      const userInfo = userStore.userInfo;
       // console.log('userStore', userStore.userInfo);
 
       // config.headers.res_token = 'adeebd32-5f54-4a88-9821-f38c44538dca';
