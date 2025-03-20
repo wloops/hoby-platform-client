@@ -127,8 +127,8 @@ export interface PageChangeInfo {
 // 定义搜索参数接口
 export interface SearchParams {
   [key: string]: any;
-  page: number;
-  pageSize: number;
+  currentPage: number;
+  numOfPerPage: number;
 }
 
 // 定义表格响应数据接口

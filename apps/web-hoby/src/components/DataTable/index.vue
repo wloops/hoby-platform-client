@@ -512,8 +512,8 @@ const fetchData = async () => {
   try {
     const result = await props.fetchDataFunc({
       ...searchForm,
-      page: internalCurrent.value,
-      pageSize: internalPageSize.value,
+      currentPage: internalCurrent.value,
+      numOfPerPage: internalPageSize.value,
     });
 
     tableData.value = result.data || [];

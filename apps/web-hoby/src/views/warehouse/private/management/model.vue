@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 23:00:36
+ * @LastEditTime: 2025-03-19 18:04:20
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myPrivateWarehouse.management.warehouseModel',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '仓库',
-    dataIndex: 'warehouseName',
+    dataIndex: 'saleCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -39,7 +40,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'productName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -47,7 +48,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号',
-    dataIndex: 'model',
+    dataIndex: 'srlID',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -55,7 +56,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存总数',
-    dataIndex: 'totalStock',
+    dataIndex: 'totalNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -63,7 +64,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '可用数量',
-    dataIndex: 'availableQuantity',
+    dataIndex: 'avaNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -71,7 +72,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '锁住数量',
-    dataIndex: 'lockedQuantity',
+    dataIndex: 'lockedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -79,7 +80,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '报废数量',
-    dataIndex: 'reportedQuantity',
+    dataIndex: 'destoriedNum',
     visible: true,
     searchable: false,
     type: FieldType.NUMBER,
@@ -92,11 +93,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: '正常' },
-      { label: '缺货', value: '缺货' },
-      { label: '停用', value: '停用' },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -125,210 +122,15 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    const params = {
+      pageID: 'privateWarehouseStoreSrlIDPage',
+      pageDataGrpID: 'privateWarehouseStoreSrlID',
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '酷炫火箭衫',
-          totalStock: 2100,
-          availableQuantity: 2100,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 2,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 3,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 4,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 5,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 6,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 7,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 8,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 9,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 10,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 11,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 12,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 13,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 14,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 15,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 16,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 17,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '正常',
-        },
-        {
-          id: 18,
-          warehouseName: '科学城科创大厦店仓库',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          reportedQuantity: 0,
-          status: '不正常',
-        },
-      ],
-      total: 19,
+      data: data.value,
+      total: total.value,
     };
   },
 };
