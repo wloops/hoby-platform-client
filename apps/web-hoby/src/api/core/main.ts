@@ -22,5 +22,7 @@ export async function mainGetDataApi(data: any) {
  * 通用服务接口
  */
 export async function mainServiceApi(data: any) {
-  return requestClient.post<any>('/buttonService', data);
+  return requestClient.post<any>('/buttonService', data, {
+    withCredentials: true,
+  });
 }

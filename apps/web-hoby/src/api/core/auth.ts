@@ -45,7 +45,9 @@ export namespace AuthApi {
 //   return requestClient.post<AuthApi.LoginResult>('/auth/login', data);
 // }
 export async function loginApi(data: AuthApi.LoginParams) {
-  return requestClient.post<any>('/login/loginByAccount', data);
+  return requestClient.post<any>('/login/loginByAccount', data, {
+    withCredentials: true,
+  });
 }
 
 /**
@@ -55,6 +57,9 @@ export async function registerApi(data: AuthApi.RegisterParams) {
   return requestClient.post<any>(
     '/insertReturn/btnRegisteredEnterpriseAccount',
     data,
+    {
+      withCredentials: true,
+    },
   );
 }
 
@@ -62,7 +67,9 @@ export async function registerApi(data: AuthApi.RegisterParams) {
  * 获取 public key
  */
 export async function getPKApi() {
-  return requestClient.get<any>('/app/getPK');
+  return requestClient.get<any>('/app/getPK', {
+    withCredentials: true,
+  });
 }
 
 /**
