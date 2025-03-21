@@ -62,11 +62,13 @@ const columns: ColumnsType<MySKUItem> = [
     title: '产品',
     dataIndex: 'product',
     align: 'center',
+    width: 150,
   },
   {
     title: '型号',
     dataIndex: 'srlID',
     align: 'center',
+    width: 150,
   },
   {
     title: 'SKU值',
@@ -84,14 +86,14 @@ const columns: ColumnsType<MySKUItem> = [
     title: '分销商价格',
     dataIndex: 'distributionPrice',
     align: 'center',
-    width: 120,
+    width: 100,
     customRender: ({ text }) => `¥${text}`,
   },
   {
     title: '终端价格',
     dataIndex: 'terminalPrice',
     align: 'center',
-    width: 120,
+    width: 100,
     customRender: ({ text }) => `¥${text}`,
   },
   {
@@ -104,7 +106,7 @@ const columns: ColumnsType<MySKUItem> = [
     title: '已售数',
     dataIndex: 'soldQuantity',
     align: 'center',
-    width: 90,
+    width: 80,
   },
   {
     title: '分成规则',
