@@ -190,7 +190,7 @@ const handleSelectionChange = ({ keys, rows }) => {
 | onClick | Function | 点击事件处理函数 | - |
 | show | Function | 控制按钮是否显示的函数 | - |
 | disabled | Function | 控制按钮是否禁用的函数 | - |
-| confirm | String | 确认提示文本 | - |
+| confirm | String | 确认提示文本，设置为 'auto' 时将根据按钮文本自动生成提示语 | - |
 | confirmTitle | String | 确认对话框标题 | '确认操作' |
 | permission | String | 权限控制标识 | - |
 | batchable | Boolean | 是否可批量操作 | true |
@@ -205,7 +205,7 @@ const handleSelectionChange = ({ keys, rows }) => {
 | icon | String | 图标名称 | - |
 | onClick | Function | 点击事件处理函数，参数为选中的行数据数组 | - |
 | disabled | Function | 控制按钮是否禁用的函数，参数为选中的行数据数组 | - |
-| confirm | String | 确认提示文本 | - |
+| confirm | String | 确认提示文本，设置为 'auto' 时将根据按钮文本自动生成提示语 | - |
 | confirmTitle | String | 确认对话框标题 | '确认批量操作' |
 | minSelected | Number | 最少需要选择的行数 | 1 |
 | permission | String | 权限控制标识 | - |
