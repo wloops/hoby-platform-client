@@ -76,6 +76,14 @@ const generateBatchActionsFromRowActions = computed(() => {
       return action.batchable !== false;
     })
     .map((action) => {
+      // 处理确认提示
+      let confirmMessage = action.confirm;
+      if (action.confirm === 'auto' && props.selectedRows.length === 1) {
+        confirmMessage = `确定要${action.text}吗？`;
+      } else if (action.confirm) {
+        confirmMessage = `确定要对选中的 ${props.selectedRows.length} 条记录执行${action.text}操作吗？`;
+      }
+
       // 转换为批量操作按钮
       return {
         text: `批量${action.text}`,
@@ -84,17 +92,18 @@ const generateBatchActionsFromRowActions = computed(() => {
         danger: action.danger,
         icon: action.icon,
         onClick: (rows: TableItem[]) => {
-          // 对每一行执行操作
+          // 对每一行执行操作 - 修改为只有一个确认弹窗
           if (action.confirm) {
             Modal.confirm({
               title: action.confirmTitle || `确认批量${action.text}`,
               icon: h(ExclamationCircleOutlined),
-              content: `确定要对选中的 ${rows.length} 条记录执行${action.text}操作吗？`,
+              content: confirmMessage,
               okText: '确认',
               cancelText: '取消',
               onOk: () => {
-                // 批量执行操作
+                // 批量执行操作，没有弹窗
                 rows.forEach((row) => {
+                  // 直接执行，不再显示每行的确认
                   action.onClick(row);
                 });
               },
@@ -150,13 +159,20 @@ const renderActionButtons = () => {
     const handleClick = () => {
       // 如果设置了确认提示，则显示确认对话框
       if (button.confirm) {
+        // 处理自动生成确认提示语
+        let confirmContent = button.confirm;
+        if (button.confirm === 'auto') {
+          confirmContent = `确定要${button.text}吗？`;
+        }
+
         Modal.confirm({
           title: button.confirmTitle || '确认批量操作',
           icon: h(ExclamationCircleOutlined),
-          content: button.confirm,
+          content: confirmContent,
           okText: '确认',
           cancelText: '取消',
           onOk: () => {
+            // 直接执行批量操作，不再为每行单独显示确认
             button.onClick(props.selectedRows);
           },
         });
@@ -166,7 +182,7 @@ const renderActionButtons = () => {
       }
     };
 
-    // 渲染按钮，移除marginRight样式属性
+    // 渲染按钮
     return h(
       Button,
       {
@@ -174,7 +190,10 @@ const renderActionButtons = () => {
         danger: button.danger,
         disabled: isDisabled,
         onClick: handleClick,
-        class: 'batch-action-button', // 添加自定义类名用于样式调整
+        size: 'small',
+        style: {
+          marginRight: '0',
+        },
       },
       {
         default: () => button.text,

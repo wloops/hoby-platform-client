@@ -265,10 +265,16 @@ const renderActionButton = (button: ActionButton, record: TableItem) => {
 
     // 如果设置了确认提示，则显示确认对话框
     if (button.confirm) {
+      // 处理自动生成确认提示语
+      let confirmContent = button.confirm;
+      if (button.confirm === 'auto') {
+        confirmContent = `确定要${button.text}吗？`;
+      }
+
       Modal.confirm({
         title: button.confirmTitle || '确认操作',
         icon: h(ExclamationCircleOutlined),
-        content: button.confirm,
+        content: confirmContent,
         okText: '确认',
         cancelText: '取消',
         onOk: () => {
@@ -293,15 +299,7 @@ const renderActionButton = (button: ActionButton, record: TableItem) => {
       size: 'small',
     },
     {
-      default: () =>
-        button.icon
-          ? h('span', {}, [
-              // 如果有图标配置，可以使用图标组件
-              // h(Icon, { type: button.icon }),
-              // h('span', { style: { marginLeft: '4px' } }, button.text)
-              button.text,
-            ])
-          : button.text,
+      default: () => (button.icon ? h('span', {}, [button.text]) : button.text),
     },
   );
 };
