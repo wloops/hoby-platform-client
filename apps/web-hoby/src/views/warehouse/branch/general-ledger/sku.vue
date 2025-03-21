@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myBranchWarehouse.generalLedger.branchSKU',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '厂商',
-    dataIndex: 'merchant',
+    dataIndex: 'actCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -39,7 +40,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '产品',
-    dataIndex: 'product',
+    dataIndex: 'productName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -47,7 +48,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '型号',
-    dataIndex: 'model',
+    dataIndex: 'srlID',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -55,7 +56,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存规格',
-    dataIndex: 'specification',
+    dataIndex: 'wareAttrValueList',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -63,35 +64,35 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '库存总数',
-    dataIndex: 'totalStock',
+    dataIndex: 'totalNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
   },
   {
     title: '可用数量',
-    dataIndex: 'availableQuantity',
+    dataIndex: 'avaNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
   },
   {
     title: '锁住数量',
-    dataIndex: 'lockedQuantity',
+    dataIndex: 'lockedNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
   },
   {
     title: '报废数量',
-    dataIndex: 'scrapQuantity',
+    dataIndex: 'destoriedNum',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
   },
   {
     title: '单价',
-    dataIndex: 'price',
+    dataIndex: 'prdUnitPrc',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
@@ -105,7 +106,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '折后单价',
-    dataIndex: 'discountedPrice',
+    dataIndex: 'priceAfterDiscount',
     visible: true,
     type: FieldType.NUMBER,
     width: 90,
@@ -117,11 +118,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 80,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '缺货', value: 2 },
-      { label: '停用', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -150,42 +147,17 @@ const dataTableRef = ref<null | {
 const skuApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'branchWareStoreSKUPage',
+      pageDataGrpID: 'branchWareStoreSKU',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          merchant: '测试厂商',
-          product: '空调',
-          model: 'TEST壁挂式空调-Ver1.0',
-          specification: '无',
-          totalStock: 2100,
-          availableQuantity: 2100,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          price: 1000,
-          discount: 1,
-          discountedPrice: 1000,
-          status: 1,
-        },
-        {
-          id: 2,
-          merchant: '测试厂商',
-          product: '男士T恤衫',
-          model: '圆领文化衫',
-          specification: 'XL.黄色',
-          totalStock: 2200,
-          availableQuantity: 2200,
-          lockedQuantity: 0,
-          scrapQuantity: 0,
-          price: 32,
-          discount: 1,
-          discountedPrice: 32,
-          status: 1,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
@@ -193,19 +165,13 @@ const skuApi = {
 // 获取数据的方法
 const fetchSkuData = async (params: SearchParams) => {
   try {
-    loading.value = true;
-    const result = await skuApi.getList(params);
-    tableData.value = result.data;
-    total.value = result.total;
-    return result;
+    return await skuApi.getList(params);
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error('获取仓库数据失败:', error);
     return {
       data: [],
       total: 0,
     };
-  } finally {
-    loading.value = false;
   }
 };
 

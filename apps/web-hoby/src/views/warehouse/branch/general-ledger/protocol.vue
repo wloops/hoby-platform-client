@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myBranchWarehouse.generalLedger.branchService',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '厂商',
-    dataIndex: 'merchant',
+    dataIndex: 'actCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -44,11 +45,7 @@ const columns: ColumnConfig[] = [
     searchable: true,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '缺货', value: 2 },
-      { label: '停用', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
   {
     title: '操作',
@@ -88,22 +85,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'merBranchWareServiceAgreementPage',
+      pageDataGrpID: 'merBranchWareServiceAgreement',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          merchant: '厂商1',
-          status: 1,
-        },
-        {
-          id: 2,
-          merchant: '厂商2',
-          status: 2,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
