@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-21 10:04:05
+ * @LastEditTime: 2025-03-21 16:52:49
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\shop\private\shop.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,7 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
-import { useMainGetData } from '#/composables';
+import { useMainGetData, useServiceCall } from '#/composables';
 
 const pageTitle = $t('page.shop.myPrivateWarehouse.shop');
 
@@ -86,20 +86,52 @@ const columns: ColumnConfig[] = [
         type: 'link',
         onClick: (record) => {
           console.warn('开始营业', record);
+          const params = {
+            pageID: 'myPrivateWareShopPage',
+            pageButtonID: 'warehouseShopOpen',
+            actNo: record.actNo,
+            saleCmpName: record.saleCmpName,
+            wareName: record.wareName,
+          };
+          useServiceCall(params, {
+            successMessage: '开始营业成功',
+            errorMessage: '开始营业失败',
+            refreshFunc: () => {
+              refreshTable();
+            },
+          });
+
           // 实现开始营业逻辑
         },
-        // 只有非营业中的记录可开始营业
         disabled: (record) => record.onCateStatus !== '0',
+        confirm: 'auto',
       },
       {
         text: '停止营业',
         type: 'link',
+        danger: true,
         onClick: (record) => {
           console.warn('停止营业', record);
           // 实现停止营业逻辑
+          const params = {
+            pageID: 'myPrivateWareShopPage',
+            pageButtonID: 'warehouseShopClose',
+            actNo: record.actNo,
+            saleCmpName: record.saleCmpName,
+            wareName: record.wareName,
+          };
+
+          useServiceCall(params, {
+            successMessage: '停止营业成功',
+            errorMessage: '停止营业失败',
+            refreshFunc: () => {
+              refreshTable();
+            },
+          });
         },
         // 只有营业中的记录可停止营业
         disabled: (record) => record.onCateStatus !== '1',
+        confirm: 'auto',
       },
     ],
   },
