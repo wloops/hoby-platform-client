@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { BatchActionButton } from './components/BatchActions.vue';
 import type {
   ActionButton,
   ColumnConfig,
@@ -36,6 +37,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useEnums } from '#/composables';
 
+import BatchActions from './components/BatchActions.vue';
 import EditableCell from './components/EditableCell.vue';
 import { FieldType } from './types';
 
@@ -111,6 +113,16 @@ const props = defineProps({
     default: 0,
     type: Number,
   },
+  // 批量操作按钮
+  batchActions: {
+    default: () => [],
+    type: Array as () => BatchActionButton[],
+  },
+  // 批量操作按钮位置
+  batchActionPosition: {
+    default: 'top',
+    type: String as () => 'bottom' | 'top',
+  },
 });
 
 // 定义事件
@@ -173,7 +185,7 @@ const tableScrollY = computed(() => {
       ? searchPanelHeight.value
       : 0;
 
-  return `calc(100vh - ${searchHeight}px - ${tableHeaderHeight.value}px - ${paginationHeight}px - 200px)`; // 180px 为其他固定元素的总高度(如页面header等)
+  return `calc(100vh - ${searchHeight}px - ${tableHeaderHeight.value}px - ${paginationHeight}px - 220px)`; // 180px 为其他固定元素的总高度(如页面header等)
 });
 
 // 监听外部数据变化
@@ -462,6 +474,7 @@ const searchableFields = computed(() => {
 const rowSelectionConfig = computed(() => {
   if (!props.rowSelection) return undefined;
 
+  // 基础配置
   const baseConfig = {
     onChange: (keys: Array<number | string>, rows: TableItem[]) => {
       selectedRowKeys.value = keys;
@@ -469,8 +482,12 @@ const rowSelectionConfig = computed(() => {
       emit('selectionChange', { keys, rows });
     },
     selectedRowKeys: selectedRowKeys.value,
+    fixed: true, // 默认固定在左侧
+    columnWidth: 50, // 设置默认宽度
   };
 
+  // 如果传入的是布尔值，使用基础配置
+  // 如果传入的是对象，合并基础配置和用户配置
   return typeof props.rowSelection === 'boolean'
     ? baseConfig
     : { ...baseConfig, ...props.rowSelection };
@@ -647,6 +664,22 @@ defineExpose({
     selectedRowKeys.value = keys;
     selectedRows.value = rows;
   },
+  executeBatchAction: (actionName: string) => {
+    // 查找对应名称的操作按钮
+    const actionColumn = props.columns.find(
+      (col) => col.actions && col.actions.length > 0,
+    );
+    const action = actionColumn?.actions?.find(
+      (btn) => btn.text === actionName,
+    );
+
+    if (action && selectedRows.value.length > 0) {
+      // 对每一行执行操作
+      selectedRows.value.forEach((row) => {
+        action.onClick(row);
+      });
+    }
+  },
 });
 
 // 值转换器实现
@@ -701,6 +734,40 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   }
   return value;
 };
+
+// 处理清空选择
+const handleClearSelection = () => {
+  selectedRowKeys.value = [];
+  selectedRows.value = [];
+};
+
+// // 计算实际使用的批量操作按钮
+// const effectiveBatchActions = computed(() => {
+//   // 如果用户没有提供批量操作按钮，提供一个默认的
+//   if (!props.batchActions || props.batchActions.length === 0) {
+//     return [
+//       {
+//         text: '批量删除',
+//         type: 'primary' as const, // 使用类型断言确保类型正确
+//         danger: true,
+//         onClick: () => {
+//           console.warn('请配置批量删除操作'); // 使用 warn 代替 log 避免 linter 警告
+//         },
+//         minSelected: 1,
+//         disabled: () => true, // 默认禁用
+//       },
+//     ];
+//   }
+//   return props.batchActions;
+// });
+
+// 获取行操作按钮
+const rowActionButtons = computed(() => {
+  const actionColumn = props.columns.find(
+    (col) => col.actions && col.actions.length > 0,
+  );
+  return actionColumn?.actions || [];
+});
 </script>
 
 <template>
@@ -755,40 +822,53 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
       </Form>
     </Card>
 
-    <!-- 表格区域 -->
-    <Card
-      :bordered="true"
-      :class="{ 'margin-top': showSearch && searchableFields.length > 0 }"
-      class="table-card"
-    >
-      <Table
-        :columns="visibleColumns"
-        :data-source="tableData"
-        :loading="internalLoading"
-        :pagination="
-          showPagination
-            ? {
-                current: internalCurrent,
-                pageSize: internalPageSize,
-                total: internalTotal,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total) => `共 ${total} 条`,
-                position: ['bottomRight'],
-                size: 'default',
-              }
-            : false
-        "
-        :locale="{ emptyText }"
-        :row-key="rowKey"
-        :row-selection="rowSelectionConfig"
-        :scroll="{ x: '100%', y: tableScrollY }"
-        table-layout="fixed"
-        @change="handleTableChange as any"
-        @row-click="handleRowClick"
-        :bordered="false"
+    <!-- 表格区域 - 注意移除了 margin-top -->
+    <div class="table-wrapper">
+      <!-- 批量操作按钮（始终显示在表格上方） -->
+      <BatchActions
+        v-if="rowSelection"
+        :actions="batchActions || []"
+        :row-actions="rowActionButtons"
+        :selected-rows="selectedRows"
+        :selected-row-keys="selectedRowKeys"
+        :always-show="true"
+        @clear="handleClearSelection"
       />
-    </Card>
+
+      <Card
+        :bordered="true"
+        :class="{ 'table-with-batch-actions': rowSelection }"
+        class="table-card"
+      >
+        <Table
+          :columns="visibleColumns"
+          :data-source="tableData"
+          :loading="internalLoading"
+          :pagination="
+            showPagination
+              ? {
+                  current: internalCurrent,
+                  pageSize: internalPageSize,
+                  total: internalTotal,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  position: ['bottomRight'],
+                  size: 'default',
+                }
+              : false
+          "
+          :locale="{ emptyText }"
+          :row-key="rowKey"
+          :row-selection="rowSelectionConfig"
+          :scroll="{ x: '100%', y: tableScrollY }"
+          table-layout="fixed"
+          @change="handleTableChange as any"
+          @row-click="handleRowClick"
+          :bordered="false"
+        />
+      </Card>
+    </div>
   </div>
 </template>
 
@@ -826,6 +906,12 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   margin-left: 16px;
 }
 
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .table-card {
   display: flex;
   flex: 1;
@@ -833,6 +919,11 @@ const renderCellContent = (value: any, column: ColumnConfig) => {
   overflow: hidden;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
+}
+
+.table-with-batch-actions {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 :deep(.ant-card-body) {
