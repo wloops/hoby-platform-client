@@ -76,6 +76,8 @@ export interface ActionButton {
   confirmTitle?: string;
   // 按钮权限控制，如果设置，只有当用户有此权限时才显示
   permission?: string;
+  // 新增属性：是否可批量操作
+  batchable?: boolean; // true表示可批量操作，false表示只能单行操作（如查看详情）
   // 其他任意属性
   [key: string]: any;
 }
