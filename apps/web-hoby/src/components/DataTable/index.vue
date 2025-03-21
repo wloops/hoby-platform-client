@@ -567,6 +567,7 @@ const fetchData = async () => {
     console.error('获取数据失败', error);
   } finally {
     internalLoading.value = false;
+    selectedRowKeys.value = [];
     emit('update:loading', false);
   }
 };
@@ -908,6 +909,7 @@ const rowActionButtons = computed(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
 }
 
 .table-card {
