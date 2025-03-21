@@ -22,6 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
+import { useMainGetData } from '#/composables';
 
 const pageTitle = $t(
   'page.warehouse.myBranchWarehouse.warehouseLedger.consultedWarehouse',
@@ -31,7 +32,7 @@ const pageTitle = $t(
 const columns: ColumnConfig[] = [
   {
     title: '厂商',
-    dataIndex: 'merchant',
+    dataIndex: 'actCmpName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -39,7 +40,7 @@ const columns: ColumnConfig[] = [
   },
   {
     title: '仓库',
-    dataIndex: 'warehouse',
+    dataIndex: 'wareName',
     visible: true,
     searchable: true,
     type: FieldType.STRING,
@@ -79,11 +80,7 @@ const columns: ColumnConfig[] = [
     searchable: false,
     type: FieldType.SELECT,
     width: 100,
-    options: [
-      { label: '正常', value: 1 },
-      { label: '即将到期', value: 2 },
-      { label: '已到期', value: 3 },
-    ],
+    enumName: 'warehouseStatus',
   },
 ];
 
@@ -112,30 +109,17 @@ const dataTableRef = ref<null | {
 const warehouseApi = {
   getList: async (_params: SearchParams) => {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const params = {
+      pageID: 'branchWarehouseActivatedPage',
+      pageDataGrpID: 'branchWarehouseActivated',
+      ..._params,
+    };
+    const { data, total } = await useMainGetData(params);
     return {
-      data: [
-        {
-          id: 1,
-          merchant: '测试厂商',
-          warehouse: '广州天润大厦仓',
-          signDate: '2025/01/01',
-          validPeriod: '2025/01/01—2025/12/31',
-          open: 1,
-          status: 1,
-        },
-        {
-          id: 2,
-          merchant: '测试厂商',
-          warehouse: '广州金融城佳信汇仓',
-          signDate: '2025/01/01',
-          validPeriod: '2025/01/01—2025/12/31',
-          open: 1,
-          status: 1,
-        },
-      ],
-      total: 2,
+      data: data.value,
+      total: total.value,
     };
   },
 };
@@ -143,19 +127,13 @@ const warehouseApi = {
 // 获取数据的方法
 const fetchWarehouseData = async (params: SearchParams) => {
   try {
-    loading.value = true;
-    const result = await warehouseApi.getList(params);
-    tableData.value = result.data;
-    total.value = result.total;
-    return result;
+    return await warehouseApi.getList(params);
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error('获取仓库数据失败:', error);
     return {
       data: [],
       total: 0,
     };
-  } finally {
-    loading.value = false;
   }
 };
 
