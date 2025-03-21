@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-20 17:16:38
+ * @LastEditTime: 2025-03-21 10:04:26
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\shop\branch\shop.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -100,13 +100,13 @@ const columns: ColumnConfig[] = [
         disabled: (record) => record.onCateStatus !== '0',
       },
       {
-        text: '暂停营业',
+        text: '停止营业',
         type: 'link',
         onClick: (record) => {
-          console.warn('暂停营业', record);
+          console.warn('停止营业', record);
           // 实现暂停营业逻辑
         },
-        // 只有营业中的记录可暂停营业
+        // 只有营业中的记录可停止营业
         disabled: (record) => record.onCateStatus !== '1',
       },
     ],
