@@ -32,6 +32,7 @@ import {
   Table,
   Tag,
 } from 'ant-design-vue';
+import { v4 as uuidv4 } from 'uuid';
 
 import { useEnums } from '#/composables';
 
@@ -539,7 +540,12 @@ const fetchData = async () => {
       currentPage: internalCurrent.value,
       numOfPerPage: internalPageSize.value,
     });
-
+    // 如果dataSource每条数据没有id，则添加一个唯一的id
+    result.data.forEach((item: TableItem) => {
+      if (!item.id) {
+        item.id = uuidv4();
+      }
+    });
     tableData.value = result.data || [];
     internalTotal.value = result.total || 0;
   } catch (error) {
