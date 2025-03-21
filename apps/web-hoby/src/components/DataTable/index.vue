@@ -550,8 +550,12 @@ const fetchData = async () => {
   emit('update:loading', true);
 
   try {
+    // 将searchForm中的字段转换为|连接的字符串
+    const searchFormString = Object.entries(searchForm)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('|');
     const result = await props.fetchDataFunc({
-      ...searchForm,
+      queryConditions: searchFormString,
       currentPage: internalCurrent.value,
       numOfPerPage: internalPageSize.value,
     });
