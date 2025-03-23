@@ -5,8 +5,16 @@
       "path": "apps/backend-mock",
     },
     {
+      "name": "@vben/web-ele",
+      "path": "apps/web-ele",
+    },
+    {
       "name": "@vben/web-hoby",
       "path": "apps/web-hoby",
+    },
+    {
+      "name": "@vben/web-naive",
+      "path": "apps/web-naive",
     },
     {
       "name": "@vben/docs",

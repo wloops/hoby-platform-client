@@ -34,7 +34,8 @@ defineOptions({
 
 withDefaults(defineProps<Props>(), {
   collapsed: false,
-  href: 'javascript:void 0',
+  // href: 'javascript:void 0',
+  href: '/',
   logoSize: 32,
   src: '',
   theme: 'light',
@@ -52,7 +53,8 @@ withDefaults(defineProps<Props>(), {
         v-if="src"
         :alt="text"
         :src="src"
-        class="relative w-8 rounded-none bg-transparent"
+        :size="logoSize"
+        class="relative rounded-none bg-transparent"
       />
       <span
         v-if="!collapsed"

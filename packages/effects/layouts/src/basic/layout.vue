@@ -4,7 +4,6 @@ import type { SetupContext } from 'vue';
 import type { MenuRecordRaw } from '@vben/types';
 
 import { computed, useSlots, watch } from 'vue';
-import { useRouter } from 'vue-router';
 
 import { useRefresh } from '@vben/hooks';
 import { $t, i18n } from '@vben/locales';
@@ -35,7 +34,7 @@ import { LayoutTabbar } from './tabbar';
 
 defineOptions({ name: 'BasicLayout' });
 
-const emit = defineEmits<{ clearPreferencesAndLogout: [] }>();
+const emit = defineEmits<{ clearPreferencesAndLogout: []; clickLogo: [] }>();
 
 const {
   isDark,
@@ -150,9 +149,8 @@ function clearPreferencesAndLogout() {
   emit('clearPreferencesAndLogout');
 }
 
-const router = useRouter();
-function handleClickToHome() {
-  router.push('/home');
+function clickLogo() {
+  emit('clickLogo');
 }
 
 watch(
@@ -227,7 +225,7 @@ const headerSlots = computed(() => {
         :src="preferences.logo.source"
         :text="preferences.app.name"
         :theme="showHeaderNav ? headerTheme : theme"
-        @click="handleClickToHome"
+        @click="clickLogo"
       />
     </template>
     <!-- 头部区域 -->
