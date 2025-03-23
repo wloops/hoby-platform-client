@@ -35,7 +35,13 @@ const coreRoutes: RouteRecordRaw[] = [
     name: 'Root',
     path: '/',
     redirect: '/home',
-    children: [],
+    children: [
+      {
+        name: 'UserPage',
+        path: '/user',
+        component: () => import('#/views/_core/authentication/user.vue'),
+      },
+    ],
   },
   {
     component: () => import('#/views/_core/home/index.vue'),

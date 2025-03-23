@@ -2,11 +2,11 @@
 import type { NotificationItem } from '@vben/layouts';
 
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { AuthenticationLoginExpiredModal } from '@vben/common-ui';
 // import { VBEN_DOC_URL, VBEN_GITHUB_URL } from '@vben/constants';
 import { useWatermark } from '@vben/hooks';
-// import { BookOpenText, CircleHelp, MdiGithub } from '@vben/icons';
 import {
   BasicLayout,
   LockScreen,
@@ -14,8 +14,8 @@ import {
   UserDropdown,
 } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
-import { useAccessStore } from '@vben/stores';
 // import { openWindow } from '@vben/utils';
+import { useAccessStore } from '@vben/stores';
 
 // import { $t } from '#/locales';
 import { useAuthStore } from '#/store';
@@ -51,7 +51,7 @@ const notifications = ref<NotificationItem[]>([
     title: '代办提醒',
   },
 ]);
-
+const router = useRouter();
 const userInfo = sessionStorage.getItem('userInfo')
   ? JSON.parse(sessionStorage.getItem('userInfo')!)
   : null;
@@ -90,7 +90,16 @@ const menus = computed(() => [
   //   icon: CircleHelp,
   //   text: $t('ui.widgets.qa'),
   // },
+  {
+    handler: toUser,
+    icon: 'mdi:account-circle-outline' as any,
+    text: '我的',
+  },
 ]);
+
+function toUser() {
+  router.push('/user');
+}
 
 const avatar = computed(() => {
   return userInfo?.avatar ?? preferences.app.defaultAvatar;

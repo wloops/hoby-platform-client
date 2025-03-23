@@ -7,6 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { UserDropdown } from '@vben/layouts';
@@ -27,6 +28,18 @@ const authStore = useAuthStore();
 //   ? JSON.parse(sessionStorage.getItem('userInfo')!)
 //   : null;
 // const userInfo = ref(userStore.userInfo || null);
+
+const menus = computed(() => [
+  {
+    handler: toUser,
+    icon: 'mdi:account-circle-outline' as any,
+    text: '我的',
+  },
+]);
+function toUser() {
+  router.push('/user');
+}
+
 console.warn('userStore.userInfo', userStore.userInfo);
 
 const toLogin = () => {
@@ -57,6 +70,7 @@ async function handleLogout() {
             :avatar="
               userStore.userInfo?.avatar ?? preferences.app.defaultAvatar
             "
+            :menus
             :text="userStore.userInfo?.realName"
             :description="userStore.userInfo?.companyName"
             :tag-text="userStore.userInfo?.tellerNo"
