@@ -35,13 +35,7 @@ const coreRoutes: RouteRecordRaw[] = [
     name: 'Root',
     path: '/',
     redirect: '/home',
-    children: [
-      {
-        name: 'UserPage',
-        path: '/user',
-        component: () => import('#/views/_core/authentication/user.vue'),
-      },
-    ],
+    children: [],
   },
   {
     component: () => import('#/views/_core/home/index.vue'),
@@ -62,6 +56,16 @@ const coreRoutes: RouteRecordRaw[] = [
     },
     name: 'Test',
     path: '/test',
+    children: [],
+  },
+  {
+    component: () => import('#/views/_core/authentication/user.vue'),
+    meta: {
+      hideInBreadcrumb: true,
+      title: '我的账户信息',
+    },
+    name: 'UserPage',
+    path: '/user',
     children: [],
   },
   {
