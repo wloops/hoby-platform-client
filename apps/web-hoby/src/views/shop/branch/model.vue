@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-19 16:48:02
+ * @LastEditTime: 2025-03-24 11:50:51
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\shop\branch\model.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,7 +22,7 @@ import { $t } from '@vben/locales';
 
 import DataTable from '#/components/DataTable/index.vue';
 import { FieldType } from '#/components/DataTable/types';
-import { useMainGetData } from '#/composables';
+import { useMainGetData, useServiceCall } from '#/composables';
 
 const pageTitle = $t('page.shop.myBranchWarehouse.model');
 
@@ -135,15 +135,58 @@ const columns: ColumnConfig[] = [
         onClick: (record) => {
           console.warn('上架', record);
           // 实现上架逻辑
+          useServiceCall(
+            {
+              pageID: 'myPrivateWareShopSrlIDPage',
+              pageButtonID: 'warehouseShopSrlIDOnSell',
+              actNo: record.actNo,
+              saleCmpName: record.saleCmpName,
+              wareName: record.wareName,
+              companyName: record.companyName,
+              productName: record.productName,
+              srlID: record.srlID,
+            },
+            {
+              successMessage: '上架成功',
+              errorMessage: '上架失败',
+              refreshFunc: () => {
+                refreshTable();
+              },
+            },
+          );
         },
+        confirm: 'auto',
+        disabled: (record) => record.onCateStatus !== '0',
       },
       {
         text: '下架',
         type: 'link',
+        danger: true,
         onClick: (record) => {
           console.warn('下架', record);
           // 实现下架逻辑
+          useServiceCall(
+            {
+              pageID: 'myPrivateWareShopSrlIDPage',
+              pageButtonID: 'warehouseShopSrlIDStopSell',
+              actNo: record.actNo,
+              saleCmpName: record.saleCmpName,
+              wareName: record.wareName,
+              companyName: record.companyName,
+              productName: record.productName,
+              srlID: record.srlID,
+            },
+            {
+              successMessage: '下架成功',
+              errorMessage: '下架失败',
+              refreshFunc: () => {
+                refreshTable();
+              },
+            },
+          );
         },
+        confirm: 'auto',
+        disabled: (record) => record.onCateStatus !== '1',
       },
     ],
   },
