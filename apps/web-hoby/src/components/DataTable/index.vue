@@ -185,7 +185,7 @@ const tableScrollY = computed(() => {
       ? searchPanelHeight.value
       : 0;
 
-  return `calc(100vh - ${searchHeight}px - ${tableHeaderHeight.value}px - ${paginationHeight}px - 220px)`; // 180px 为其他固定元素的总高度(如页面header等)
+  return `calc(100vh - ${searchHeight}px - ${tableHeaderHeight.value}px - ${paginationHeight}px - 250px)`; // 180px 为其他固定元素的总高度(如页面header等)
 });
 
 // 监听外部数据变化

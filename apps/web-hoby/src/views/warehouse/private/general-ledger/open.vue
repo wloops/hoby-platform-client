@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-18 11:26:16
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-18 22:24:13
+ * @LastEditTime: 2025-03-24 16:49:19
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -31,7 +31,7 @@ const pageTitle = $t(
 // 表格列配置
 const columns: ColumnConfig[] = [
   {
-    title: '仓库',
+    title: '仓商',
     dataIndex: 'saleCmpName',
     visible: true,
     searchable: true,
@@ -42,7 +42,7 @@ const columns: ColumnConfig[] = [
     title: '状态',
     dataIndex: 'status',
     visible: true,
-    searchable: true,
+    searchable: false,
     type: FieldType.SELECT,
     width: 100,
     enumName: 'warehouseStatus',
@@ -59,45 +59,20 @@ const columns: ColumnConfig[] = [
     },
     actions: [
       {
-        text: '查看',
+        text: '建立仓储目录',
         type: 'link',
         onClick: (record) => {
-          console.warn('查看详情', record);
-          // 实现查看逻辑
+          console.warn('建立仓储目录', record);
+          // 实现建立仓储目录逻辑
         },
       },
       {
-        text: '编辑',
+        text: '建立仓库仓储目录',
         type: 'link',
         onClick: (record) => {
-          console.warn('编辑记录', record);
-          // 实现编辑逻辑
+          console.warn('建立仓储目录', record);
+          // 实现建立仓储目录逻辑
         },
-        // 只有正常状态的记录可编辑
-        show: (record) => record.status === 1,
-      },
-      {
-        text: '删除',
-        type: 'link',
-        danger: true,
-        onClick: (record) => {
-          console.warn('删除记录', record);
-          // 实现删除逻辑
-        },
-        confirm: '确定要删除此仓库吗？',
-        confirmTitle: '删除确认',
-      },
-      {
-        text: '停用',
-        type: 'link',
-        onClick: (record) => {
-          console.warn('停用仓库', record);
-          // 实现停用逻辑
-        },
-        // 只有正常和缺货状态的仓库可以停用
-        show: (record) => [1, 2].includes(record.status),
-        // 添加权限控制示例
-        // permission: 'warehouse:disable',
       },
     ],
   },
