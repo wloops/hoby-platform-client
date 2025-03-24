@@ -82,20 +82,24 @@ const getSpecValueList = async (spec, index) => {
 // };
 
 // 编辑模态框状态
-const isEditModalOpen = ref(false);
+// const isEditModalOpen = ref(false);
 const currentEditingProduct = ref(null);
+const editSpecificationModalRef = ref(null);
 
 // 打开编辑模态框
 const openEditModal = (product) => {
+  // console.log('openEditModal:product', product);
+
   currentEditingProduct.value = product;
-  isEditModalOpen.value = true;
+  // isEditModalOpen.value = true;
+  editSpecificationModalRef.value.open(product);
 };
 
-// 关闭编辑模态框
-const closeEditModal = () => {
-  isEditModalOpen.value = false;
-  currentEditingProduct.value = null;
-};
+// // 关闭编辑模态框
+// const closeEditModal = () => {
+//   isEditModalOpen.value = false;
+//   currentEditingProduct.value = null;
+// };
 
 // 获取颜色对应的CSS颜色值
 const getColorValue = (color) => {
@@ -132,6 +136,8 @@ async function fetchProducts() {
       id: `${111 + index}`,
       name: item.productName,
       status: '上架',
+      specAttrCateListForPrice: item.specAttrCateListForPrice,
+      specAttrCateListForWare: item.specAttrCateListForWare,
       specifications: {},
     }));
   } catch (error) {
@@ -198,13 +204,7 @@ onMounted(async () => {
       </button>
     </div>
 
-    <EditSpecificationModal
-      :is-open="isEditModalOpen"
-      :product-id="currentEditingProduct?.id"
-      :specifications="currentEditingProduct?.specifications"
-      @close="closeEditModal"
-      @save="handleSaveSpecifications"
-    />
+    <EditSpecificationModal ref="editSpecificationModalRef" />
 
     <!-- 产品列表 -->
     <div class="space-y-6">

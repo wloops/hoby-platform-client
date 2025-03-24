@@ -1,40 +1,38 @@
 <script setup>
-import { computed, defineEmits, defineProps, reactive, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 import { message, Modal, Select } from 'ant-design-vue';
 
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true,
-  },
-  productId: {
-    type: [Number, String],
-    required: true,
-  },
-  specifications: {
-    type: Object,
-    required: true,
-  },
-});
+import { useMainGetData } from '#/composables';
 
-const emit = defineEmits(['close', 'save']);
+// const props = defineProps({
+//   productId: {
+//     type: [Number, String],
+//     required: true,
+//   },
+//   specifications: {
+//     type: Object,
+//     required: true,
+//   },
+// });
+
+// const emit = defineEmits(['close', 'save']);
 
 const { Option: SelectOption } = Select;
-
+const isOpen = ref(false);
 // 编辑状态的规格数据
-const editedSpecs = reactive({});
+// const editedSpecs = reactive({});
 
 // 新规格类型名称
 const newSpecTypeName = ref('');
 
 // 已选择的规格类型
-const selectedStockSpecs = ref(['sizes', 'colors']);
-const selectedPriceSpecs = ref(['sizes', 'colors']);
+const selectedStockSpecs = ref([]);
+const selectedPriceSpecs = ref([]);
 
 // 获取所有可用的规格类型
 const availableSpecTypes = computed(() => {
-  return Object.keys(editedSpecs);
+  return editedSpecsList.value.map((item) => item.specType);
 });
 
 // 切换规格类型选择 - 修改为直接赋值
@@ -46,33 +44,41 @@ const handlePriceSpecChange = (values) => {
   selectedPriceSpecs.value = values;
 };
 
-// 监听规格数据变化，初始化编辑状态
-watch(
-  () => props.specifications,
-  (newSpecs) => {
-    if (newSpecs) {
-      // 清空现有数据
-      Object.keys(editedSpecs).forEach((key) => {
-        delete editedSpecs[key];
-      });
+// // 监听规格数据变化，初始化编辑状态
+// watch(
+//   () => props.specifications,
+//   (newSpecs) => {
+//     if (newSpecs) {
+//       // 清空现有数据
+//       Object.keys(editedSpecs).forEach((key) => {
+//         delete editedSpecs[key];
+//       });
 
-      // 复制所有规格数据
-      Object.keys(newSpecs).forEach((key) => {
-        editedSpecs[key] = [...newSpecs[key]];
-      });
-    }
-  },
-  { immediate: true },
-);
+//       // 复制所有规格数据
+//       Object.keys(newSpecs).forEach((key) => {
+//         editedSpecs[key] = [...newSpecs[key]];
+//       });
+//     }
+//   },
+//   { immediate: true },
+// );
 
 // 添加规格值
 const addSpecValue = (specType) => {
-  editedSpecs[specType].push('');
+  editedSpecsList.value.forEach((item) => {
+    if (item.specType === specType) {
+      item.values.push('');
+    }
+  });
 };
 
 // 删除规格值
 const removeSpecValue = (specType, index) => {
-  editedSpecs[specType].splice(index, 1);
+  editedSpecsList.value.forEach((item) => {
+    if (item.specType === specType) {
+      item.values.splice(index, 1);
+    }
+  });
 };
 
 // 添加新规格类型
@@ -86,13 +92,18 @@ const addNewSpecType = () => {
     .replace(/^[A-Z]/, (c) => c.toLowerCase());
 
   // 检查是否已存在
-  if (editedSpecs[specTypeKey]) {
-    message.error(`规格类型 "${newSpecTypeName.value}" 已存在`);
-    return;
-  }
+  editedSpecsList.value.forEach((item) => {
+    if (item.specType === specTypeKey) {
+      message.error(`规格类型 "${newSpecTypeName.value}" 已存在`);
+      return false;
+    }
+  });
 
   // 添加新规格类型
-  editedSpecs[specTypeKey] = [];
+  editedSpecsList.value.push({
+    specType: specTypeKey,
+    values: [],
+  });
 
   // 清空输入
   newSpecTypeName.value = '';
@@ -102,9 +113,13 @@ const addNewSpecType = () => {
 const removeSpecType = (specType) => {
   Modal.confirm({
     title: '提示',
-    content: `确定要删除 "${getSpecTypeName(specType)}" 规格吗？`,
+    content: `确定要删除 "${specType}" 规格吗？`,
     onOk: () => {
-      delete editedSpecs[specType];
+      editedSpecsList.value.forEach((item) => {
+        if (item.specType === specType) {
+          editedSpecsList.value.splice(index, 1);
+        }
+      });
     },
   });
 };
@@ -121,28 +136,86 @@ const getSpecTypeName = (specType) => {
 
 // 保存更改
 const saveChanges = () => {
-  // 过滤掉空值
-  const updatedSpecs = {};
+  console.warn('决定库存的规格', selectedStockSpecs.value);
+  console.warn('决定价格的规格', selectedPriceSpecs.value);
+  console.warn('editedSpecsList', editedSpecsList.value);
+  // // 过滤掉空值
+  // const updatedSpecs = {};
 
-  Object.keys(editedSpecs).forEach((key) => {
-    const filteredValues = editedSpecs[key].filter((value) => value.trim());
-    if (filteredValues.length > 0) {
-      updatedSpecs[key] = filteredValues;
-    }
-  });
+  // Object.keys(editedSpecs).forEach((key) => {
+  //   const filteredValues = editedSpecs[key].filter((value) => value.trim());
+  //   if (filteredValues.length > 0) {
+  //     updatedSpecs[key] = filteredValues;
+  //   }
+  // });
 
-  emit('save', {
-    productId: props.productId,
-    specifications: updatedSpecs,
-    stockSpecs: selectedStockSpecs.value,
-    priceSpecs: selectedPriceSpecs.value,
+  // emit('save', {
+  //   productId: props.productId,
+  //   specifications: updatedSpecs,
+  //   stockSpecs: selectedStockSpecs.value,
+  //   priceSpecs: selectedPriceSpecs.value,
+  // });
+};
+
+const editedSpecsList = ref([]);
+// 打开模态框
+const open = async (product) => {
+  selectedPriceSpecs.value = product.specAttrCateListForPrice
+    ? product.specAttrCateListForPrice.split(',')
+    : [];
+  selectedStockSpecs.value = product.specAttrCateListForWare
+    ? product.specAttrCateListForWare.split(',')
+    : [];
+  editedSpecsList.value = [];
+  let list = [];
+  list = await getSpecTypeNameList(product);
+  editedSpecsList.value = list;
+  setTimeout(() => {
+    isOpen.value = true;
+  }, 500);
+};
+
+// 获取规格类型名称
+const getSpecTypeNameList = async (product) => {
+  const specList = [];
+  const reqParams = {
+    pageID: 'productStandards',
+    pageDataGrpID: 'queryProductSpecCate',
+    productName: product.name,
+  };
+  const { data } = await useMainGetData(reqParams);
+  data.value.forEach(async (item) => {
+    specList.push({
+      specType: item.specCate,
+      values: await getSpecValueList(item),
+    });
   });
+  return specList;
+};
+
+const getSpecValueList = async (spec) => {
+  const reqParams = {
+    pageID: 'productStandards',
+    pageDataGrpID: 'queryProductSpecValue',
+    productName: spec.productName,
+    specCate: spec.specCate,
+  };
+  const { data } = await useMainGetData(reqParams);
+  const specValueList = [];
+  data.value.forEach((item) => {
+    specValueList.push(item.specValue);
+  });
+  return specValueList;
 };
 
 // 关闭模态框
 const closeModal = () => {
-  emit('close');
+  isOpen.value = false;
 };
+
+defineExpose({
+  open,
+});
 </script>
 
 <template>
@@ -236,20 +309,20 @@ const closeModal = () => {
           <div class="space-y-8">
             <!-- 现有规格 -->
             <div
-              v-for="(values, specType) in editedSpecs"
-              :key="specType"
+              v-for="(item, index) in editedSpecsList"
+              :key="index"
               class="spec-section rounded-md border bg-white p-2 shadow-sm"
             >
               <div class="mb-4 flex items-center justify-between">
                 <h4 class="text-base font-medium text-gray-900">
-                  {{ getSpecTypeName(specType) }}规格
+                  {{ item.specType }}规格
                 </h4>
                 <div class="flex items-center gap-2">
                   <button
                     class="text-sm font-medium text-blue-600 hover:text-blue-700"
-                    @click="addSpecValue(specType)"
+                    @click="addSpecValue(item.specType)"
                   >
-                    添加{{ getSpecTypeName(specType) }}
+                    添加{{ item.specType }}
                   </button>
                   <button
                     class="text-sm font-medium text-red-600 hover:text-red-700"
@@ -261,19 +334,19 @@ const closeModal = () => {
               </div>
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 <div
-                  v-for="(value, index) in values"
+                  v-for="(value, index) in item.values"
                   :key="index"
                   class="flex items-center gap-2 rounded-md bg-white p-2 transition-colors hover:bg-gray-50"
                 >
                   <input
                     type="text"
-                    v-model="editedSpecs[specType][index]"
+                    v-model="item.values[index]"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    :placeholder="`请输入${getSpecTypeName(specType)}`"
+                    :placeholder="`请输入${item.specType}`"
                   />
                   <button
                     class="flex-shrink-0 text-red-500 hover:text-red-700"
-                    @click="removeSpecValue(specType, index)"
+                    @click="removeSpecValue(item.specType, index)"
                   >
                     <svg
                       class="h-5 w-5"
