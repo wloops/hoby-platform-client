@@ -140,10 +140,17 @@ watch(
     immediate: true,
   },
 );
+
+function toHome() {
+  router.push('/');
+}
 </script>
 
 <template>
-  <BasicLayout @clear-preferences-and-logout="handleLogout">
+  <BasicLayout
+    @clear-preferences-and-logout="handleLogout"
+    @click-logo="toHome"
+  >
     <template #user-dropdown>
       <UserDropdown
         :avatar
