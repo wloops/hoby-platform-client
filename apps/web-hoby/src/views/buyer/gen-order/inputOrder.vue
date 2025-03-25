@@ -319,102 +319,11 @@ export default defineComponent({
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 justify-between">
-          <div class="flex items-center">
-            <h1 class="text-xl font-bold text-gray-900">后台管理系统</h1>
-          </div>
-          <div class="flex items-center">
-            <div class="relative ml-3">
-              <div class="flex items-center">
-                <span class="mr-2 text-sm text-gray-700">管理员</span>
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-gray-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <!-- Main Content -->
     <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-medium text-gray-900">录入第三方订单</h2>
-          <nav class="flex" aria-label="Breadcrumb">
-            <ol class="flex items-center space-x-2">
-              <li>
-                <div class="flex items-center">
-                  <a
-                    href="#"
-                    class="text-sm font-medium text-gray-500 hover:text-gray-700"
-                    >首页</a
-                  >
-                </div>
-              </li>
-              <li>
-                <div class="flex items-center">
-                  <svg
-                    class="h-5 w-5 flex-shrink-0 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <a
-                    href="#"
-                    class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700"
-                    >订单管理</a
-                  >
-                </div>
-              </li>
-              <li>
-                <div class="flex items-center">
-                  <svg
-                    class="h-5 w-5 flex-shrink-0 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span
-                    class="ml-2 text-sm font-medium text-gray-900"
-                    aria-current="page"
-                    >录入第三方订单</span
-                  >
-                </div>
-              </li>
-            </ol>
-          </nav>
+          <h2 class="text-lg font-medium text-gray-900">录入销售订单</h2>
         </div>
 
         <div class="rounded-lg bg-white shadow">

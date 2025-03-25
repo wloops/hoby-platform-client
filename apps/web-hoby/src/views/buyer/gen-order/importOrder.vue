@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-23 15:34:45
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-24 14:42:03
+ * @LastEditTime: 2025-03-24 17:43:58
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\gen-order\importOrder.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -76,7 +76,7 @@ const handleReset = () => {
     <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-medium text-gray-900">导入第三方订单</h2>
+          <h2 class="text-lg font-medium text-gray-900">导入销售订单</h2>
         </div>
 
         <!-- Import Steps -->
