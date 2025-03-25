@@ -67,7 +67,9 @@ const handlePriceSpecChange = (values) => {
 const addSpecValue = (specType) => {
   editedSpecsList.value.forEach((item) => {
     if (item.specType === specType) {
-      item.values.push('');
+      item.values.push({
+        value: '',
+      });
     }
   });
 };
@@ -102,7 +104,11 @@ const addNewSpecType = () => {
   // 添加新规格类型
   editedSpecsList.value.push({
     specType: specTypeKey,
-    values: [],
+    values: [
+      {
+        value: '',
+      },
+    ],
   });
 
   // 清空输入
@@ -139,6 +145,14 @@ const saveChanges = () => {
   console.warn('决定库存的规格', selectedStockSpecs.value);
   console.warn('决定价格的规格', selectedPriceSpecs.value);
   console.warn('editedSpecsList', editedSpecsList.value);
+  console.warn('productData', productData.value);
+  const result = {
+    productHame: productData.value.name,
+    specAttrCateListForWare: selectedStockSpecs.value.join(','),
+    specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+    specList: editedSpecsList.value,
+  };
+  console.warn('result', result);
   // // 过滤掉空值
   // const updatedSpecs = {};
 
@@ -158,8 +172,10 @@ const saveChanges = () => {
 };
 
 const editedSpecsList = ref([]);
+const productData = ref(null);
 // 打开模态框
 const open = async (product) => {
+  productData.value = product;
   selectedPriceSpecs.value = product.specAttrCateListForPrice
     ? product.specAttrCateListForPrice.split(',')
     : [];
@@ -203,7 +219,9 @@ const getSpecValueList = async (spec) => {
   const { data } = await useMainGetData(reqParams);
   const specValueList = [];
   data.value.forEach((item) => {
-    specValueList.push(item.specValue);
+    specValueList.push({
+      value: item.specValue,
+    });
   });
   return specValueList;
 };
@@ -340,7 +358,7 @@ defineExpose({
                 >
                   <input
                     type="text"
-                    v-model="item.values[index]"
+                    v-model="value.value"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     :placeholder="`请输入${item.specType}`"
                   />
