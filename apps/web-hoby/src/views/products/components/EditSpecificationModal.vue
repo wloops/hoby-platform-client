@@ -32,16 +32,16 @@ const selectedPriceSpecs = ref([]);
 
 // 获取所有可用的规格类型
 const availableSpecTypes = computed(() => {
-  return editedSpecsList.value.map((item) => item.specType);
+  return editedSpecsList.value.map((item) => item.specCate);
 });
 
 // 切换规格类型选择 - 修改为直接赋值
-const handleStockSpecChange = (values) => {
-  selectedStockSpecs.value = values;
+const handleStockSpecChange = (queryProductSpecValue) => {
+  selectedStockSpecs.value = queryProductSpecValue;
 };
 
-const handlePriceSpecChange = (values) => {
-  selectedPriceSpecs.value = values;
+const handlePriceSpecChange = (queryProductSpecValue) => {
+  selectedPriceSpecs.value = queryProductSpecValue;
 };
 
 // // 监听规格数据变化，初始化编辑状态
@@ -64,21 +64,21 @@ const handlePriceSpecChange = (values) => {
 // );
 
 // 添加规格值
-const addSpecValue = (specType) => {
+const addSpecValue = (specCate) => {
   editedSpecsList.value.forEach((item) => {
-    if (item.specType === specType) {
-      item.values.push({
-        value: '',
+    if (item.specCate === specCate) {
+      item.queryProductSpecValue.push({
+        specValue: '',
       });
     }
   });
 };
 
 // 删除规格值
-const removeSpecValue = (specType, index) => {
+const removeSpecValue = (specCate, index) => {
   editedSpecsList.value.forEach((item) => {
-    if (item.specType === specType) {
-      item.values.splice(index, 1);
+    if (item.specCate === specCate) {
+      item.queryProductSpecValue.splice(index, 1);
     }
   });
 };
@@ -95,7 +95,7 @@ const addNewSpecType = () => {
 
   // 检查是否已存在
   editedSpecsList.value.forEach((item) => {
-    if (item.specType === specTypeKey) {
+    if (item.specCate === specTypeKey) {
       message.error(`规格类型 "${newSpecTypeName.value}" 已存在`);
       return false;
     }
@@ -103,10 +103,10 @@ const addNewSpecType = () => {
 
   // 添加新规格类型
   editedSpecsList.value.push({
-    specType: specTypeKey,
-    values: [
+    specCate: specTypeKey,
+    queryProductSpecValue: [
       {
-        value: '',
+        specValue: '',
       },
     ],
   });
@@ -116,13 +116,13 @@ const addNewSpecType = () => {
 };
 
 // 删除规格类型
-const removeSpecType = (specType) => {
+const removeSpecType = (specCate) => {
   Modal.confirm({
     title: '提示',
-    content: `确定要删除 "${specType}" 规格吗？`,
+    content: `确定要删除 "${specCate}" 规格吗？`,
     onOk: () => {
       editedSpecsList.value.forEach((item) => {
-        if (item.specType === specType) {
+        if (item.specCate === specCate) {
           editedSpecsList.value.splice(index, 1);
         }
       });
@@ -131,13 +131,13 @@ const removeSpecType = (specType) => {
 };
 
 // 获取规格类型名称
-const getSpecTypeName = (specType) => {
+const getSpecTypeName = (specCate) => {
   const names = {
     colors: '颜色',
     sizes: '尺寸',
     materials: '材质',
   };
-  return names[specType] || specType;
+  return names[specCate] || specCate;
 };
 
 // 保存更改
@@ -147,10 +147,10 @@ const saveChanges = () => {
   console.warn('editedSpecsList', editedSpecsList.value);
   console.warn('productData', productData.value);
   const result = {
-    productHame: productData.value.name,
+    productName: productData.value.name,
     specAttrCateListForWare: selectedStockSpecs.value.join(','),
     specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
-    specList: editedSpecsList.value,
+    queryProductSpecCate: editedSpecsList.value,
   };
   console.warn('result', result);
   // // 过滤掉空值
@@ -176,54 +176,32 @@ const productData = ref(null);
 // 打开模态框
 const open = async (product) => {
   productData.value = product;
-  selectedPriceSpecs.value = product.specAttrCateListForPrice
-    ? product.specAttrCateListForPrice.split(',')
-    : [];
-  selectedStockSpecs.value = product.specAttrCateListForWare
-    ? product.specAttrCateListForWare.split(',')
-    : [];
   editedSpecsList.value = [];
   let list = [];
   list = await getSpecTypeNameList(product);
-  editedSpecsList.value = list;
-  setTimeout(() => {
-    isOpen.value = true;
-  }, 500);
+  editedSpecsList.value = list.queryProductSpecCate;
+  selectedPriceSpecs.value = list.specAttrCateListForPrice
+    ? list.specAttrCateListForPrice.split(',')
+    : [];
+  selectedStockSpecs.value = list.specAttrCateListForWare
+    ? list.specAttrCateListForWare.split(',')
+    : [];
+  isOpen.value = true;
 };
 
 // 获取规格类型名称
 const getSpecTypeNameList = async (product) => {
-  const specList = [];
+  const userInfo = window.sessionStorage.getItem('userInfo');
+  const userInfoObj = JSON.parse(userInfo);
   const reqParams = {
-    pageID: 'productStandards',
-    pageDataGrpID: 'queryProductSpecCate',
+    pageID: '',
+    pageDataGrpID: 'factoryProductStandard',
     productName: product.name,
+    companyName: userInfoObj.TELLERCOMPANY,
   };
   const { data } = await useMainGetData(reqParams);
-  data.value.forEach(async (item) => {
-    specList.push({
-      specType: item.specCate,
-      values: await getSpecValueList(item),
-    });
-  });
-  return specList;
-};
 
-const getSpecValueList = async (spec) => {
-  const reqParams = {
-    pageID: 'productStandards',
-    pageDataGrpID: 'queryProductSpecValue',
-    productName: spec.productName,
-    specCate: spec.specCate,
-  };
-  const { data } = await useMainGetData(reqParams);
-  const specValueList = [];
-  data.value.forEach((item) => {
-    specValueList.push({
-      value: item.specValue,
-    });
-  });
-  return specValueList;
+  return data.value;
 };
 
 // 关闭模态框
@@ -333,18 +311,18 @@ defineExpose({
             >
               <div class="mb-4 flex items-center justify-between">
                 <h4 class="text-base font-medium text-gray-900">
-                  {{ item.specType }}规格
+                  {{ item.specCate }}规格
                 </h4>
                 <div class="flex items-center gap-2">
                   <button
                     class="text-sm font-medium text-blue-600 hover:text-blue-700"
-                    @click="addSpecValue(item.specType)"
+                    @click="addSpecValue(item.specCate)"
                   >
-                    添加{{ item.specType }}
+                    添加{{ item.specCate }}
                   </button>
                   <button
                     class="text-sm font-medium text-red-600 hover:text-red-700"
-                    @click="removeSpecType(specType)"
+                    @click="removeSpecType(specCate)"
                   >
                     删除规格
                   </button>
@@ -352,19 +330,19 @@ defineExpose({
               </div>
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 <div
-                  v-for="(value, index) in item.values"
+                  v-for="(value, index) in item.queryProductSpecValue"
                   :key="index"
                   class="flex items-center gap-2 rounded-md bg-white p-2 transition-colors hover:bg-gray-50"
                 >
                   <input
                     type="text"
-                    v-model="value.value"
+                    v-model="value.specValue"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    :placeholder="`请输入${item.specType}`"
+                    :placeholder="`请输入${item.specCate}`"
                   />
                   <button
                     class="flex-shrink-0 text-red-500 hover:text-red-700"
-                    @click="removeSpecValue(item.specType, index)"
+                    @click="removeSpecValue(item.specCate, index)"
                   >
                     <svg
                       class="h-5 w-5"
