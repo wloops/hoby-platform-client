@@ -2,27 +2,26 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-17 11:41:36
+ * @LastEditTime: 2025-03-26 18:20:02
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { UserDropdown } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
-import { useUserStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
+import { checkLoginApi } from '#/api';
 import hobyLogo from '#/assets/hoby_logo.png';
 import { useAuthStore } from '#/store';
 
-const props = defineProps<{
-  isLoginExpired: boolean;
-}>();
 const router = useRouter();
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const accessStore = useAccessStore();
 
 // const sessionStorageUserInfo = sessionStorage.getItem('userInfo')
 //   ? JSON.parse(sessionStorage.getItem('userInfo')!)
@@ -53,6 +52,20 @@ const toRegister = () => {
 async function handleLogout() {
   await authStore.logout(true);
 }
+
+const isLoginExpired = ref(false);
+
+const checkLogin = async () => {
+  const res = await checkLoginApi();
+  console.warn('res', res);
+  if (res && res.rs === '1') {
+    isLoginExpired.value = false;
+  } else {
+    accessStore.setLoginExpired(false);
+    isLoginExpired.value = true;
+  }
+};
+checkLogin();
 </script>
 
 <template>
@@ -65,7 +78,7 @@ async function handleLogout() {
 
       <!-- 右侧按钮 -->
       <div class="flex items-center space-x-3">
-        <div v-if="!props.isLoginExpired">
+        <div v-if="!isLoginExpired">
           <UserDropdown
             :avatar="
               userStore.userInfo?.avatar ?? preferences.app.defaultAvatar

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-17 11:11:02
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-17 11:14:27
+ * @LastEditTime: 2025-03-26 18:18:00
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\useParseResponse.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -30,28 +30,36 @@ export function useParseResponse(response: unknown): ResponseResult {
   if (response === '1' || response === 1) {
     return {
       success: true,
-      code: null,
+      code: 1,
       message: null,
     };
   }
 
   // 如果返回的是字符串，尝试提取错误码和错误信息
   if (typeof response === 'string') {
-    const match = response.match(/\[(-?\d+)\](.+)/);
+    const match = response.match(/\[(-?\d+)\](.+)/); // "[-10015]域不存在"
     if (match) {
+      const code = Number.parseInt(match[1] ?? '0', 10);
       return {
-        success: false,
-        code: Number.parseInt(match[1] ?? '0', 10), // 提取错误码
+        success: !(code < 0),
+        code, // 提取错误码
         message: match[2]?.trim() ?? '操作失败', // 提取错误信息
       };
     }
+    const code = Number.parseInt(response, 10); // "-6"
+    return {
+      success: !(code < 0),
+      code,
+      message: '',
+    };
   }
 
   // 如果返回的是数字，表示错误码
   if (typeof response === 'number') {
+    const code = response;
     return {
-      success: false,
-      code: response,
+      success: !(code < 0),
+      code,
       message: '操作失败', // 默认错误信息
     };
   }
@@ -71,9 +79,11 @@ export function useParseResponse(response: unknown): ResponseResult {
 
     // 如果 code 是数字或字符串，表示错误码
     if (typeof code === 'number' || typeof code === 'string') {
+      const codeNum =
+        typeof code === 'string' ? Number.parseInt(code, 10) : code;
       return {
-        success: false,
-        code: typeof code === 'string' ? Number.parseInt(code, 10) : code,
+        success: !(codeNum < 0),
+        code: codeNum,
         message: typeof message === 'string' ? message : '操作失败',
       };
     }

@@ -75,8 +75,6 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       const userInfo = userStore.userInfo;
       // console.log('userStore', userStore.userInfo);
 
-      // config.headers.res_token = 'adeebd32-5f54-4a88-9821-f38c44538dca';
-      // config.headers['X-CSRF-TOKEN'] = '9681b818-bc33-4551-bded-35564058e4f9';
       if (userInfo) {
         config.headers.res_token = userInfo?.res_token;
         config.headers['X-CSRF-TOKEN'] = userInfo?.token?.token;
@@ -115,13 +113,14 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       // const code = 0;
       // const { code, data, message: msg } = responseData;
       const { rs, msg } = responseData;
-      const { success, code, message } = useParseResponse(rs);
+      const { success, code, message: errMsg } = useParseResponse(rs);
       if (code === -11_422 || code === -10_245 || code === -6) {
         doReAuthenticate();
       }
 
       if (!success && rs) {
-        throw new Error(`${message || code}`);
+        // throw new Error(`${msg || errMsg || code}`);
+        message.error(`${msg || errMsg || code}`);
       }
 
       if (status >= 200 && status < 400) {

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:52:42
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-26 15:42:28
+ * @LastEditTime: 2025-03-26 18:07:48
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,7 +11,7 @@ import type { Recordable } from '@vben/types';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
+import { DEFAULT_HOME_PATH } from '@vben/constants';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
 import { notification } from 'ant-design-vue';
@@ -84,12 +84,12 @@ export const useAuthStore = defineStore('auth', () => {
         // roles: ['super', 'buyer'],
       };
       sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
-      const fetchUserInfoResult = await fetchUserInfo();
-      if (fetchUserInfoResult.tellerNo) {
-        // console.log('fetchUserInfoResult', fetchUserInfoResult);
+      // const fetchUserInfoResult = await fetchUserInfo();
+      // if (fetchUserInfoResult.tellerNo) {
+      //   // console.log('fetchUserInfoResult', fetchUserInfoResult);
 
-        userInfo = fetchUserInfoResult;
-      }
+      //   userInfo = fetchUserInfoResult;
+      // }
 
       userStore.setUserInfo(userInfo);
       // console.log('loign userStore', userStore.userInfo);
@@ -169,8 +169,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 回登录页带上当前路由地址
     await router.replace({
-      path: LOGIN_PATH,
-      // path: '/',
+      // path: LOGIN_PATH,
+      path: '/',
       query: redirect
         ? {
             redirect: encodeURIComponent(router.currentRoute.value.fullPath),
