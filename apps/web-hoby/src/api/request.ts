@@ -116,12 +116,12 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       // const { code, data, message: msg } = responseData;
       const { rs, msg } = responseData;
       const { success, code, message } = useParseResponse(rs);
+      if (code === -11_422 || code === -10_245 || code === -6) {
+        doReAuthenticate();
+      }
+
       if (!success && rs) {
         throw new Error(`${message || code}`);
-      }
-      // eslint-disable-next-line unicorn/numeric-separators-style
-      if ((code && code === -11422) || code === -10245) {
-        doReAuthenticate();
       }
 
       if (status >= 200 && status < 400) {

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-03 21:58:41
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-20 23:21:46
+ * @LastEditTime: 2025-03-26 14:53:47
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\api\core\user.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,6 +15,15 @@ import { requestClient } from '#/api/request';
  */
 export async function getUserInfoApi() {
   return requestClient.get<any>('/search/queryPersonalInfo', {
+    withCredentials: true,
+  });
+}
+
+/**
+ * 查询是否登录
+ */
+export async function checkLoginApi() {
+  return requestClient.get<any>('/app/checkLogin', {
     withCredentials: true,
   });
 }

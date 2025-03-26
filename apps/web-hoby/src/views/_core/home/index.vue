@@ -6,6 +6,8 @@ import { useRouter } from 'vue-router';
 
 import { useAccessStore, useUserStore } from '@vben/stores';
 
+import { checkLoginApi } from '#/api';
+
 import CommonBanner from './components/CommonBanner.vue';
 import LayoutFooter from './layout/Footer.vue';
 import LayoutHeader from './layout/Header.vue';
@@ -64,6 +66,18 @@ const goToMainPage = async (page: any) => {
 
 const isLoginExpired = computed(() => accessStore.loginExpired);
 console.warn('登录是否过期', isLoginExpired.value);
+
+const checkLogin = async () => {
+  const res = await checkLoginApi();
+  console.warn('res', res);
+  if (res.rs === '1') {
+    accessStore.setLoginExpired(false);
+  } else {
+    accessStore.setLoginExpired(true);
+  }
+};
+checkLogin();
+
 // history.replaceState({}, '');
 </script>
 
