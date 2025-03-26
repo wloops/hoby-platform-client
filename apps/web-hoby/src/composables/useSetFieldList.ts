@@ -1,5 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 
+import { markRaw } from 'vue';
+
+import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 /**
  * 用于将后端字段列表转换为表单结构的 hooks
  * @returns 提供字段列表转换功能的对象
@@ -33,7 +36,7 @@ export function useSetFieldList() {
       // 根据字段类型和属性设置相应的组件类型
       switch (item.otherProperties?.textType) {
         case 'form': {
-          formItem.component = 'Transfer';
+          formItem.component = markRaw(Transfer);
 
           break;
         }
