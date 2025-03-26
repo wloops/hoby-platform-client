@@ -1,4 +1,4 @@
-export type Mode = 'default' | 'drawer' | 'modal';
+export type Mode = 'auto' | 'drawer' | 'modal' | 'use';
 export interface FormConfig {
   [key: string]: any;
   mode: Mode;

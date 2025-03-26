@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Mode } from './types';
 
-import type { VbenFormProps, VbenFormSchema } from '#/adapter/form';
+import type { VbenFormProps } from '#/adapter/form';
 
 import { ref } from 'vue';
 
@@ -10,12 +10,13 @@ import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { useSetFieldList } from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
+import Form from './Form.vue';
 import ModalForm from './ModalForm.vue';
 
 const props = defineProps({
   // 表单模式
   mode: {
-    default: 'default',
+    default: 'drawer',
     type: String as () => Mode,
   },
   title: {
@@ -25,14 +26,14 @@ const props = defineProps({
   // 表单配置
   formConfig: {
     default: () => ({
-      mode: 'default',
-      layout: 'horizontal',
+      layout: 'vertical', // 水平布局(horizontal)，label和input在同一行 垂直布局(vertical)，label和input在不同行
+      showDefaultActions: false,
     }),
     type: Object as () => VbenFormProps,
   },
 });
 
-const schema = ref<VbenFormSchema[]>([
+const schema = ref<any>([
   {
     // 组件需要在 #/adapter.ts内注册，并加上类型
     component: 'Input',
@@ -388,12 +389,34 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 function open() {
-  if (props.mode === 'drawer') {
-    drawerApi.open();
-  } else if (props.mode === 'modal') {
-    modalApi.open();
-  } else {
-    // 默认
+  switch (props.mode) {
+    case 'auto': {
+      // 自动
+      if (window.innerWidth < 768) {
+        drawerApi.open();
+      } else {
+        modalApi.open();
+      }
+
+      break;
+    }
+    case 'drawer': {
+      drawerApi.open();
+
+      break;
+    }
+    case 'modal': {
+      modalApi.open();
+
+      break;
+    }
+    case 'use': {
+      break;
+    }
+    default: {
+      // 默认
+      drawerApi.open();
+    }
   }
 }
 
@@ -404,8 +427,19 @@ defineExpose({
 
 <template>
   <div>
-    <Drawer :form-config="formConfig" :schema="schema" :title="title" />
-    <Modal :form-config="formConfig" :schema="schema" :title="title" />
+    <Form v-if="mode === 'use'" :form-config="formConfig" :schema="schema" />
+    <Drawer
+      v-if="mode === 'drawer'"
+      :form-config="formConfig"
+      :schema="schema"
+      :title="title"
+    />
+    <Modal
+      v-if="mode === 'modal'"
+      :form-config="formConfig"
+      :schema="schema"
+      :title="title"
+    />
   </div>
 </template>
 

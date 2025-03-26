@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-25 14:53:24
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-25 17:49:24
+ * @LastEditTime: 2025-03-26 11:56:24
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\DynamicForm\Form.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,7 +16,8 @@ import { useVbenForm } from '#/adapter/form';
 const props = defineProps({
   formConfig: {
     default: () => ({
-      layout: 'horizontal',
+      layout: 'vertical',
+      showDefaultActions: false,
     }),
     type: Object as () => VbenFormProps,
   },
@@ -31,7 +32,7 @@ const [BaseForm, formApi] = useVbenForm({
   commonConfig: {
     // 所有表单项
     componentProps: {
-      class: 'w-full',
+      class: 'w-full pb-0',
     },
   },
   // 提交函数
@@ -39,8 +40,10 @@ const [BaseForm, formApi] = useVbenForm({
   // 垂直布局，label和input在不同行，值为vertical
   // 水平布局，label和input在同一行
   layout: props.formConfig.layout,
+  ...props.formConfig,
   schema: props.schema,
-  wrapperClass: 'grid-cols-1',
+  // 中屏一行显示2个，小屏一行显示1个
+  wrapperClass: 'grid-cols-1 md:grid-cols-2 ml-2 mr-2 gap-x-3 gap-y-0',
 });
 
 function onSubmit(values: Record<string, any>) {
