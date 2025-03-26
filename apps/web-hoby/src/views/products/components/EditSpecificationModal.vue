@@ -215,16 +215,16 @@ defineExpose({
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto">
+  <div v-if="isOpen" class="absolute inset-0 z-50 overflow-y-auto">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+    <!-- <div
+      class="fixed inset-0 h-full bg-black bg-opacity-50 transition-opacity"
+    ></div> -->
 
     <!-- Modal -->
-    <div
-      class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
-    >
+    <div class="flex h-full items-end justify-center text-center">
       <div
-        class="relative flex max-h-[90vh] transform flex-col overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl"
+        class="relative flex h-full w-full transform flex-col overflow-hidden bg-white text-left shadow-xl transition-all"
       >
         <!-- Header -->
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
@@ -311,7 +311,7 @@ defineExpose({
             >
               <div class="mb-4 flex items-center justify-between">
                 <h4 class="text-base font-medium text-gray-900">
-                  {{ item.specCate }}规格
+                  规格：{{ item.specCate }}
                 </h4>
                 <div class="flex items-center gap-2">
                   <button
