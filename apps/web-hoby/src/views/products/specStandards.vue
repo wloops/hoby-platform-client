@@ -70,7 +70,7 @@ onMounted(async () => {
 
 const collapsedState = ref({}); // 用于存储展开/折叠状态
 const currentPage = ref(1); // 当前页码
-const pageSize = ref(5); // 每页显示的规格数量
+const pageSize = ref(10); // 每页显示的规格数量
 
 // 初始化 collapsedState，默认折叠所有规格类型
 const initializeCollapsedState = () => {
@@ -121,7 +121,16 @@ const deleteSpecValue = (id, value) => {
     spec.values = spec.values.filter((v) => v !== value);
   }
 };
+const specCateQuery = ref(''); // 搜索关键词
+// 搜索功能
+const search = () => {
+  // 根据 specCateQuery过滤数据
+};
 
+// 重置功能
+const reset = () => {
+  specCateQuery.value = '';
+};
 // 上一页
 const prevPage = () => {
   if (currentPage.value > 1) {
@@ -135,7 +144,10 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
-
+// 跳转到指定页
+const goToPage = (page) => {
+  currentPage.value = page;
+};
 // 重置页码
 const resetPage = () => {
   currentPage.value = 1;
@@ -143,12 +155,43 @@ const resetPage = () => {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col p-4 md:p-6">
-    <!-- 顶部搜索和创建按钮 -->
-    <div class="mb-8 flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
+  <div class="flex h-screen flex-col p-4" style="height: calc(100% - 50px)">
+    <!-- 顶部搜索区域 -->
+    <div class="flex-none rounded-lg border-b border-gray-200 bg-white p-4">
+      <div class="flex space-x-4">
+        <div class="flex-1">
+          <label>规格：</label>
+          <input
+            v-model="specCateQuery"
+            type="text"
+            placeholder="请输入规格"
+            class="rounded-lg border px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+            @keyup.enter="search"
+          />
+        </div>
+        <div class="flex-none">
+          <button
+            @click="search"
+            class="rounded-lg bg-blue-600 px-4 py-1 text-white"
+            style="letter-spacing: 4px"
+          >
+            搜索
+          </button>
+          <button
+            @click="reset"
+            class="ml-2 rounded-lg border border-gray-200 bg-white px-4 py-1"
+            style="letter-spacing: 4px"
+          >
+            重置
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 新增规格按钮 -->
+    <div class="my-4 ml-auto flex-none text-right">
+      <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
         规格标准管理
-      </h1>
+      </h1> -->
       <button class="btn-primary">
         <svg
           class="mr-2 h-4 w-4"
@@ -271,27 +314,42 @@ const resetPage = () => {
 
     <!-- 分页组件 -->
     <div
-      class="fixed bottom-0 right-0 justify-end border-t bg-white p-4 shadow-lg"
+      class="w-full flex-none justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
     >
       <div class="flex items-center justify-between">
-        <div class="mr-3 text-sm text-gray-600">共 {{ specs.length }} 条</div>
-        <div class="flex items-center space-x-4">
+        <div class="mr-3 flex-1 text-right text-sm text-gray-600">
+          共 {{ specs.length }} 条
+        </div>
+        <div class="flex flex-none items-center space-x-4">
           <!-- 分页按钮 -->
           <div class="flex items-center space-x-2">
             <button
               @click="prevPage"
               :disabled="currentPage === 1"
-              class="rounded-l bg-blue-500 p-1 text-white disabled:bg-gray-300"
+              class="rounded-l bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
             >
               &lt;
             </button>
-            <span class="bg-gray-200 p-2"
+            <!-- <span class="bg-gray-200 p-2"
               >{{ currentPage }} / {{ totalPages }}</span
+            > -->
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="goToPage(page)"
+              :class="{
+                'border border-blue-500 font-medium text-blue-950':
+                  currentPage === page,
+                'bg-white': currentPage !== page,
+              }"
+              class="rounded-lg px-3 py-1"
             >
+              {{ page }}
+            </button>
             <button
               @click="nextPage"
               :disabled="currentPage === totalPages"
-              class="rounded-r bg-blue-500 p-1 text-white disabled:bg-gray-300"
+              class="rounded-r bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
             >
               &gt;
             </button>
@@ -300,11 +358,12 @@ const resetPage = () => {
           <select
             v-model="pageSize"
             @change="resetPage"
-            class="rounded border p-2"
+            class="rounded-lg border p-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
           >
-            <option value="5">5 条/页</option>
             <option value="10">10 条/页</option>
             <option value="20">20 条/页</option>
+            <option value="50">50 条/页</option>
+            <option value="100">100 条/页</option>
           </select>
         </div>
       </div>
