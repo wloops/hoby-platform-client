@@ -7,6 +7,7 @@ import { ref } from 'vue';
 
 import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
+import { mainGetViewFieldConfigApi } from '#/api';
 import { useSetFieldList } from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
@@ -20,6 +21,10 @@ const props = defineProps({
     type: String as () => Mode,
   },
   title: {
+    default: '',
+    type: String,
+  },
+  pageId: {
     default: '',
     type: String,
   },
@@ -235,128 +240,14 @@ const schema = ref<any>([
   },
 ]);
 
-const getSchema = () => {
+const getSchema = async () => {
   const { convertToFormSchema } = useSetFieldList();
   // 假设从API获取的原始字段数据
-  const originalFields = [
-    {
-      valueFldName: 'actCmpName',
-      help: '',
-      size: '128',
-      fldAlais: '总仓服务商',
-      otherProperties: {
-        otherCon: '',
-        defaultValue: '测试仓商',
-        operationID: '',
-        textType: 'readOnly',
-        checkClass: 'required ',
-        correspond: '',
-        relation: '',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '测试仓商',
-    },
-    {
-      valueFldName: 'actName',
-      help: '',
-      size: '128',
-      fldAlais: '业务',
-      otherProperties: {
-        otherCon: '',
-        operationID: '',
-        textType: '',
-        checkClass: 'required ',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '',
-    },
-    {
-      valueFldName: 'saleCmpName',
-      help: 'this.companyName',
-      size: '128',
-      fldAlais: '仓商',
-      otherProperties: {
-        otherCon: '',
-        defaultValue: '',
-        operationID: '',
-        textType: 'readOnly',
-        checkClass: 'required ',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '',
-    },
-    {
-      valueFldName: 'companyName',
-      help: '',
-      size: '128',
-      fldAlais: '产品厂商',
-      otherProperties: {
-        otherCon: '',
-        defaultValue: '',
-        operationID: '1052',
-        suggestFld: '',
-        textType: 'query',
-        remarkFld: 'companyName',
-        operationIDForSuggest: '1051',
-        checkClass: 'required ',
-        readFld: 'companyName',
-        correspond: '',
-        fldRemark: '',
-        relation: '',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '##::-1337962494_0::##',
-    },
-    {
-      valueFldName: 'productNameList',
-      help: '',
-      size: '2048',
-      fldAlais: '授权产品清单',
-      otherProperties: {
-        otherCon: '',
-        defaultValue: '',
-        '##::-435975350_0::##': '1486',
-        operationID: '1055',
-        textType: 'form',
-        operationIDForSuggest: '1054',
-        checkClass: 'required ',
-        readFld: 'productName',
-        correspond: '',
-        fldRemark: '',
-        relation: '',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '##::1822268813_0::##',
-    },
-    {
-      valueFldName: 'prdSrlIDList',
-      help: '',
-      size: '4192',
-      fldAlais: '授权型号清单',
-      otherProperties: {
-        otherCon: '',
-        defaultValue: '',
-        '##::-435975350_0::##': '1487',
-        operationID: '1055',
-        productNameList: '',
-        textType: 'form',
-        operationIDForSuggest: '1054',
-        checkClass: 'required ',
-        readFld: 'srlID',
-        correspond: '',
-        fldRemark: '',
-        relation: '',
-      },
-      valueConstraint: 'notnull',
-      type: 'char',
-      value: '##::1502245814_0::##',
-    },
-  ];
+  const res = await mainGetViewFieldConfigApi({
+    pageID: props.pageId,
+  });
+
+  const originalFields = res.fieldList;
 
   // 转换为表单结构
   const formSchema = convertToFormSchema(originalFields);

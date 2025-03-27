@@ -20,11 +20,11 @@ export function useSetFieldList() {
 
     return sourceData.map((item) => {
       const formItem: VbenFormSchema = {
-        fieldName: item.valueFldName,
-        label: item.fldAlais,
+        fieldName: item.fieldName,
+        label: item.displayName,
         component: 'Input', // 默认组件类型
         componentProps: {
-          placeholder: `请输入${item.fldAlais}`,
+          placeholder: `请输入${item.displayName}`,
         },
       };
 
@@ -33,8 +33,9 @@ export function useSetFieldList() {
         formItem.defaultValue = item.otherProperties.defaultValue;
       }
 
+      const fieldType = (item.value && item.value.split('::')[0]) || '';
       // 根据字段类型和属性设置相应的组件类型
-      switch (item.otherProperties?.textType) {
+      switch (fieldType) {
         case 'form': {
           formItem.component = markRaw(Transfer);
 
@@ -44,14 +45,14 @@ export function useSetFieldList() {
           // formItem.component = 'ApiSelect'; // 假设有一个查询组件
           formItem.component = 'Select'; // 假设有一个查询组件
           formItem.componentProps = {
-            placeholder: `请选择${item.fldAlais}`,
-            api: item.otherProperties.operationID, // 使用operationID作为API标识
-            ...(item.otherProperties.remarkFld
-              ? { labelField: item.otherProperties.remarkFld }
-              : {}),
-            ...(item.otherProperties.readFld
-              ? { valueField: item.otherProperties.readFld }
-              : {}),
+            placeholder: `请选择${item.displayName}`,
+            // api: item.otherProperties.operationID, // 使用operationID作为API标识
+            // ...(item.otherProperties.remarkFld
+            //   ? { labelField: item.otherProperties.remarkFld }
+            //   : {}),
+            // ...(item.otherProperties.readFld
+            //   ? { valueField: item.otherProperties.readFld }
+            //   : {}),
           };
 
           break;
@@ -99,9 +100,10 @@ export function useSetFieldList() {
 
       // 添加验证规则
       if (
-        item.valueConstraint === 'notnull' ||
-        (item.otherProperties?.checkClass &&
-          item.otherProperties.checkClass.includes('required'))
+        item.valueConstraint === 'notnull'
+        // ||
+        // (item.otherProperties?.checkClass &&
+        //   item.otherProperties.checkClass.includes('required'))
       ) {
         formItem.rules = 'required';
       }

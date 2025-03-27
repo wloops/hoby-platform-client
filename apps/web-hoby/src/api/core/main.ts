@@ -34,3 +34,12 @@ export async function mainServiceApi(data: any) {
     withCredentials: true,
   });
 }
+
+/**
+ * 通用获取视图域条件
+ */
+export async function mainGetViewFieldConfigApi(data: any) {
+  return requestClient.post<any>('/GenInterViewConfigurationFile', data, {
+    withCredentials: true,
+  });
+}
