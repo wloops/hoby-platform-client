@@ -16,12 +16,13 @@ import { Page } from '@vben/common-ui';
 
 import { CloseOutlined } from '@ant-design/icons-vue';
 // 按需导入 Ant Design Vue 组件
-import { Button, Modal } from 'ant-design-vue';
+import { Button, Modal, Tag } from 'ant-design-vue';
 import dayjs from 'dayjs';
 // 导入 uuid 库
 import { v4 as uuidv4 } from 'uuid';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useEnums } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
 import BatchAction from './components/BatchAction.vue';
@@ -87,6 +88,8 @@ const props = defineProps({
 
 // 定义事件
 const emit = defineEmits(['selectionChange', 'batchAction']);
+
+const { getEnumLabel, getEnumColor } = useEnums();
 
 // 查找操作列
 const actionColumn = computed(() => {
@@ -226,7 +229,9 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   exportConfig: {},
   height: 'auto',
   keepSource: true,
-  rowId: props.rowKey, // 设置行数据唯一标识的字段名
+  rowConfig: {
+    keyField: props.rowKey, // 设置行数据唯一标识的字段名
+  },
   pagerConfig: {},
   proxyConfig: {
     ajax: {
@@ -413,6 +418,7 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
         />
       </template>
 
+      <!-- 选中记录 -->
       <template #toolbar-actions>
         <div class="batch-action-info" v-if="selectedRecords.length > 0">
           <Button
@@ -425,6 +431,24 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
             {{ props.tableData.length || 0 }}
           </Button>
         </div>
+      </template>
+
+      <template #tag="{ column, row }">
+        <Tag
+          :color="
+            getEnumColor(
+              `${column.params.enumName}|${column.field}`,
+              row[column.field],
+            ) || 'default'
+          "
+        >
+          {{
+            getEnumLabel(
+              `${column.params.enumName}|${column.field}`,
+              row[column.field],
+            ) || row[column.field]
+          }}
+        </Tag>
       </template>
     </Grid>
   </Page>

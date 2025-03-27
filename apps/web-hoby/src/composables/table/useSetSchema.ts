@@ -5,6 +5,7 @@ import type { ColumnDefinition } from '#/components/CommonTable/types';
 import dayjs from 'dayjs';
 
 import { FieldType } from '#/components/CommonTable/types';
+import { useEnums } from '#/composables';
 
 export interface VxeSchemaItem {
   component: string;
@@ -39,6 +40,7 @@ export function useSetSchema() {
     return columnConfigs
       .filter((config) => config.searchable === true)
       .map((config) => {
+        const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
         const schemaItem: VxeSchemaItem = {
           fieldName: config.dataIndex,
           label: config.title,
@@ -49,6 +51,19 @@ export function useSetSchema() {
         if (config.options && config.options.length > 0) {
           schemaItem.componentProps = {
             options: config.options,
+            allowClear: true,
+            placeholder: '请选择',
+          };
+        }
+
+        // 处理选项类组件 有enumName
+        if (
+          config.type === FieldType.SELECT &&
+          config.enumName &&
+          getEnumList(config.enumName)
+        ) {
+          schemaItem.componentProps = {
+            options: getEnumList(config.enumName) as any[],
             allowClear: true,
             placeholder: '请选择',
           };
@@ -112,6 +127,15 @@ export function useSetSchema() {
           config.type === FieldType.DATETIME
         ) {
           column.formatter = 'formatDateTime';
+        }
+
+        // 处理select类型渲染为Tag
+        if (config.type === FieldType.SELECT) {
+          column.slots = { default: 'tag' };
+
+          column.params = {
+            enumName: config.enumName,
+          };
         }
 
         // 处理自定义渲染
