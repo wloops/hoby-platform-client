@@ -3,7 +3,7 @@ import type { ActionButtonProps, TableRecord } from '../types';
 
 import { computed, defineEmits, defineProps } from 'vue';
 
-import { Button } from 'ant-design-vue';
+import { Button, Modal } from 'ant-design-vue';
 
 // 定义组件属性
 const props = defineProps({
@@ -77,28 +77,74 @@ function handleActionClick(action: ActionButtonProps): void {
   const onClick = action.onClick as ((record: TableRecord) => void) | undefined;
   if (typeof onClick !== 'function') return;
 
-  // 对每条选中记录执行操作
-  props.selectedRecords.forEach((record) => {
-    // 只对未被禁用的记录执行操作
-    if (typeof action.disabled === 'function') {
-      const disabledFn = action.disabled as (record: TableRecord) => boolean;
-      if (!disabledFn(record)) {
+  // 如果需要确认，则显示确认对话框
+  if (action.confirm) {
+    let confirmText = '';
+
+    // 根据confirm属性生成确认文本
+    if (action.confirm === 'auto') {
+      confirmText = `确定要对选中的 ${props.selectedRecords.length} 条记录执行${action.label || action.text || ''}操作吗？`;
+    } else if (typeof action.confirm === 'string') {
+      confirmText = action.confirm;
+    } else {
+      confirmText = '确认执行此批量操作？';
+    }
+
+    Modal.confirm({
+      title: '确认操作',
+      content: confirmText,
+      onOk() {
+        // 对每条选中记录执行操作，但确认只弹一次
+        props.selectedRecords.forEach((record) => {
+          // 只对未被禁用的记录执行操作
+          if (typeof action.disabled === 'function') {
+            const disabledFn = action.disabled as (
+              record: TableRecord,
+            ) => boolean;
+            if (!disabledFn(record)) {
+              onClick(record);
+            }
+          } else if (!action.disabled) {
+            onClick(record);
+          }
+        });
+
+        // 触发事件
+        emit('action', {
+          action,
+          records: props.selectedRecords,
+        });
+
+        // 如果需要操作后清空选择，可以触发clear事件
+        if (action.clearAfterAction) {
+          emit('clear');
+        }
+      },
+    });
+  } else {
+    // 不需要确认，直接逐条执行
+    props.selectedRecords.forEach((record) => {
+      // 只对未被禁用的记录执行操作
+      if (typeof action.disabled === 'function') {
+        const disabledFn = action.disabled as (record: TableRecord) => boolean;
+        if (!disabledFn(record)) {
+          onClick(record);
+        }
+      } else if (!action.disabled) {
         onClick(record);
       }
-    } else if (!action.disabled) {
-      onClick(record);
+    });
+
+    // 触发事件
+    emit('action', {
+      action,
+      records: props.selectedRecords,
+    });
+
+    // 如果需要操作后清空选择，可以触发clear事件
+    if (action.clearAfterAction) {
+      emit('clear');
     }
-  });
-
-  // 触发事件
-  emit('action', {
-    action,
-    records: props.selectedRecords,
-  });
-
-  // 如果需要操作后清空选择，可以触发clear事件
-  if (action.clearAfterAction) {
-    emit('clear');
   }
 }
 </script>

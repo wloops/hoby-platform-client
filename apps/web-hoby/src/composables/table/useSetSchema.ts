@@ -37,7 +37,7 @@ export function useSetSchema() {
     columnConfigs: ColumnDefinition[],
   ): VxeSchemaItem[] => {
     return columnConfigs
-      .filter((config) => config.searchable !== false)
+      .filter((config) => config.searchable === true)
       .map((config) => {
         const schemaItem: VxeSchemaItem = {
           fieldName: config.dataIndex,

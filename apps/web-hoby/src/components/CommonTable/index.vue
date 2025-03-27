@@ -16,7 +16,7 @@ import { Page } from '@vben/common-ui';
 
 import { CloseOutlined } from '@ant-design/icons-vue';
 // 按需导入 Ant Design Vue 组件
-import { Button } from 'ant-design-vue';
+import { Button, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 // 导入 uuid 库
 import { v4 as uuidv4 } from 'uuid';
@@ -300,8 +300,37 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 // 处理操作按钮点击
 function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
-  if (action.onClick) {
-    action.onClick(row);
+  // 检查是否有onClick函数
+  if (!action.onClick) return;
+
+  // 如果需要确认，则显示确认对话框
+  if (action.confirm) {
+    let confirmText = '';
+
+    // 根据confirm属性生成确认文本
+    if (action.confirm === 'auto') {
+      confirmText = `确定要对该记录执行${action.label || action.text || ''}操作吗？`;
+    } else if (typeof action.confirm === 'string') {
+      confirmText = action.confirm;
+    } else {
+      confirmText = '确认执行此操作？';
+    }
+
+    Modal.confirm({
+      title: '确认操作',
+      content: confirmText,
+      onOk() {
+        // 确认后执行操作
+        if (action.onClick) {
+          action.onClick(row);
+        }
+      },
+    });
+  } else {
+    // 不需要确认，直接执行
+    if (action.onClick) {
+      action.onClick(row);
+    }
   }
 }
 
