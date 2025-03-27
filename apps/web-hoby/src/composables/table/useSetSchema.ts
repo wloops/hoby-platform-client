@@ -122,10 +122,10 @@ export function useSetSchema() {
         }
 
         // 处理日期格式化
-        if (
-          config.type === FieldType.DATE ||
-          config.type === FieldType.DATETIME
-        ) {
+        if (config.type === FieldType.DATE) {
+          column.formatter = 'formatDate';
+        }
+        if (config.type === FieldType.DATETIME) {
           column.formatter = 'formatDateTime';
         }
 
