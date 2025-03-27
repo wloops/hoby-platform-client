@@ -10,10 +10,11 @@ import type {
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { computed, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
+import { CloseOutlined } from '@ant-design/icons-vue';
 // 按需导入 Ant Design Vue 组件
 import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -22,6 +23,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useSetSchema } from '#/composables/table/useSetSchema';
+
+import BatchAction from './components/BatchAction.vue';
 
 // 定义组件接收的属性
 const props = defineProps({
@@ -60,10 +63,50 @@ const props = defineProps({
     type: String,
     default: 'id',
   },
+  // 批量操作按钮
+  batchActions: {
+    type: Array as () => ActionButtonProps[],
+    default: () => [],
+  },
+  // 批量操作最小选择数量
+  minSelected: {
+    type: Number,
+    default: 1,
+  },
+  // 是否启用批量操作
+  enableBatchActions: {
+    type: Boolean,
+    default: true,
+  },
+  // 使用操作列中的按钮作为批量操作按钮
+  useColumnActions: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // 定义事件
-const emit = defineEmits(['selectionChange']);
+const emit = defineEmits(['selectionChange', 'batchAction']);
+
+// 查找操作列
+const actionColumn = computed(() => {
+  return props.columns.find((col) => col.actions && col.actions.length > 0);
+});
+
+// 处理批量操作事件
+function handleBatchAction(event: any) {
+  emit('batchAction', event);
+}
+
+// 清除选择
+function clearSelection() {
+  const gridInstance = gridApi?.grid;
+  if (gridInstance && gridInstance.clearCheckboxRow) {
+    gridInstance.clearCheckboxRow();
+  }
+  selectedRecords.value = [];
+  selectedRowKeys.value = [];
+}
 
 // 选中的记录
 const selectedRecords = ref<TableRecord[]>([]);
@@ -188,9 +231,15 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
+        // 将分页信息和表单值合并
+        const formParams = {
+          currentPage: page.currentPage,
+          numOfPerPage: page.pageSize,
+          ...formValues,
+        };
         // 如果有自定义请求方法，则使用自定义请求方法
         if (props.requestApi) {
-          return await props.requestApi(page, formValues);
+          return await props.requestApi(formParams);
         }
 
         // 否则使用处理过的静态数据（确保每条记录都有ID）
@@ -240,7 +289,7 @@ if (
 }
 
 // 使用 VxeTableGridOptions 支持的方式创建 Grid
-const [Grid] = useVbenVxeGrid({
+const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
   gridEvents: {
@@ -319,6 +368,34 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
             col.render ? col.render(row[col.dataIndex], row, rowIndex) : null
           "
         />
+      </template>
+
+      <!-- 批量操作工具栏 -->
+      <template #toolbar-tools>
+        <BatchAction
+          :selected-records="selectedRecords"
+          :batch-actions="props.batchActions"
+          :column-actions="actionColumn?.actions || []"
+          :min-selected="props.minSelected"
+          :enable-batch-actions="props.enableBatchActions"
+          :use-column-actions="props.useColumnActions"
+          @action="handleBatchAction"
+          @clear="clearSelection"
+        />
+      </template>
+
+      <template #toolbar-actions>
+        <div class="batch-action-info" v-if="selectedRecords.length > 0">
+          <Button
+            type="text"
+            size="small"
+            :icon="h(CloseOutlined)"
+            @click="clearSelection"
+          >
+            已选 {{ selectedRecords.length || 0 }} /
+            {{ props.tableData.length || 0 }}
+          </Button>
+        </div>
       </template>
     </Grid>
   </Page>

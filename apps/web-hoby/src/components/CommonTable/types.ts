@@ -38,19 +38,34 @@ export interface TableRecord {
 
 // 操作按钮配置
 export interface ActionButtonProps {
-  key?: string;
-  name?: string;
-  label?: string;
+  // 按钮文字
   text?: string;
+  // 按钮标签（优先于text）
+  label?: string;
+  // 按钮类型
   type?: VxeButtonType;
-  status?: 'default' | 'error' | 'info' | 'primary' | 'success' | 'warning';
+  // 是否危险操作
   danger?: boolean;
-  disabled?: ((record: TableRecord | TableRecord[]) => boolean) | boolean;
+  // 按钮唯一标识
+  key?: string;
+  // 按钮名称
+  name?: string;
+  // 按钮是否禁用 - 修改为只处理单条记录
+  disabled?: ((record: TableRecord) => boolean) | boolean;
+  // 按钮是否可见 - 修改为只处理单条记录
   visible?: ((record: TableRecord) => boolean) | boolean;
+  // 点击回调 - 修改为只处理单条记录
+  onClick?: (record: TableRecord) => void;
+  // 是否需要确认
   confirm?: 'auto' | boolean | string;
-  buttonProps?: Record<string, any>;
-  onClick?: (record: TableRecord | TableRecord[]) => void;
-  batchable?: boolean; // 是否可用于批量操作
+  // 操作后是否清除选择
+  clearAfterAction?: boolean;
+}
+
+// 批量操作事件数据
+export interface BatchActionEvent {
+  action: ActionButtonProps;
+  records: TableRecord[];
 }
 
 // 操作列配置项
@@ -86,6 +101,20 @@ export interface ColumnDefinition {
   actionColumnProps?: ActionColumnProps;
   editable?: ((record: TableRecord) => boolean) | boolean;
   editConfig?: any; // 如果需要使用原有的 EditableCellConfig
+}
+
+// 分页信息
+export interface PageInfo {
+  currentPage: number;
+  pageSize: number;
+  total: number;
+}
+
+// 定义搜索参数接口
+export interface SearchParams {
+  [key: string]: any;
+  currentPage: number;
+  numOfPerPage: number;
 }
 
 // VxeTable schema 配置项
