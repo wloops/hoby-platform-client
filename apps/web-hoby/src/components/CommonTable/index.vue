@@ -183,6 +183,7 @@ const formOptions: VbenFormProps = {
             label: 'Date',
           },
         ],
+
   // 控制表单是否显示折叠按钮
   showCollapseButton: true,
   // 是否在字段值改变时提交表单
@@ -226,6 +227,10 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           { field: 'price', title: 'Price' },
           { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
         ],
+  editConfig: {
+    mode: 'cell',
+    trigger: 'click',
+  },
   exportConfig: {},
   height: 'auto',
   keepSource: true,

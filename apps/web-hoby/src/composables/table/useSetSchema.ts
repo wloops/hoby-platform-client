@@ -156,6 +156,26 @@ export function useSetSchema() {
           }
         }
 
+        // 开启单元格编辑
+        if (config.editable) {
+          const editType = 'input';
+          // switch (config.type) {
+          //   case FieldType.NUMBER: {
+          //     editType = '';
+          //     break;
+          //   }
+          //   case FieldType.SELECT: {
+          //     editType = 'select';
+          //     break;
+          //   }
+
+          //   default: {
+          //     break;
+          //   }
+          // }
+          column.editRender = { name: editType };
+        }
+
         return column;
       });
   };
