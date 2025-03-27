@@ -225,281 +225,287 @@ const resetPage = () => {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-7xl flex-col p-4 md:p-6">
-    <!-- 顶部搜索区域 -->
-    <div class="flex-none rounded-lg border-b border-gray-200 bg-white p-4">
-      <div class="flex space-x-4">
-        <div class="flex-1">
-          <label>产品：</label>
-          <input
-            v-model="productQuery"
-            type="text"
-            placeholder="请输入产品"
-            class="rounded-lg border px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-            @keyup.enter="search"
-          />
-        </div>
-        <div class="flex-none">
-          <button
-            @click="search"
-            class="rounded-lg bg-blue-600 px-4 py-1 text-white"
-            style="letter-spacing: 4px"
-          >
-            搜索
-          </button>
-          <button
-            @click="reset"
-            class="ml-2 rounded-lg border border-gray-200 bg-white px-4 py-1"
-            style="letter-spacing: 4px"
-          >
-            重置
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- 创建产品按钮 -->
-    <div class="my-4 ml-auto flex-none text-right">
-      <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
-        产品标准管理
-      </h1> -->
-      <button class="btn-primary">
-        <svg
-          class="mr-2 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        创建产品
-      </button>
-    </div>
-
-    <EditSpecificationModal ref="editSpecificationModalRef" />
-
-    <!-- 产品列表 -->
-    <div class="flex-1 space-y-6 overflow-y-auto">
+  <div class="absolute inset-0 w-full p-4">
+    <div class="mx-auto flex h-screen max-w-7xl flex-col">
+      <!-- 顶部搜索区域 -->
       <div
-        v-for="product in products"
-        :key="product.id"
-        class="overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+        class="flex-shrink-0 rounded-lg border-b border-gray-200 bg-white p-4"
       >
-        <!-- 产品标题栏 -->
-        <div class="flex items-center justify-between border-b px-6 py-4">
-          <h3 class="flex items-center text-lg font-medium text-gray-800">
-            <span
-              class="mr-2 h-2 w-2 rounded-full bg-green-500"
-              v-if="product.status === '上架'"
-            ></span>
-            <span class="mr-2 h-2 w-2 rounded-full bg-gray-400" v-else></span>
-            {{ product.name }}
-          </h3>
-          <div class="flex items-center gap-4">
-            <button class="btn-text-danger">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              删除
-            </button>
-            <button class="btn-text-primary" @click="openEditModal(product)">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-              编辑产品规格
-            </button>
-            <button class="btn-text-secondary">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              创建产品型号
-            </button>
-            <svg
-              class="ml-1 h-5 w-5 transform cursor-pointer transition-transform duration-200"
-              :class="{
-                'rotate-180': expandedProducts[product.id],
-              }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              @click="toggleProduct(product.id, product)"
+        <div class="flex space-x-4">
+          <div class="flex-1">
+            <label>产品：</label>
+            <input
+              v-model="productQuery"
+              type="text"
+              placeholder="请输入产品"
+              class="rounded-lg border px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+              @keyup.enter="search"
+            />
+          </div>
+          <div class="flex-none">
+            <button
+              @click="search"
+              class="rounded-lg bg-blue-600 px-4 py-1 text-white"
+              style="letter-spacing: 4px"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+              搜索
+            </button>
+            <button
+              @click="reset"
+              class="ml-2 rounded-lg border border-gray-200 bg-white px-4 py-1"
+              style="letter-spacing: 4px"
+            >
+              重置
+            </button>
           </div>
         </div>
+      </div>
+      <!-- 创建产品按钮 -->
+      <div class="my-4 ml-auto flex-shrink-0 text-right">
+        <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
+          产品标准管理
+        </h1> -->
+        <button class="btn-primary">
+          <svg
+            class="mr-2 h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          创建产品
+        </button>
+      </div>
 
-        <!-- 产品详情 -->
+      <EditSpecificationModal ref="editSpecificationModalRef" />
+
+      <!-- 产品列表 -->
+      <div class="mb-4 flex-grow space-y-6 overflow-y-auto pb-32">
         <div
-          v-show="expandedProducts[product.id]"
-          class="transition-all duration-300"
+          v-for="product in products"
+          :key="product.id"
+          class="overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
         >
-          <dl class="divide-y divide-gray-100">
-            <!-- 规格部分 -->
-            <div
-              v-for="(spec, specType) in product.specifications"
-              :key="specType"
-              class="transition-colors duration-150 hover:bg-gray-50"
-            >
+          <!-- 产品标题栏 -->
+          <div class="flex items-center justify-between border-b px-6 py-4">
+            <h3 class="flex items-center text-lg font-medium text-gray-800">
+              <span
+                class="mr-2 h-2 w-2 rounded-full bg-green-500"
+                v-if="product.status === '上架'"
+              ></span>
+              <span class="mr-2 h-2 w-2 rounded-full bg-gray-400" v-else></span>
+              {{ product.name }}
+            </h3>
+            <div class="flex items-center gap-4">
+              <button class="btn-text-danger">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                删除
+              </button>
+              <button class="btn-text-primary" @click="openEditModal(product)">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                编辑产品规格
+              </button>
+              <button class="btn-text-secondary">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                创建产品型号
+              </button>
+              <svg
+                class="ml-1 h-5 w-5 transform cursor-pointer transition-transform duration-200"
+                :class="{
+                  'rotate-180': expandedProducts[product.id],
+                }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                @click="toggleProduct(product.id, product)"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- 产品详情 -->
+          <div
+            v-show="expandedProducts[product.id]"
+            class="transition-all duration-300"
+          >
+            <dl class="divide-y divide-gray-100">
+              <!-- 规格部分 -->
               <div
-                class="flex cursor-pointer items-center justify-between px-6 py-4"
-                @click="toggleSpec(product.id, specType, product, specCates)"
+                v-for="(spec, specType) in product.specifications"
+                :key="specType"
+                class="transition-colors duration-150 hover:bg-gray-50"
               >
-                <dt class="flex items-center text-sm font-medium text-gray-700">
-                  <svg
-                    class="mr-2 h-4 w-4 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div
+                  class="flex cursor-pointer items-center justify-between px-6 py-4"
+                  @click="toggleSpec(product.id, specType, product, specCates)"
+                >
+                  <dt
+                    class="flex items-center text-sm font-medium text-gray-700"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                    />
-                  </svg>
-                  规格：{{ spec.title }}
-                </dt>
-                <div class="flex items-center">
-                  <!-- <span class="mr-2 text-sm text-gray-500"
-                    >{{ spec.length }}个选项</span
-                  > -->
-                  <svg
-                    class="h-5 w-5 transform text-gray-500 transition-transform duration-200"
-                    :class="{
-                      'rotate-180': isSpecExpanded(product.id, specType),
-                    }"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <dd
-                v-show="isSpecExpanded(product.id, specType)"
-                class="border-t border-gray-100 bg-gray-50 transition-all duration-300"
-              >
-                <div class="flex flex-wrap gap-3 p-4">
-                  <div
-                    v-for="(item, index) in spec.value"
-                    :key="index"
-                    class="flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
-                  >
-                    <div
-                      v-if="specType === 'colors'"
-                      class="mr-2 h-4 w-4 rounded-full border"
-                      :style="{ backgroundColor: getColorValue(item) }"
-                    ></div>
-                    {{ item.title }}
+                    <svg
+                      class="mr-2 h-4 w-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                      />
+                    </svg>
+                    规格：{{ spec.title }}
+                  </dt>
+                  <div class="flex items-center">
+                    <!-- <span class="mr-2 text-sm text-gray-500"
+                      >{{ spec.length }}个选项</span
+                    > -->
+                    <svg
+                      class="h-5 w-5 transform text-gray-500 transition-transform duration-200"
+                      :class="{
+                        'rotate-180': isSpecExpanded(product.id, specType),
+                      }"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
                 </div>
-              </dd>
-            </div>
-          </dl>
+                <dd
+                  v-show="isSpecExpanded(product.id, specType)"
+                  class="border-t border-gray-100 bg-gray-50 transition-all duration-300"
+                >
+                  <div class="flex flex-wrap gap-3 p-4">
+                    <div
+                      v-for="(item, index) in spec.value"
+                      :key="index"
+                      class="flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
+                    >
+                      <div
+                        v-if="specType === 'colors'"
+                        class="mr-2 h-4 w-4 rounded-full border"
+                        :style="{ backgroundColor: getColorValue(item) }"
+                      ></div>
+                      {{ item.title }}
+                    </div>
+                  </div>
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 分页 -->
-    <div
-      class="mt-2 w-full flex-none justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
-    >
-      <div class="flex items-center justify-between">
-        <div class="mr-3 flex-1 text-right text-sm text-gray-600">
-          共 {{ products.length }} 条
-        </div>
-        <div class="flex flex-none items-center space-x-4">
-          <!-- 分页按钮 -->
-          <div class="flex items-center space-x-2">
-            <button
-              @click="prevPage"
-              :disabled="currentPage === 1"
-              class="rounded-l bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
-            >
-              &lt;
-            </button>
-            <!-- <span class="bg-gray-200 p-2"
-              >{{ currentPage }} / {{ totalPages }}</span
-            > -->
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              @click="goToPage(page)"
-              :class="{
-                'border border-blue-500 font-medium text-blue-950':
-                  currentPage === page,
-                'bg-white': currentPage !== page,
-              }"
-              class="rounded-lg px-3 py-1"
-            >
-              {{ page }}
-            </button>
-            <button
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-              class="rounded-r bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
-            >
-              &gt;
-            </button>
+      <!-- 分页 -->
+      <div
+        class="fixed bottom-0 right-0 mt-2 w-full flex-shrink-0 justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
+      >
+        <div class="flex items-center justify-between">
+          <div class="mr-3 flex-1 text-right text-sm text-gray-600">
+            共 {{ products.length }} 条
           </div>
-          <!-- 每页条数选择 -->
-          <select
-            v-model="pageSize"
-            @change="resetPage"
-            class="rounded-lg border p-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-          >
-            <option value="10">10 条/页</option>
-            <option value="20">20 条/页</option>
-            <option value="50">50 条/页</option>
-            <option value="100">100 条/页</option>
-          </select>
+          <div class="flex flex-none items-center space-x-4">
+            <!-- 分页按钮 -->
+            <div class="flex items-center space-x-2">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                class="rounded-l bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
+              >
+                &lt;
+              </button>
+              <!-- <span class="bg-gray-200 p-2"
+                >{{ currentPage }} / {{ totalPages }}</span
+              > -->
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="goToPage(page)"
+                :class="{
+                  'border border-blue-500 font-medium text-blue-950':
+                    currentPage === page,
+                  'bg-white': currentPage !== page,
+                }"
+                class="rounded-lg px-3 py-1"
+              >
+                {{ page }}
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="rounded-r bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
+              >
+                &gt;
+              </button>
+            </div>
+            <!-- 每页条数选择 -->
+            <select
+              v-model="pageSize"
+              @change="resetPage"
+              class="rounded-lg border p-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+            >
+              <option value="10">10 条/页</option>
+              <option value="20">20 条/页</option>
+              <option value="50">50 条/页</option>
+              <option value="100">100 条/页</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>

@@ -116,7 +116,7 @@ const addNewSpecType = () => {
 };
 
 // 删除规格类型
-const removeSpecType = (specCate) => {
+const removeSpecType = (specCate, index) => {
   Modal.confirm({
     title: '提示',
     content: `确定要删除 "${specCate}" 规格吗？`,
@@ -322,7 +322,7 @@ defineExpose({
                   </button>
                   <button
                     class="text-sm font-medium text-red-600 hover:text-red-700"
-                    @click="removeSpecType(specCate)"
+                    @click="removeSpecType(item.specCate, index)"
                   >
                     删除规格
                   </button>

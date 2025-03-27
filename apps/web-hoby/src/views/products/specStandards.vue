@@ -155,145 +155,86 @@ const resetPage = () => {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col p-4" style="height: calc(100% - 50px)">
-    <!-- 顶部搜索区域 -->
-    <div class="flex-none rounded-lg border-b border-gray-200 bg-white p-4">
-      <div class="flex space-x-4">
-        <div class="flex-1">
-          <label>规格：</label>
-          <input
-            v-model="specCateQuery"
-            type="text"
-            placeholder="请输入规格"
-            class="rounded-lg border px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-            @keyup.enter="search"
-          />
-        </div>
-        <div class="flex-none">
-          <button
-            @click="search"
-            class="rounded-lg bg-blue-600 px-4 py-1 text-white"
-            style="letter-spacing: 4px"
-          >
-            搜索
-          </button>
-          <button
-            @click="reset"
-            class="ml-2 rounded-lg border border-gray-200 bg-white px-4 py-1"
-            style="letter-spacing: 4px"
-          >
-            重置
-          </button>
+  <div class="absolute inset-0 w-full p-4">
+    <div class="flex h-screen flex-col">
+      <!-- 顶部搜索区域 -->
+      <div
+        class="flex-shrink-0 rounded-lg border-b border-gray-200 bg-white p-4"
+      >
+        <div class="flex space-x-4">
+          <div class="flex-1">
+            <label>规格：</label>
+            <input
+              v-model="specCateQuery"
+              type="text"
+              placeholder="请输入规格"
+              class="rounded-lg border px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+              @keyup.enter="search"
+            />
+          </div>
+          <div class="flex-none">
+            <button
+              @click="search"
+              class="rounded-lg bg-blue-600 px-4 py-1 text-white"
+              style="letter-spacing: 4px"
+            >
+              搜索
+            </button>
+            <button
+              @click="reset"
+              class="ml-2 rounded-lg border border-gray-200 bg-white px-4 py-1"
+              style="letter-spacing: 4px"
+            >
+              重置
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- 新增规格按钮 -->
-    <div class="my-4 ml-auto flex-none text-right">
-      <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
-        规格标准管理
-      </h1> -->
-      <button class="btn-primary">
-        <svg
-          class="mr-2 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <!-- 新增规格按钮 -->
+      <div class="my-4 ml-auto flex-shrink-0 text-right">
+        <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
+          规格标准管理
+        </h1> -->
+        <button class="btn-primary">
+          <svg
+            class="mr-2 h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          新增规格
+        </button>
+      </div>
+
+      <!-- 规格标准列表 -->
+      <div class="mb-4 flex-grow overflow-y-auto pb-28">
+        <div
+          v-for="spec in paginatedSpecs"
+          :key="spec.id"
+          class="mb-4 rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        新增规格
-      </button>
-    </div>
-
-    <!-- 规格标准列表 -->
-    <div class="flex-1 overflow-y-auto">
-      <div
-        v-for="spec in paginatedSpecs"
-        :key="spec.id"
-        class="mb-4 rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
-      >
-        <!-- 规格类型区域 -->
-        <div class="flex items-center justify-between border-b px-6 py-4">
-          <div class="text-lg font-medium text-gray-800">
-            <span
-              class="mr-2 inline-block h-2 w-2 flex-none rounded-full bg-green-500"
-            ></span
-            >规格：{{ spec.name }}
-          </div>
-          <div class="flex items-center space-x-2">
-            <button
-              class="btn-text-danger flex-none"
-              @click="deleteSpec(spec.id)"
-            >
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              删除
-            </button>
-            <button class="btn-text-secondary">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              新增规格值
-            </button>
-            <svg
-              class="h-6 w-6 transform cursor-pointer text-gray-600 transition-transform"
-              :class="{ 'rotate-180': !collapsedState[spec.id] }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              @click="toggleCollapse(spec.id, spec)"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-        </div>
-
-        <!-- 规格值区域 -->
-        <div v-if="!isCollapsed(spec.id)" class="px-6 py-4">
-          <div class="flex flex-wrap">
-            <div
-              v-for="value in spec.values"
-              :key="value"
-              class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 pr-0 text-sm text-gray-700 shadow-sm"
-            >
-              <span>{{ value.specValue }}</span>
+          <!-- 规格类型区域 -->
+          <div class="flex items-center justify-between border-b px-6 py-4">
+            <div class="text-lg font-medium text-gray-800">
+              <span
+                class="mr-2 inline-block h-2 w-2 flex-none rounded-full bg-green-500"
+              ></span
+              >规格：{{ spec.name }}
+            </div>
+            <div class="flex items-center space-x-2">
               <button
                 class="btn-text-danger flex-none"
-                @click="deleteSpecValue(spec.id, value)"
+                @click="deleteSpec(spec.id)"
               >
                 <svg
-                  class="h-4 w-4"
+                  class="mr-1 h-4 w-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -305,66 +246,129 @@ const resetPage = () => {
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
+                删除
               </button>
+              <button class="btn-text-secondary">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                新增规格值
+              </button>
+              <svg
+                class="h-6 w-6 transform cursor-pointer text-gray-600 transition-transform"
+                :class="{ 'rotate-180': !collapsedState[spec.id] }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                @click="toggleCollapse(spec.id, spec)"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- 规格值区域 -->
+          <div v-if="!isCollapsed(spec.id)" class="px-6 py-4">
+            <div class="flex flex-wrap">
+              <div
+                v-for="value in spec.values"
+                :key="value"
+                class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 pr-0 text-sm text-gray-700 shadow-sm"
+              >
+                <span>{{ value.specValue }}</span>
+                <button
+                  class="btn-text-danger flex-none"
+                  @click="deleteSpecValue(spec.id, value)"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 分页组件 -->
-    <div
-      class="w-full flex-none justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
-    >
-      <div class="flex items-center justify-between">
-        <div class="mr-3 flex-1 text-right text-sm text-gray-600">
-          共 {{ specs.length }} 条
-        </div>
-        <div class="flex flex-none items-center space-x-4">
-          <!-- 分页按钮 -->
-          <div class="flex items-center space-x-2">
-            <button
-              @click="prevPage"
-              :disabled="currentPage === 1"
-              class="rounded-l bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
-            >
-              &lt;
-            </button>
-            <!-- <span class="bg-gray-200 p-2"
-              >{{ currentPage }} / {{ totalPages }}</span
-            > -->
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              @click="goToPage(page)"
-              :class="{
-                'border border-blue-500 font-medium text-blue-950':
-                  currentPage === page,
-                'bg-white': currentPage !== page,
-              }"
-              class="rounded-lg px-3 py-1"
-            >
-              {{ page }}
-            </button>
-            <button
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-              class="rounded-r bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
-            >
-              &gt;
-            </button>
+      <!-- 分页组件 -->
+      <div
+        class="fixed bottom-0 right-0 w-full flex-shrink-0 justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
+      >
+        <div class="flex items-center justify-between">
+          <div class="mr-3 flex-1 text-right text-sm text-gray-600">
+            共 {{ specs.length }} 条
           </div>
-          <!-- 每页条数选择 -->
-          <select
-            v-model="pageSize"
-            @change="resetPage"
-            class="rounded-lg border p-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-          >
-            <option value="10">10 条/页</option>
-            <option value="20">20 条/页</option>
-            <option value="50">50 条/页</option>
-            <option value="100">100 条/页</option>
-          </select>
+          <div class="flex flex-none items-center space-x-4">
+            <!-- 分页按钮 -->
+            <div class="flex items-center space-x-2">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                class="rounded-l bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
+              >
+                &lt;
+              </button>
+              <!-- <span class="bg-gray-200 p-2"
+                >{{ currentPage }} / {{ totalPages }}</span
+              > -->
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="goToPage(page)"
+                :class="{
+                  'border border-blue-500 font-medium text-blue-950':
+                    currentPage === page,
+                  'bg-white': currentPage !== page,
+                }"
+                class="rounded-lg px-3 py-1"
+              >
+                {{ page }}
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="rounded-r bg-white p-2 text-lg text-gray-900 disabled:text-gray-400"
+              >
+                &gt;
+              </button>
+            </div>
+            <!-- 每页条数选择 -->
+            <select
+              v-model="pageSize"
+              @change="resetPage"
+              class="rounded-lg border p-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+            >
+              <option value="10">10 条/页</option>
+              <option value="20">20 条/页</option>
+              <option value="50">50 条/页</option>
+              <option value="100">100 条/页</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
