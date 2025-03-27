@@ -254,6 +254,16 @@ const openEditModal = (product) => {
   // isEditModalOpen.value = true;
   editProductModelRef.value.open(product);
 };
+
+// 删除产品型号
+const deleteProductModel = (id) => {
+  // console.log('当前产品', products.value, product, product.name);
+  products.value = products.value.filter((product) => product.id !== id);
+  // 如果删除后当前页没有数据，则跳转到上一页
+  if (products.value.length === 0 && currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
 const currentPage = ref(1); // 当前页码
 const pageSize = ref(10); // 每页显示的规格数量
 // 计算总页数
@@ -374,7 +384,10 @@ const resetPage = () => {
             ></span
             >产品：{{ product.name }}
             <span class="ml-10 flex-1">型号：{{ product.model }}</span>
-            <button class="btn-text-danger flex-none">
+            <button
+              class="btn-text-danger flex-none"
+              @click="deleteProductModel(product.id)"
+            >
               <svg
                 class="mr-1 h-4 w-4"
                 fill="none"

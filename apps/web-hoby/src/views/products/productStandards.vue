@@ -178,6 +178,16 @@ onMounted(async () => {
 //   },
 // ]);
 
+// 删除产品
+const deleteProduct = (id) => {
+  // console.log('当前产品', products.value, product, product.name);
+  products.value = products.value.filter((product) => product.id !== id);
+  // 如果删除后当前页没有数据，则跳转到上一页
+  if (products.value.length === 0 && currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
 const currentPage = ref(1); // 当前页码
 const pageSize = ref(10); // 每页显示的规格数量
 // 计算总页数
@@ -260,7 +270,7 @@ const resetPage = () => {
           </div>
         </div>
       </div>
-      <!-- 创建产品按钮 -->
+      <!-- 新增产品按钮 -->
       <div class="my-4 ml-auto flex-shrink-0 text-right">
         <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
           产品标准管理
@@ -279,7 +289,7 @@ const resetPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          创建产品
+          新增产品
         </button>
       </div>
 
@@ -303,7 +313,10 @@ const resetPage = () => {
               {{ product.name }}
             </h3>
             <div class="flex items-center gap-4">
-              <button class="btn-text-danger">
+              <button
+                class="btn-text-danger"
+                @click="deleteProduct(product.id)"
+              >
                 <svg
                   class="mr-1 h-4 w-4"
                   fill="none"
