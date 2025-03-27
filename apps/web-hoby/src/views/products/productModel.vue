@@ -350,7 +350,7 @@ const resetPage = () => {
         </div>
       </div>
       <!-- 新增产品型号按钮 -->
-      <div class="my-4 ml-auto flex-shrink-0 text-right">
+      <!-- <div class="my-4 ml-auto flex-shrink-0 text-right">
         <button class="btn-primary">
           <svg
             class="mr-2 h-4 w-4"
@@ -367,9 +367,9 @@ const resetPage = () => {
           </svg>
           新增产品型号
         </button>
-      </div>
-      <!-- 产品介绍选项卡 -->
-      <div class="mb-4 flex-grow overflow-y-auto pb-28">
+      </div> -->
+      <!-- 产品 -->
+      <div class="my-4 flex-grow overflow-y-auto pb-28">
         <!-- 产品列表 -->
         <div
           v-for="product in products"

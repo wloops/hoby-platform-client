@@ -289,7 +289,7 @@ const resetPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          新增产品
+          创建产品标准
         </button>
       </div>
 
@@ -332,6 +332,22 @@ const resetPage = () => {
                 </svg>
                 删除
               </button>
+              <button class="btn-text-primary">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                编辑产品标准
+              </button>
               <button class="btn-text-primary" @click="openEditModal(product)">
                 <svg
                   class="mr-1 h-4 w-4"
@@ -348,7 +364,7 @@ const resetPage = () => {
                 </svg>
                 编辑产品规格
               </button>
-              <button class="btn-text-secondary">
+              <!-- <button class="btn-text-secondary">
                 <svg
                   class="mr-1 h-4 w-4"
                   fill="none"
@@ -363,7 +379,7 @@ const resetPage = () => {
                   />
                 </svg>
                 创建产品型号
-              </button>
+              </button> -->
               <svg
                 class="ml-1 h-5 w-5 transform cursor-pointer transition-transform duration-200"
                 :class="{

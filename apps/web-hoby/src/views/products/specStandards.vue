@@ -115,12 +115,12 @@ const deleteSpec = (id) => {
 };
 
 // 删除规格值
-const deleteSpecValue = (id, value) => {
-  const spec = specs.value.find((spec) => spec.id === id);
-  if (spec) {
-    spec.values = spec.values.filter((v) => v !== value);
-  }
-};
+// const deleteSpecValue = (id, value) => {
+//   const spec = specs.value.find((spec) => spec.id === id);
+//   if (spec) {
+//     spec.values = spec.values.filter((v) => v !== value);
+//   }
+// };
 const specCateQuery = ref(''); // 搜索关键词
 // 搜索功能
 const search = () => {
@@ -209,7 +209,7 @@ const resetPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          新增规格
+          新增规格标准
         </button>
       </div>
 
@@ -248,7 +248,7 @@ const resetPage = () => {
                 </svg>
                 删除
               </button>
-              <button class="btn-text-secondary">
+              <button class="btn-text-primary">
                 <svg
                   class="mr-1 h-4 w-4"
                   fill="none"
@@ -259,10 +259,10 @@ const resetPage = () => {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
                 </svg>
-                新增规格值
+                编辑规格标准
               </button>
               <svg
                 class="h-6 w-6 transform cursor-pointer text-gray-600 transition-transform"
@@ -291,7 +291,7 @@ const resetPage = () => {
                 class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 pr-0 text-sm text-gray-700 shadow-sm"
               >
                 <span>{{ value.specValue }}</span>
-                <button
+                <!-- <button
                   class="btn-text-danger flex-none"
                   @click="deleteSpecValue(spec.id, value)"
                 >
@@ -308,7 +308,7 @@ const resetPage = () => {
                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                     />
                   </svg>
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
