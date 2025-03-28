@@ -24,10 +24,6 @@ const props = defineProps({
     default: '',
     type: String,
   },
-  pageId: {
-    default: '',
-    type: String,
-  },
   // 表单配置
   formConfig: {
     default: () => ({
@@ -240,22 +236,21 @@ const schema = ref<any>([
   },
 ]);
 
-const getSchema = async () => {
+const getSchema = async (pageID: string, record: Record<string, any>) => {
+  // console.log('drawerApi', drawerApi.getData().getValues());
+
   const { convertToFormSchema } = useSetFieldList();
   // 假设从API获取的原始字段数据
   const res = await mainGetViewFieldConfigApi({
-    pageID: props.pageId,
+    pageID,
   });
 
   const originalFields = res.fieldList;
 
   // 转换为表单结构
-  const formSchema = convertToFormSchema(originalFields);
-  // console.log('formSchema', formSchema);
+  const formSchema = convertToFormSchema(originalFields, record);
   schema.value = formSchema;
 };
-
-getSchema();
 
 const confirm = () => {
   if (props.mode === 'drawer') {
@@ -279,7 +274,8 @@ const [Modal, modalApi] = useVbenModal({
   onConfirm: confirm,
 });
 
-function open() {
+async function open(pageID: string, record: Record<string, any>) {
+  await getSchema(pageID, record);
   switch (props.mode) {
     case 'auto': {
       // 自动

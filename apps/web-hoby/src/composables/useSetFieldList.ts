@@ -2,6 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 
 import { markRaw } from 'vue';
 
+import ApiSelectInput from '#/components/DynamicForm/modules/ApiSelect.vue';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 /**
  * 用于将后端字段列表转换为表单结构的 hooks
@@ -13,7 +14,10 @@ export function useSetFieldList() {
    * @param sourceData 原始数据数组
    * @returns 表单结构数组
    */
-  const convertToFormSchema = (sourceData: any[]): VbenFormSchema[] => {
+  const convertToFormSchema = (
+    sourceData: any[],
+    record: Record<string, any>,
+  ): VbenFormSchema[] => {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
     }
@@ -28,9 +32,19 @@ export function useSetFieldList() {
         },
       };
 
+      // 添加验证规则
+      if (
+        item.valueConstraint === 'notnull'
+        // ||
+        // (item.otherProperties?.checkClass &&
+        //   item.otherProperties.checkClass.includes('required'))
+      ) {
+        formItem.rules = 'required';
+      }
+
       // 处理默认值
-      if (item.otherProperties?.defaultValue) {
-        formItem.defaultValue = item.otherProperties.defaultValue;
+      if (record && record[item.fieldName]) {
+        formItem.defaultValue = record[item.fieldName];
       }
 
       const fieldType = (item.value && item.value.split('::')[0]) || '';
@@ -43,18 +57,11 @@ export function useSetFieldList() {
         }
         case 'query': {
           // formItem.component = 'ApiSelect'; // 假设有一个查询组件
-          formItem.component = 'Select'; // 假设有一个查询组件
+          formItem.component = markRaw(ApiSelectInput); // 假设有一个查询组件
           formItem.componentProps = {
             placeholder: `请选择${item.displayName}`,
-            // api: item.otherProperties.operationID, // 使用operationID作为API标识
-            // ...(item.otherProperties.remarkFld
-            //   ? { labelField: item.otherProperties.remarkFld }
-            //   : {}),
-            // ...(item.otherProperties.readFld
-            //   ? { valueField: item.otherProperties.readFld }
-            //   : {}),
           };
-
+          formItem.modelPropName = 'value';
           break;
         }
         case 'readOnly': {
@@ -98,15 +105,12 @@ export function useSetFieldList() {
         }
       }
 
-      // 添加验证规则
-      if (
-        item.valueConstraint === 'notnull'
-        // ||
-        // (item.otherProperties?.checkClass &&
-        //   item.otherProperties.checkClass.includes('required'))
-      ) {
-        formItem.rules = 'required';
-      }
+      // 附加原始参数
+      formItem.componentProps = {
+        ...formItem.componentProps,
+        sourceData: item,
+        record,
+      };
 
       return formItem;
     });
