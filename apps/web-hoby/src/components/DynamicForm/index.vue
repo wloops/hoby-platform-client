@@ -7,7 +7,7 @@ import { ref } from 'vue';
 
 import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
-import { mainGetViewFieldConfigApi } from '#/api';
+import { mainGetViewFieldConfigApi, mainServiceApi } from '#/api';
 import { useSetFieldList } from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
@@ -252,12 +252,35 @@ const getSchema = async (pageID: string, record: Record<string, any>) => {
   schema.value = formSchema;
 };
 
-const confirm = () => {
+const confirm = async () => {
   if (props.mode === 'drawer') {
-    // console.log('onConfirm', drawerApi.getData().getValues());
+    const form = await drawerApi.getData().getValues();
+    drawerApi
+      .getData()
+      .validate()
+      .then(async (result: any) => {
+        if (result.valid) {
+          await submitApi(form);
+        }
+      });
     drawerApi.getData().validateAndSubmitForm();
   } else if (props.mode === 'modal') {
     modalApi.getData().validateAndSubmitForm();
+  }
+};
+
+const submitApi = async (record: Record<string, any>) => {
+  try {
+    const data = {
+      pageID: pageParams.value.pageID, // 页面ID
+      pageButtonID: pageParams.value.pageButtonID, // 按钮ID
+      ...record,
+    };
+    const { rs: code } = await mainServiceApi(data);
+    return code === '1';
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 };
 
@@ -274,8 +297,18 @@ const [Modal, modalApi] = useVbenModal({
   onConfirm: confirm,
 });
 
-async function open(pageID: string, record: Record<string, any>) {
-  await getSchema(pageID, record);
+interface pageParam {
+  pageID: string;
+  pageButtonID: string;
+}
+const pageParams = ref<pageParam>({
+  pageID: '',
+  pageButtonID: '',
+});
+
+async function open(params: pageParam, record: Record<string, any>) {
+  pageParams.value = params;
+  await getSchema(params.pageID, record);
   switch (props.mode) {
     case 'auto': {
       // 自动
