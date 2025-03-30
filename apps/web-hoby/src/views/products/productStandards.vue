@@ -134,6 +134,7 @@ async function fetchProducts() {
     const { data } = await useMainGetData(reqParams);
     products.value = data.value.map((item, index) => ({
       id: `${111 + index}`,
+      company: item.companyName,
       name: item.productName,
       status: '上架',
       specAttrCateListForPrice: item.specAttrCateListForPrice,
@@ -484,6 +485,7 @@ const resetPage = () => {
       <!-- 分页 -->
       <div
         class="fixed bottom-0 right-0 mt-2 w-full flex-shrink-0 justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
+        style="z-index: 201"
       >
         <div class="flex items-center justify-between">
           <div class="mr-3 flex-1 text-right text-sm text-gray-600">

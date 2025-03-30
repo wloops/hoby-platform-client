@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 
 import { useMainGetData } from '#/composables';
 
+import EditSpecStandard from './components/EditSpecStandard.vue';
 // 模拟规格标准数据
 // const specs = ref([
 //   { id: 1, name: '颜色', values: ['红色', '白色', '蓝色'] },
@@ -31,6 +32,7 @@ async function fetchSpecs() {
     const { data } = await useMainGetData(reqParams);
     specs.value = data.value.map((item, index) => ({
       id: `${111 + index}`,
+      company: item.companyName,
       name: item.specCate,
       values: [],
     }));
@@ -121,6 +123,20 @@ const deleteSpec = (id) => {
 //     spec.values = spec.values.filter((v) => v !== value);
 //   }
 // };
+// 编辑模态框状态
+// const isEditModalOpen = ref(false);
+const currentEditingProduct = ref(null);
+const EditSpecStandardRef = ref(null);
+
+// 打开编辑模态框
+const openEditModal = (spec) => {
+  // console.log('openEditModal:spec', spec);
+
+  currentEditingProduct.value = spec;
+  // isEditModalOpen.value = true;
+  EditSpecStandardRef.value.open(spec);
+};
+
 const specCateQuery = ref(''); // 搜索关键词
 // 搜索功能
 const search = () => {
@@ -248,7 +264,7 @@ const resetPage = () => {
                 </svg>
                 删除
               </button>
-              <button class="btn-text-primary">
+              <button class="btn-text-primary" @click="openEditModal(spec)">
                 <svg
                   class="mr-1 h-4 w-4"
                   fill="none"
@@ -318,6 +334,7 @@ const resetPage = () => {
       <!-- 分页组件 -->
       <div
         class="fixed bottom-0 right-0 w-full flex-shrink-0 justify-end border border-t-gray-200 bg-white px-4 py-2 shadow-lg"
+        style="z-index: 201"
       >
         <div class="flex items-center justify-between">
           <div class="mr-3 flex-1 text-right text-sm text-gray-600">
@@ -371,6 +388,8 @@ const resetPage = () => {
           </div>
         </div>
       </div>
+      <!-- 编辑产品型号 -->
+      <EditSpecStandard ref="EditSpecStandardRef" />
     </div>
   </div>
 </template>

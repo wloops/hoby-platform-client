@@ -152,12 +152,17 @@ const saveChanges = () => {
   console.warn('editedSpecsList', editedSpecsList.value);
   console.warn('productData', productData.value);
   const result = {
+    companyName: productData.value.company,
     productName: productData.value.name,
+    srlID: productData.value.model,
     specAttrCateListForWare: selectedStockSpecs.value.join(','),
     specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
     productModelSpecCate: editedSpecsList.value,
   };
-  console.warn('result', result);
+  const finalResult = {
+    productModel: [result],
+  };
+  console.warn('result', finalResult);
   // // 过滤掉空值
   // const updatedSpecs = {};
 
@@ -221,7 +226,11 @@ defineExpose({
 </script>
 
 <template>
-  <div v-if="isOpen" class="absolute inset-0 z-50 overflow-y-auto">
+  <div
+    v-if="isOpen"
+    class="absolute inset-0 overflow-y-auto"
+    style="z-index: 202; height: calc(100% + 32px)"
+  >
     <!-- Backdrop -->
     <!-- <div
       class="fixed inset-0 h-full bg-black bg-opacity-50 transition-opacity"
