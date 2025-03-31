@@ -36,7 +36,10 @@ export interface TableRecord {
   [key: string]: any;
 }
 
-// 操作按钮配置
+// 修复 AnyFunction 未定义的问题
+export type AnyFunction = (...args: any[]) => any;
+
+// 更新 ActionButtonProps 接口，添加 API 和参数相关字段
 export interface ActionButtonProps {
   // 按钮文字
   text?: string;
@@ -51,15 +54,24 @@ export interface ActionButtonProps {
   // 按钮名称
   name?: string;
   // 按钮是否禁用 - 修改为只处理单条记录
-  disabled?: ((record: TableRecord) => boolean) | boolean;
+  disabled?: ((record: any) => boolean) | boolean;
   // 按钮是否可见 - 修改为只处理单条记录
-  visible?: ((record: TableRecord) => boolean) | boolean;
+  visible?: ((record: any) => boolean) | boolean;
   // 点击回调 - 修改为只处理单条记录
-  onClick?: (record: TableRecord) => void;
+  onClick?: AnyFunction;
   // 是否需要确认
   confirm?: 'auto' | boolean | string;
   // 操作后是否清除选择
   clearAfterAction?: boolean;
+  autoRefresh?: boolean; // 点击后是否自动刷新表格，默认为true
+
+  // 新增 API 相关属性
+  api?: (params: any) => Promise<any>; // API 调用函数
+  params?: ((record: any) => any) | Record<string, any>; // 单条记录参数
+  batchParams?: (records: any[]) => any; // 批量操作参数
+  fields?: string[]; // 要从记录中提取的字段
+  successMsg?: string; // 成功提示消息
+  errorMsg?: string; // 错误提示消息
 }
 
 // 批量操作事件数据

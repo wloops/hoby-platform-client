@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { useEnums } from '#/composables';
+import { useEnums, useServiceCall } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
 import BatchAction from './components/BatchAction.vue';
@@ -87,7 +87,7 @@ const props = defineProps({
 });
 
 // 定义事件
-const emit = defineEmits(['selectionChange', 'batchAction']);
+const emit = defineEmits(['selectionChange', 'batchAction', 'refresh']);
 
 const { getEnumLabel, getEnumColor } = useEnums();
 
@@ -96,9 +96,217 @@ const actionColumn = computed(() => {
   return props.columns.find((col) => col.actions && col.actions.length > 0);
 });
 
-// 处理批量操作事件
-function handleBatchAction(event: any) {
+// 添加刷新方法
+function refreshTable() {
+  const gridInstance = gridApi?.grid;
+  if (gridInstance && gridInstance.commitProxy) {
+    gridInstance.commitProxy('query');
+  }
+  emit('refresh');
+}
+
+// 暴露刷新方法给父组件
+defineExpose({
+  refresh: refreshTable,
+});
+
+// 添加泛型类型定义，处理 Promise 判断的类型问题
+type PromiseOrValue<T> = Promise<T> | T;
+
+// 封装通用的操作执行函数
+async function executeAction<T>(
+  action: ActionButtonProps,
+  _params: any,
+  callback?: () => PromiseOrValue<T>,
+): Promise<void> {
+  if (!callback) return;
+
+  try {
+    // 执行回调函数
+    const result = callback();
+
+    // 检查是否为 Promise
+    if (result && typeof (result as Promise<T>).then === 'function') {
+      await result;
+    }
+
+    // 操作完成后，如果需要自动刷新，则刷新表格
+    if (action.autoRefresh !== false) {
+      refreshTable();
+    }
+  } catch (error) {
+    console.error('操作执行失败:', error);
+  }
+}
+
+// 封装通用的服务操作方法，处理 API 调用和自动刷新
+async function executeServiceAction(
+  action: ActionButtonProps,
+  record: TableRecord,
+): Promise<void> {
+  if (!action) return;
+
+  try {
+    // 获取服务参数
+    let serviceParams: Record<string, any> = {};
+
+    // 如果配置了自定义 params 函数，则调用它来获取参数
+    if (typeof action.params === 'function') {
+      serviceParams = action.params(record);
+    }
+    // 如果配置了静态 params 对象，则使用它
+    else if (action.params && typeof action.params === 'object') {
+      serviceParams = { ...action.params };
+    }
+
+    // 如果同时配置了 fields 字段，则将记录中的这些字段值添加到 params 中
+    if (Array.isArray(action.fields) && action.fields.length > 0) {
+      action.fields.forEach((field) => {
+        if (record[field] !== undefined) {
+          serviceParams[field] = record[field];
+        }
+      });
+    }
+
+    // 如果配置了 api 方法，则调用它
+    if (action.api) {
+      const result = await action.api(serviceParams);
+
+      // 如果需要自动刷新，则刷新表格
+      if (action.autoRefresh !== false) {
+        refreshTable();
+      }
+
+      return result;
+    }
+    // 否则使用通用的 useServiceCall 方法
+    else {
+      return await useServiceCall(serviceParams, {
+        successMessage:
+          action.successMsg || `${action.label || action.text || '操作'}成功`,
+        errorMessage:
+          action.errorMsg || `${action.label || action.text || '操作'}失败`,
+        refreshFunc: action.autoRefresh === false ? undefined : refreshTable,
+      });
+    }
+  } catch (error) {
+    console.error('服务操作执行失败:', error);
+  }
+}
+
+// 处理操作按钮点击，修改现有方法
+function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
+  // 如果既没有 onClick 也没有 api，则不处理
+  if (!action.onClick && !action.api && !action.params) return;
+
+  // 确认操作的通用处理
+  const handleConfirm = () => {
+    // 如果配置了 API 或参数，则调用服务操作方法
+    if (action.api || action.params) {
+      executeServiceAction(action, row);
+    }
+    // 否则执行原有的 onClick 回调
+    else if (action.onClick) {
+      executeAction(action, row, () => action.onClick?.(row));
+    }
+  };
+
+  // 如果需要确认，则显示确认对话框
+  if (action.confirm) {
+    let confirmText = '';
+
+    // 根据confirm属性生成确认文本
+    if (action.confirm === 'auto') {
+      confirmText = `确定要对该记录执行${action.label || action.text || ''}操作吗？`;
+    } else if (typeof action.confirm === 'string') {
+      confirmText = action.confirm;
+    } else {
+      confirmText = '确认执行此操作？';
+    }
+
+    Modal.confirm({
+      title: '确认操作',
+      content: confirmText,
+      onOk() {
+        return handleConfirm();
+      },
+    });
+  } else {
+    // 不需要确认，直接执行
+    handleConfirm();
+  }
+}
+
+// 处理批量操作事件，更新现有方法
+async function handleBatchAction(event: any) {
   emit('batchAction', event);
+
+  // 如果事件包含操作对象
+  if (event.action) {
+    const action = event.action;
+
+    // 如果配置了 API 或参数，且有选中记录
+    if (
+      (action.api || action.params) &&
+      event.records &&
+      event.records.length > 0
+    ) {
+      try {
+        // 获取服务参数
+        let serviceParams: Record<string, any> = {};
+
+        // 如果配置了自定义 batchParams 函数，则调用它来获取批量参数
+        if (typeof action.batchParams === 'function') {
+          serviceParams = action.batchParams(event.records);
+        }
+        // 如果配置了静态 params 对象，则使用它
+        else if (action.params && typeof action.params === 'object') {
+          serviceParams = { ...action.params };
+        }
+
+        // 添加记录 ID 列表到参数中
+        if (props.rowKey && event.records.length > 0) {
+          serviceParams.ids = event.records.map(
+            (record: TableRecord) => record[props.rowKey],
+          );
+        }
+
+        // 如果配置了 api 方法，则调用它
+        if (action.api) {
+          await action.api(serviceParams);
+
+          // 如果需要自动刷新，则刷新表格
+          if (action.autoRefresh !== false) {
+            refreshTable();
+          }
+        }
+        // 否则使用通用的 useServiceCall 方法
+        else {
+          await useServiceCall(serviceParams, {
+            successMessage:
+              action.successMsg ||
+              `批量${action.label || action.text || '操作'}成功`,
+            errorMessage:
+              action.errorMsg ||
+              `批量${action.label || action.text || '操作'}失败`,
+            refreshFunc:
+              action.autoRefresh === false ? undefined : refreshTable,
+          });
+        }
+      } catch (error) {
+        console.error('批量服务操作执行失败:', error);
+      }
+    }
+    // 使用原有的 onClick 回调处理批量操作
+    else if (typeof action.onClick === 'function' && event.records) {
+      await executeAction(action, event.records, () =>
+        action.onClick?.(event.records),
+      );
+    }
+  } else if (event.autoRefresh !== false) {
+    // 如果没有操作对象但需要刷新，则直接刷新
+    refreshTable();
+  }
 }
 
 // 清除选择
@@ -307,42 +515,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxAll: handleSelectionChange,
   },
 });
-
-// 处理操作按钮点击
-function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
-  // 检查是否有onClick函数
-  if (!action.onClick) return;
-
-  // 如果需要确认，则显示确认对话框
-  if (action.confirm) {
-    let confirmText = '';
-
-    // 根据confirm属性生成确认文本
-    if (action.confirm === 'auto') {
-      confirmText = `确定要对该记录执行${action.label || action.text || ''}操作吗？`;
-    } else if (typeof action.confirm === 'string') {
-      confirmText = action.confirm;
-    } else {
-      confirmText = '确认执行此操作？';
-    }
-
-    Modal.confirm({
-      title: '确认操作',
-      content: confirmText,
-      onOk() {
-        // 确认后执行操作
-        if (action.onClick) {
-          action.onClick(row);
-        }
-      },
-    });
-  } else {
-    // 不需要确认，直接执行
-    if (action.onClick) {
-      action.onClick(row);
-    }
-  }
-}
 
 // 转换按钮类型
 function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
