@@ -4,6 +4,7 @@ import { markRaw, ref } from 'vue';
 
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
+import { useFormStore } from '#/store';
 
 const recordRef = ref({});
 /**
@@ -23,8 +24,20 @@ export function useSetFieldList() {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
     }
+    sourceData.forEach((item) => {
+      if (!record[item.fieldName]) {
+        record[item.fieldName] = '';
+      }
+    });
+
+    const formStore = useFormStore();
     recordRef.value = record;
     const afterSourceData = sourceData.map((item) => {
+      const { selectApi, extractName, params, afterFetch } = useApiSelectProps(
+        item,
+        record,
+      );
+
       const formItem: VbenFormSchema = {
         fieldName: item.fieldName,
         label: item.displayName,
@@ -46,7 +59,7 @@ export function useSetFieldList() {
 
       // 处理默认值
       if (record && record[item.fieldName]) {
-        formItem.defaultValue = record[item.fieldName];
+        formItem.defaultValue = record[item.fieldName] || '';
       }
 
       const fieldType = (item.value && item.value.split('::')[0]) || '';
@@ -54,21 +67,12 @@ export function useSetFieldList() {
       switch (fieldType) {
         case 'form': {
           formItem.component = markRaw(Transfer);
-
-          break;
-        }
-        case 'query': {
-          const { selectApi, extractName, params, afterFetch } =
-            useApiSelectProps(item, record);
-
-          formItem.component = 'ApiSelect'; // 假设有一个查询组件
-          // formItem.component = markRaw(ApiSelectInput); // 假设有一个查询组件
+          // formItem.component = 'ApiTransfer';
           formItem.componentProps = {
             placeholder: `请选择${item.displayName}`,
             api: selectApi,
             params,
             beforeFetch: (params: any) => {
-              // params.actCmpName = '测试仓商2025';
               return (params = {
                 ...params,
                 ...recordRef.value,
@@ -76,7 +80,42 @@ export function useSetFieldList() {
               // console.log(recordRef.value, params);
             },
             afterFetch: (data: any) => {
-              return afterFetch(data, extractName);
+              return afterFetch(
+                'form',
+                data,
+                extractName,
+                record[item.fieldName],
+              );
+            },
+            alwaysLoad: true,
+          };
+          formItem.dependencies = {
+            triggerFields: formStore.setTriggerFields(record),
+            // trigger(values, form) {
+            trigger(values) {
+              formStore.setFormValues(values);
+              recordRef.value = values;
+            },
+          };
+
+          break;
+        }
+        case 'query': {
+          formItem.component = 'ApiSelect'; // 假设有一个查询组件
+          // formItem.component = markRaw(ApiSelectInput); // 假设有一个查询组件
+          formItem.componentProps = {
+            placeholder: `请选择${item.displayName}`,
+            api: selectApi,
+            params,
+            beforeFetch: (params: any) => {
+              return (params = {
+                ...params,
+                ...recordRef.value,
+              });
+              // console.log(recordRef.value, params);
+            },
+            afterFetch: (data: any) => {
+              return afterFetch('query', data, extractName);
             },
             alwaysLoad: true,
           };
@@ -135,7 +174,7 @@ export function useSetFieldList() {
       formItem.componentProps = {
         ...formItem.componentProps,
         sourceData: item,
-        record,
+        record: recordRef.value,
       };
 
       return formItem;
