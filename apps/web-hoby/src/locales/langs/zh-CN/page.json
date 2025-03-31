@@ -140,5 +140,32 @@
   "shopping": {
     "title": "去逛店铺",
     "home": "店铺首页"
+  },
+  "my": {
+    "basicInfo": {
+      "title": "基本信息",
+      "companyInfo": "企业信息",
+      "companyAddress": "单位地址",
+      "employees": "企业员工",
+      "operationAccounts": "操作账号"
+    },
+    "fundAccount": {
+      "title": "资金账户",
+      "settlement": "结算账户",
+      "credit": "信用账户",
+      "voucher": {
+        "title": "结算凭证",
+        "orderSettlement": "订单结算凭证",
+        "paymentSettlement": "付款结算凭证",
+        "receiptSettlement": "收款结算凭证"
+      },
+      "config": {
+        "title": "结算配置",
+        "salesShare": "销售分成规则",
+        "prepaidPercentage": "订单预付百分比",
+        "paymentPeriod": "订单付款账期",
+        "defaultPayment": "缺省支付账户"
+      }
+    }
   }
 }
