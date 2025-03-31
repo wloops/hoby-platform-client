@@ -1,9 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 
-import { markRaw } from 'vue';
+import { markRaw, ref } from 'vue';
 
-import ApiSelectInput from '#/components/DynamicForm/modules/ApiSelect.vue';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
+import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
+
+const recordRef = ref({});
 /**
  * 用于将后端字段列表转换为表单结构的 hooks
  * @returns 提供字段列表转换功能的对象
@@ -21,8 +23,8 @@ export function useSetFieldList() {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
     }
-
-    return sourceData.map((item) => {
+    recordRef.value = record;
+    const afterSourceData = sourceData.map((item) => {
       const formItem: VbenFormSchema = {
         fieldName: item.fieldName,
         label: item.displayName,
@@ -56,10 +58,34 @@ export function useSetFieldList() {
           break;
         }
         case 'query': {
-          // formItem.component = 'ApiSelect'; // 假设有一个查询组件
-          formItem.component = markRaw(ApiSelectInput); // 假设有一个查询组件
+          const { selectApi, extractName, params, afterFetch } =
+            useApiSelectProps(item, record);
+
+          formItem.component = 'ApiSelect'; // 假设有一个查询组件
+          // formItem.component = markRaw(ApiSelectInput); // 假设有一个查询组件
           formItem.componentProps = {
             placeholder: `请选择${item.displayName}`,
+            api: selectApi,
+            params,
+            beforeFetch: (params: any) => {
+              // params.actCmpName = '测试仓商2025';
+              return (params = {
+                ...params,
+                ...recordRef.value,
+              });
+              // console.log(recordRef.value, params);
+            },
+            afterFetch: (data: any) => {
+              return afterFetch(data, extractName);
+            },
+            alwaysLoad: true,
+          };
+          formItem.dependencies = {
+            triggerFields: Object.keys(record),
+            // trigger(values, form) {
+            trigger(values) {
+              recordRef.value = values;
+            },
           };
           formItem.modelPropName = 'value';
           break;
@@ -114,6 +140,24 @@ export function useSetFieldList() {
 
       return formItem;
     });
+    // 添加一个默认隐藏域
+    // const hideFieldByForm: VbenFormSchema = {
+    //   fieldName: 'hideFieldByForm',
+    //   label: 'hideFieldByForm',
+    //   component: 'Input',
+    //   dependencies: {
+    //     triggerFields: Object.keys(record),
+    //     trigger(values, form) {
+    //       console.log(values, form);
+    //     },
+    //     show(values) {
+    //       return false;
+    //     },
+    //   },
+    // };
+    // afterSourceData.push(hideFieldByForm);
+
+    return afterSourceData;
   };
 
   return {
