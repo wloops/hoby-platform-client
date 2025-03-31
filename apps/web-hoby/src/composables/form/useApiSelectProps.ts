@@ -2,12 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-31 10:49:27
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-31 11:33:16
+ * @LastEditTime: 2025-03-31 14:11:45
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\form\useApiSelectProps.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { mainGetCommonQueryData } from '#/api';
 import {
+  convertToKeyTitleArray,
   convertToOptions,
   parseQueryString,
 } from '#/components/DynamicForm/modules/utils';
@@ -37,11 +38,21 @@ export function useApiSelectProps(
   };
 }
 
-function afterFetch(res: any, extractName: string) {
-  let options: any = [];
+function afterFetch(
+  type: string,
+  res: any,
+  extractName: string,
+  currentFieldValue?: string,
+) {
   const { rs, data } = res;
-  if (rs === '1') {
-    options = convertToOptions(data?.dbRecsGrp, extractName);
+  if (rs !== '1') return [];
+  if (type === 'query') {
+    return convertToOptions(data?.dbRecsGrp, extractName);
+  } else if (type === 'form') {
+    return convertToKeyTitleArray(
+      data.dbRecsGrp,
+      extractName,
+      currentFieldValue ?? '',
+    );
   }
-  return options;
 }
