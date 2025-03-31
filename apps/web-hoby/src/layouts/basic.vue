@@ -98,7 +98,10 @@ const menus = computed(() => [
 ]);
 
 function toUser() {
-  router.push('/user');
+  authStore.goToMainPage({
+    link: '/my',
+    authority: ['my'],
+  });
 }
 
 const avatar = computed(() => {

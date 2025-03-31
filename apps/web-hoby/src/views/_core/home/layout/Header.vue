@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-26 18:20:02
+ * @LastEditTime: 2025-03-31 18:03:46
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -36,7 +36,11 @@ const menus = computed(() => [
   },
 ]);
 function toUser() {
-  router.push('/user');
+  // router.push('/my');
+  authStore.goToMainPage({
+    link: '/my',
+    authority: ['my'],
+  });
 }
 
 console.warn('userStore.userInfo', userStore.userInfo);

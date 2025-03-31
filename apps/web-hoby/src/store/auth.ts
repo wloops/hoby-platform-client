@@ -2,11 +2,11 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:52:42
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-26 18:07:48
+ * @LastEditTime: 2025-03-31 18:01:02
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import type { Recordable } from '@vben/types';
+import type { BasicUserInfo, Recordable } from '@vben/types';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -210,6 +210,19 @@ export const useAuthStore = defineStore('auth', () => {
     loginLoading.value = false;
   }
 
+  async function goToMainPage(page: any) {
+    accessStore.setIsAccessChecked(false);
+    const access: string[] = page.authority;
+    const userInfo = userStore.userInfo;
+    const addRolesUserInfo = {
+      ...userInfo,
+      roles: access,
+    };
+    await userStore.setUserInfo(addRolesUserInfo as BasicUserInfo);
+    // sessionStorage.setItem('userInfo', JSON.stringify(addRolesUserInfo));
+    await router.push(page.link);
+  }
+
   return {
     $reset,
     authLogin,
@@ -217,5 +230,6 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUserInfo,
     loginLoading,
     logout,
+    goToMainPage,
   };
 });

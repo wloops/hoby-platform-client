@@ -57,7 +57,7 @@ const goToMainPage = async (page: any) => {
     roles: access,
   };
   await userStore.setUserInfo(addRolesUserInfo as BasicUserInfo);
-  sessionStorage.setItem('userInfo', JSON.stringify(addRolesUserInfo));
+  // sessionStorage.setItem('userInfo', JSON.stringify(addRolesUserInfo));
   await router.push(page.link);
 };
 
