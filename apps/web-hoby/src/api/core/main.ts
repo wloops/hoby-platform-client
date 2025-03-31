@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-03 21:58:41
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-31 14:32:28
+ * @LastEditTime: 2025-03-31 14:36:37
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\api\core\main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -45,7 +45,7 @@ export async function uploadFile(data: any) {
 }
 
 /**
- * 上传文件接口
+ * 发送指定文件接口（大数据传输）
  */
 export async function mainSendFile(data: any) {
   return requestClient.post<any>('/buttonServiceFile', data, {
