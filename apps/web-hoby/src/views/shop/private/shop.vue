@@ -1,33 +1,27 @@
 <!--
  * @Author: Loong wentloop@gmail.com
- * @Date: 2025-03-18 11:26:16
+ * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-21 16:52:49
- * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\shop\private\shop.vue
+ * @LastEditTime: 2025-04-01 00:11:39
+ * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
 import type {
-  ColumnConfig,
-  PageChangeInfo,
+  ColumnDefinition,
+  PageInfo,
   SearchParams,
-  SelectionChangeEvent,
-  TableItem,
-} from '#/components/DataTable/types';
+  TableRecord,
+} from '#/components/CommonTable/types';
 
 import { ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import CommonTable from '#/components/CommonTable/index.vue';
+import { FieldType } from '#/components/CommonTable/types';
+import { useMainGetData } from '#/composables';
 
-import DataTable from '#/components/DataTable/index.vue';
-import { FieldType } from '#/components/DataTable/types';
-import { useMainGetData, useServiceCall } from '#/composables';
-
-const pageTitle = $t('page.shop.myPrivateWarehouse.shop');
-
-// 表格列配置
-const columns: ColumnConfig[] = [
+// 定义表格列配置
+const columns: ColumnDefinition[] = [
   {
     title: '仓库',
     dataIndex: 'wareName',
@@ -84,185 +78,103 @@ const columns: ColumnConfig[] = [
       {
         text: '开始营业',
         type: 'link',
-        onClick: (record) => {
-          console.warn('开始营业', record);
-          const params = {
-            pageID: 'myPrivateWareShopPage',
-            pageButtonID: 'warehouseShopOpen',
-            actNo: record.actNo,
-            saleCmpName: record.saleCmpName,
-            wareName: record.wareName,
-          };
-          useServiceCall(params, {
-            successMessage: '开始营业成功',
-            errorMessage: '开始营业失败',
-            refreshFunc: () => {
-              refreshTable();
-            },
-          });
-
-          // 实现开始营业逻辑
+        params: {
+          pageID: 'myPrivateWareShopPage',
+          pageButtonID: 'warehouseShopOpen',
         },
+        fields: ['actNo', 'saleCmpName', 'wareName'],
         disabled: (record) => record.onCateStatus !== '0',
+        successMsg: '开始营业成功',
+        errorMsg: '开始营业失败',
         confirm: 'auto',
       },
       {
         text: '停止营业',
         type: 'link',
         danger: true,
-        onClick: (record) => {
-          console.warn('停止营业', record);
-          // 实现停止营业逻辑
-          const params = {
-            pageID: 'myPrivateWareShopPage',
-            pageButtonID: 'warehouseShopClose',
-            actNo: record.actNo,
-            saleCmpName: record.saleCmpName,
-            wareName: record.wareName,
-          };
-
-          useServiceCall(params, {
-            successMessage: '停止营业成功',
-            errorMessage: '停止营业失败',
-            refreshFunc: () => {
-              refreshTable();
-            },
-          });
-        },
-        // 只有营业中的记录可停止营业
+        params: (record) => ({
+          pageID: 'myPrivateWareShopPage',
+          pageButtonID: 'warehouseShopClose',
+          actNo: record.actNo,
+          saleCmpName: record.saleCmpName,
+          wareName: record.wareName,
+        }),
         disabled: (record) => record.onCateStatus !== '1',
+        successMsg: '停止营业成功',
+        errorMsg: '停止营业失败',
         confirm: 'auto',
+        autoRefresh: true, // 默认为true，可省略
       },
     ],
   },
 ];
 
-// 表格数据和状态
-const tableData = ref<TableItem[]>([]);
-const total = ref<number>(0);
-const currentPage = ref<number>(1);
-const pageSize = ref<number>(10);
-const loading = ref<boolean>(false);
+// 表格数据
+const tableData = ref([]);
 
-// 引用组件实例并添加类型定义
-const dataTableRef = ref<null | {
-  clearSelection: () => void;
-  getCurrentPage: () => number;
-  getPageSize: () => number;
-  getSearchParams: () => Record<string, any>;
-  refresh: () => void;
-  resetSearch: () => void;
-  searchForm: Record<string, any>;
-  selectedRowKeys: Array<number | string>;
-  selectedRows: TableItem[];
-  setSelection: (keys: Array<number | string>, rows: TableItem[]) => void;
-}>(null);
+// 自定义请求方法示例
+const customRequest = async (page: PageInfo, formValues: SearchParams) => {
+  console.warn('页码信息:', page);
+  console.warn('表单值:', formValues);
 
-// API服务（模拟）
-const warehouseApi = {
-  getList: async (_params: SearchParams) => {
-    const params = {
-      pageID: 'myPrivateWareShopPage',
-      pageDataGrpID: 'myPrivateWareShop',
-      ..._params,
-    };
-    const { data, total } = await useMainGetData(params);
-    return {
-      data: data.value,
-      total: total.value,
-    };
-  },
+  // 这里可以进行实际的API调用
+  // const res = await api.getList(page, formValues);
+  const params = {
+    pageID: 'myBranchWareShopPage',
+    pageDataGrpID: 'myBranchWareShop',
+    ...formValues,
+  };
+  const { data, total } = await useMainGetData(params);
+  return {
+    items: data.value,
+    total: total.value,
+  };
 };
 
-// 获取仓库数据的方法
-const fetchWarehouseData = async (params: SearchParams) => {
-  try {
-    return await warehouseApi.getList(params);
-  } catch (error) {
-    console.error('获取仓库数据失败:', error);
-    return {
-      data: [],
-      total: 0,
-    };
-  }
-};
-
-// 处理搜索事件
-const handleSearch = (formData: Record<string, any>) => {
-  console.warn('搜索条件：', formData);
-};
-
-// 处理分页变化
-const handlePageChange = (pagination: PageChangeInfo) => {
-  console.warn('分页变化：', pagination);
-  // 获取选中数据示例
-  if (dataTableRef.value) {
-    const { selectedRows } = dataTableRef.value;
-    console.warn('当前选中行：', selectedRows);
-  }
-};
+// 选中的记录
+const selectedRows = ref<TableRecord[]>([]);
 
 // 处理选择变化
-const handleSelectionChange = (event: SelectionChangeEvent) => {
-  const { keys, rows } = event;
-  console.warn('选中行变化：', keys, rows);
+const handleSelectionChange = ({
+  records,
+  keys,
+}: {
+  keys: string[];
+  records: TableRecord[];
+}) => {
+  console.warn('选中的记录:', records);
+  console.warn('选中的键值:', keys);
+  selectedRows.value = records;
 };
 
-// 工具方法
-function refreshTable() {
-  if (dataTableRef.value) {
-    dataTableRef.value.refresh();
-  }
-}
+const tableRef = ref(null);
 
-function getCurrentState() {
-  if (dataTableRef.value) {
-    const page = dataTableRef.value.getCurrentPage();
-    const size = dataTableRef.value.getPageSize();
-    const params = dataTableRef.value.getSearchParams();
-    console.warn('当前状态：', { page, size, params });
-  }
-}
+// function refreshTable() {
+//   tableRef.value?.refresh();
+// }
 
-// 暴露给外部组件调用的方法
-defineExpose({
-  refreshTable,
-  getCurrentState,
-});
+// 批量操作按钮示例
+// const batchActions = [
+//   {
+//     text: '批量审核',
+//     params: {
+//       pageID: 'batchApprove',
+//       pageButtonID: 'batchApprove',
+//     },
+//     confirm: '确定要批量审核选中的记录吗？',
+//     successMsg: '批量审核成功',
+//     errorMsg: '批量审核失败',
+//   },
+// ];
 </script>
 
 <template>
-  <Page auto-content-height :title="pageTitle" class="warehouse-type-page">
-    <!-- 使用v-model绑定方式 -->
-    <DataTable
-      ref="dataTableRef"
-      :columns="columns"
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      v-model:loading="loading"
-      :data-source="tableData"
-      :total="total"
-      :fetch-data-func="fetchWarehouseData"
-      :row-selection="true"
-      row-key="id"
-      @search="handleSearch"
-      @page-change="handlePageChange"
-      @selection-change="handleSelectionChange"
-    />
-  </Page>
+  <CommonTable
+    ref="tableRef"
+    :columns="columns"
+    :table-data="tableData"
+    :request-api="customRequest"
+    :show-search="true"
+    @selection-change="handleSelectionChange"
+  />
 </template>
-
-<style scoped>
-.warehouse-type-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-:deep(.vben-page-content) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-}
-</style>
