@@ -344,7 +344,7 @@ const { generateSchema, generateColumns } = useSetSchema();
 const formOptions: VbenFormProps = {
   // 默认展开
   collapsed: false,
-  fieldMappingTime: [['date', ['start', 'end']]],
+  // fieldMappingTime: [['date', ['start', 'end']]],
   schema:
     props.columns.length > 0
       ? generateSchema(props.columns)
@@ -395,9 +395,9 @@ const formOptions: VbenFormProps = {
   // 控制表单是否显示折叠按钮
   showCollapseButton: true,
   // 是否在字段值改变时提交表单
-  submitOnChange: true,
+  submitOnChange: false,
   // 按下回车时是否提交表单
-  submitOnEnter: false,
+  submitOnEnter: true,
 };
 
 // 处理选择变化事件
@@ -449,11 +449,15 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
+        // 将searchForm中的字段转换为;连接的字符串
+        const searchFormString = Object.entries(formValues)
+          .map(([key, value]) => `${key}=${value ?? ''}`)
+          .join(';');
         // 将分页信息和表单值合并
         const formParams = {
           currentPage: page.currentPage,
           numOfPerPage: page.pageSize,
-          ...formValues,
+          queryConditions: searchFormString,
         };
         // 如果有自定义请求方法，则使用自定义请求方法
         if (props.requestApi) {

@@ -2,15 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-01 00:11:39
+ * @LastEditTime: 2025-04-01 10:57:28
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
 import type {
   ColumnDefinition,
-  PageInfo,
-  SearchParams,
   TableRecord,
 } from '#/components/CommonTable/types';
 
@@ -113,8 +111,7 @@ const columns: ColumnDefinition[] = [
 const tableData = ref([]);
 
 // 自定义请求方法示例
-const customRequest = async (page: PageInfo, formValues: SearchParams) => {
-  console.warn('页码信息:', page);
+const customRequest = async (formValues: any) => {
   console.warn('表单值:', formValues);
 
   // 这里可以进行实际的API调用

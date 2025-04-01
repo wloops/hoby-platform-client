@@ -2,8 +2,6 @@ import type { VxeGridPropTypes } from 'vxe-table';
 
 import type { ColumnDefinition } from '#/components/CommonTable/types';
 
-import dayjs from 'dayjs';
-
 import { FieldType } from '#/components/CommonTable/types';
 import { useEnums } from '#/composables';
 
@@ -69,16 +67,20 @@ export function useSetSchema() {
           };
         }
 
-        // 根据字段类型设置默认值
-        if (
-          config.type === FieldType.DATE ||
-          config.type === FieldType.DATETIME
-        ) {
-          // 对于日期范围，需要另外判断组件类型
-          schemaItem.defaultValue =
-            schemaItem.component === 'RangePicker'
-              ? [dayjs().subtract(7, 'days'), dayjs()]
-              : dayjs();
+        if (config.type === FieldType.DATE) {
+          schemaItem.component === 'DatePicker';
+          schemaItem.componentProps = {
+            valueFormat: 'YYYYMMDD',
+          };
+        }
+
+        if (config.type === FieldType.DATETIME) {
+          schemaItem.component === 'DatePicker';
+          schemaItem.componentProps = {
+            showTime: true,
+            format: 'YYYY-MM-DD HH:mm:ss',
+            valueFormat: 'YYYYMMDDHHmmss',
+          };
         }
 
         return schemaItem;
@@ -191,7 +193,7 @@ export function useSetSchema() {
       [FieldType.NUMBER]: 'InputNumber',
       [FieldType.SELECT]: 'Select',
       [FieldType.DATE]: 'DatePicker',
-      [FieldType.DATETIME]: 'DateTimePicker',
+      [FieldType.DATETIME]: 'DatePicker',
       [FieldType.CHECKBOX]: 'Checkbox',
       [FieldType.SWITCH]: 'Switch',
       // 添加其他需要的映射...
