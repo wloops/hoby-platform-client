@@ -32,6 +32,16 @@ const localEnums: Enums = {
       color: 'success',
     },
   },
+  是否: {
+    '0': {
+      label: '否',
+      color: 'default',
+    },
+    '1': {
+      label: '是',
+      color: 'success',
+    },
+  },
   restockingStatus: {
     '0': {
       label: '不需要进货',
@@ -154,6 +164,56 @@ const localEnums: Enums = {
       color: 'warning',
     },
   },
+  摇奖活动状态: {
+    '0': {
+      label: '已停止',
+      color: 'default',
+    },
+    '1': {
+      label: '策划',
+      color: 'processing',
+    },
+    '2': {
+      label: '发布',
+      color: 'success',
+    },
+    '3': {
+      label: '作废',
+      color: 'error',
+    },
+    '4': {
+      label: '开始报名',
+      color: 'default',
+    },
+    '5': {
+      label: '报名结束',
+      color: 'default',
+    },
+    '6': {
+      label: '摇奖开始',
+      color: 'default',
+    },
+    '7': {
+      label: '摇奖结束',
+      color: 'default',
+    },
+    '8': {
+      label: '活动结束',
+      color: 'default',
+    },
+    '9': {
+      label: '报名已满',
+      color: 'default',
+    },
+    '1000': {
+      label: '进行中',
+      color: 'processing',
+    },
+    '1001': {
+      label: '未通过审批',
+      color: 'warning',
+    },
+  },
   // HOBY库存单据类型
   warehouseBillCateStatus: {
     '0': {
@@ -220,6 +280,7 @@ export function useEnums() {
   const getEnumLabel = (type: string, key: string): string => {
     const [enumName, id] = type.split('|') as [keyof Enums, string];
     const mapKey = enumName || id;
+
     const enumValue = enums.value[mapKey]?.[key];
     return enumValue?.label || '未知';
   };
