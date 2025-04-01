@@ -16,7 +16,6 @@ import { ref } from 'vue';
 
 import CommonTable from '#/components/CommonTable/index.vue';
 import { FieldType } from '#/components/CommonTable/types';
-import { useMainGetData } from '#/composables';
 
 const pageParams = ref({
   pageID: 'myPrivateWareShopPage',
@@ -111,23 +110,23 @@ const columns = ref<ColumnDefinition[]>([
 
 // 表格数据
 const tableData = ref([]);
-// 自定义请求方法示例
-const customRequest = async (formValues: any) => {
-  console.warn('表单值:', formValues);
+// 自定义请求方法示例 :request-api="customRequest"
+// const customRequest = async (formValues: any) => {
+//   console.warn('表单值:', formValues);
 
-  // 这里可以进行实际的API调用
-  // const res = await api.getList(page, formValues);
-  const params = {
-    pageID: 'myBranchWareShopPage',
-    pageDataGrpID: 'myBranchWareShop',
-    ...formValues,
-  };
-  const { data, total } = await useMainGetData(params);
-  return {
-    items: data.value,
-    total: total.value,
-  };
-};
+//   // 这里可以进行实际的API调用
+//   // const res = await api.getList(page, formValues);
+//   const params = {
+//     pageID: 'myBranchWareShopPage',
+//     pageDataGrpID: 'myBranchWareShop',
+//     ...formValues,
+//   };
+//   const { data, total } = await useMainGetData(params);
+//   return {
+//     items: data.value,
+//     total: total.value,
+//   };
+// };
 
 // 选中的记录
 const selectedRows = ref<TableRecord[]>([]);
@@ -145,8 +144,11 @@ const handleSelectionChange = ({
   selectedRows.value = records;
 };
 
-const tableRef = ref(null);
+const tableRef = ref<null | {
+  refresh: () => void;
+}>(null);
 
+// // 刷新表格方法示例
 // function refreshTable() {
 //   tableRef.value?.refresh();
 // }
@@ -172,7 +174,6 @@ const tableRef = ref(null);
     :params="pageParams"
     :columns="columns"
     :table-data="tableData"
-    :request-api="customRequest"
     :show-search="true"
     @selection-change="handleSelectionChange"
   />

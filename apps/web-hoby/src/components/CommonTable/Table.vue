@@ -21,6 +21,7 @@ import { Button, Modal, Tag } from 'ant-design-vue';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { mainGetViewDataApi } from '#/api';
 import { useEnums, useServiceCall } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
@@ -434,7 +435,32 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           return await props.requestApi(formParams);
         }
 
-        // 否则使用处理过的静态数据（确保每条记录都有ID）
+        // 如果提供了pageID，使用mainGetViewDataApi获取数据
+        if (props.params && props.params.pageID) {
+          try {
+            const {
+              rs,
+              records,
+              recNumOfCurPage: total,
+            } = await mainGetViewDataApi({
+              INTERPAGEID: props.params.pageID,
+              INTERCURPAGENO: page.currentPage,
+              INTERPAGESIZE: page.pageSize,
+              queryConditions: searchFormString,
+            });
+
+            if (rs === '1' && Array.isArray(records)) {
+              return {
+                items: records || [],
+                total: Number.parseInt(total || '0', 10),
+              };
+            }
+          } catch (error) {
+            console.error('获取表格数据失败:', error);
+          }
+        }
+
+        // 无API或API调用失败时使用静态数据
         return {
           items: processedTableData.value || [],
           total: processedTableData.value?.length || 0,
