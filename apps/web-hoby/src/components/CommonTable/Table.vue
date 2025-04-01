@@ -21,7 +21,12 @@ import { Button, Modal, Tag } from 'ant-design-vue';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { mainGetViewDataApi } from '#/api';
+import {
+  mainDeleteRecrdApi,
+  mainGetViewDataApi,
+  mainSelectRecrdApi,
+  mainUpdateRecrdApi,
+} from '#/api';
 import { useEnums, useServiceCall } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
@@ -532,6 +537,114 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
 
   return map[type];
 }
+
+// 添加默认操作按钮配置
+const getDefaultActions = (pageID: string) => {
+  return [
+    {
+      key: 'view',
+      label: '查看',
+      type: 'default' as VxeButtonType,
+      size: 'small',
+      api: mainSelectRecrdApi,
+      params: (row: TableRecord) => ({
+        INTERPAGEID: pageID,
+        id: row[props.rowKey],
+      }),
+    },
+    {
+      key: 'edit',
+      label: '编辑',
+      type: 'primary' as VxeButtonType,
+      size: 'small',
+      api: mainUpdateRecrdApi,
+      params: (row: TableRecord) => ({
+        INTERPAGEID: pageID,
+        id: row[props.rowKey],
+      }),
+    },
+    {
+      key: 'delete',
+      label: '删除',
+      type: 'error' as VxeButtonType,
+      danger: true,
+      confirm: '确定要删除此记录吗？',
+      size: 'small',
+      api: mainDeleteRecrdApi,
+      params: (row: TableRecord) => ({
+        INTERPAGEID: pageID,
+        id: row[props.rowKey],
+      }),
+    },
+  ];
+};
+
+// 处理操作列配置
+const processColumnActions = () => {
+  // 找到操作列
+  const actionCol = props.columns.find(
+    (col) =>
+      (col.actions && col.actions.length > 0) || col.dataIndex === 'action',
+  );
+
+  // 如果没找到操作列，不处理
+  if (!actionCol) return;
+
+  // 如果没有配置actions，则创建空数组
+  if (!actionCol.actions) {
+    actionCol.actions = [];
+  }
+
+  // 如果操作列中有特殊标记，则添加默认操作按钮
+  if (actionCol.defaultActions !== false && props.params?.pageID) {
+    const defaultActions = getDefaultActions(props.params.pageID);
+
+    // 如果指定了要显示哪些默认按钮
+    if (Array.isArray(actionCol.defaultActions)) {
+      const showActionKeys = actionCol.defaultActions;
+      const filteredActions = defaultActions.filter((action) =>
+        showActionKeys.includes(action.key),
+      );
+
+      // 将筛选后的默认操作按钮添加到actions数组
+      actionCol.actions = [...actionCol.actions, ...filteredActions];
+    } else {
+      // 添加所有默认操作按钮
+      actionCol.actions = [...actionCol.actions, ...defaultActions];
+    }
+  }
+};
+
+// 在生成列配置前调用此函数
+// 在现有的代码中找到适当的位置添加这个调用
+// 例如在 generateColumns 调用前
+if (props.columns.length > 0) {
+  processColumnActions();
+}
+
+// 在表格顶部添加工具栏按钮
+// 1. 首先添加一个计算属性决定是否显示新增按钮
+const showAddButton = computed(() => {
+  // 检查是否在参数中指定了显示新增按钮
+  return props.params?.showAddButton !== false; // 默认显示，除非明确设置为false
+});
+
+// 2. 处理新增按钮点击事件
+const handleAddClick = () => {
+  if (props.params?.onAdd && typeof props.params.onAdd === 'function') {
+    // 调用用户自定义的onAdd方法
+    props.params.onAdd();
+  } else if (props.params?.pageID) {
+    // 默认跳转到新增页面或打开新增对话框
+    // 可以根据实际需求实现
+    console.warn('添加新记录，页面ID:', props.params.pageID);
+    // 这里可以实现默认的新增逻辑
+  }
+};
+
+// 在 ColumnDefinition 类型定义中添加 defaultActions 属性
+// 可以添加到 types.ts 文件中
+// defaultActions?: boolean | string[]; // true表示全部显示，字符串数组表示显示指定的按钮，false表示不显示默认按钮
 </script>
 
 <template>
@@ -608,6 +721,9 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
             {{ props.tableData.length || 0 }}
           </Button>
         </div>
+        <Button v-if="showAddButton" type="primary" @click="handleAddClick">
+          新增
+        </Button>
       </template>
 
       <template #tag="{ column, row }">

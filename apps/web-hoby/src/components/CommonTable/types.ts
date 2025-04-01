@@ -111,6 +111,7 @@ export interface ColumnDefinition {
   render?: (text: any, record: TableRecord, index: number) => any;
   actions?: ActionButtonProps[];
   actionColumnProps?: ActionColumnProps;
+  defaultActions?: boolean | string[]; // true表示全部显示，字符串数组表示显示指定的按钮，false表示不显示默认按钮
   editable?: ((record: TableRecord) => boolean) | boolean;
   editConfig?: any; // 如果需要使用原有的 EditableCellConfig
 }

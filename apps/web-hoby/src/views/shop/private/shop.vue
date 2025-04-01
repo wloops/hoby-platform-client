@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-01 16:28:44
+ * @LastEditTime: 2025-04-01 17:55:13
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,6 +19,11 @@ import { FieldType } from '#/components/CommonTable/types';
 
 const pageParams = ref({
   pageID: 'myPrivateWareShopPage',
+  showAddButton: true, // 控制是否显示新增按钮
+  onAdd: () => {
+    // 自定义新增处理逻辑
+    console.warn('新增');
+  },
 });
 // 定义表格列配置
 const columns = ref<ColumnDefinition[]>([
@@ -68,8 +73,9 @@ const columns = ref<ColumnDefinition[]>([
     dataIndex: 'operation',
     visible: true,
     type: FieldType.OPERATION,
+    defaultActions: ['view', 'edit', 'delete'],
     actionColumnProps: {
-      width: 200,
+      width: 480,
       fixed: 'right',
       align: 'center',
     },
