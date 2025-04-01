@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-01 10:57:28
+ * @LastEditTime: 2025-04-01 16:28:44
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -18,50 +18,52 @@ import CommonTable from '#/components/CommonTable/index.vue';
 import { FieldType } from '#/components/CommonTable/types';
 import { useMainGetData } from '#/composables';
 
+const pageParams = ref({
+  pageID: 'myPrivateWareShopPage',
+});
 // 定义表格列配置
-const columns: ColumnDefinition[] = [
-  {
-    title: '仓库',
-    dataIndex: 'wareName',
-    visible: true,
-    searchable: true,
-    type: FieldType.STRING,
-    width: 180,
-  },
-  {
-    title: '签约日期',
-    dataIndex: 'signDate',
-    visible: true,
-    searchable: true,
-    type: FieldType.DATE,
-    width: 180,
-  },
-  {
-    title: '有效期',
-    dataIndex: 'validityPeriod',
-    visible: true,
-    searchable: true,
-    type: FieldType.STRING,
-    width: 180,
-  },
-  {
-    title: '营业中',
-    dataIndex: 'onCateStatus',
-    visible: true,
-    searchable: true,
-    type: FieldType.SELECT,
-    width: 180,
-    enumName: 'boolean',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    visible: true,
-    searchable: true,
-    type: FieldType.SELECT,
-    width: 100,
-    enumName: 'warehouseStatus',
-  },
+const columns = ref<ColumnDefinition[]>([
+  // {
+  //   title: '仓库',
+  //   dataIndex: 'wareName',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.STRING,
+  // },
+  // {
+  //   title: '签约日期',
+  //   dataIndex: 'signDate',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.DATE,
+  //   width: 180,
+  // },
+  // {
+  //   title: '有效期',
+  //   dataIndex: 'validityPeriod',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.STRING,
+  //   width: 180,
+  // },
+  // {
+  //   title: '营业中',
+  //   dataIndex: 'onCateStatus',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.SELECT,
+  //   width: 180,
+  //   enumName: 'boolean',
+  // },
+  // {
+  //   title: '状态',
+  //   dataIndex: 'status',
+  //   visible: true,
+  //   searchable: true,
+  //   type: FieldType.SELECT,
+  //   width: 100,
+  //   enumName: 'warehouseStatus',
+  // },
   {
     title: '操作',
     dataIndex: 'operation',
@@ -105,11 +107,10 @@ const columns: ColumnDefinition[] = [
       },
     ],
   },
-];
+]);
 
 // 表格数据
 const tableData = ref([]);
-
 // 自定义请求方法示例
 const customRequest = async (formValues: any) => {
   console.warn('表单值:', formValues);
@@ -168,6 +169,7 @@ const tableRef = ref(null);
 <template>
   <CommonTable
     ref="tableRef"
+    :params="pageParams"
     :columns="columns"
     :table-data="tableData"
     :request-api="customRequest"

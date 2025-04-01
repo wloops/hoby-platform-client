@@ -2,6 +2,7 @@ import type { VxeGridPropTypes } from 'vxe-table';
 
 import type { ColumnDefinition } from '#/components/CommonTable/types';
 
+import { mainGetViewFieldConfigApi } from '#/api';
 import { FieldType } from '#/components/CommonTable/types';
 import { useEnums } from '#/composables';
 
@@ -35,7 +36,7 @@ export function useSetSchema() {
   const generateSchema = (
     columnConfigs: ColumnDefinition[],
   ): VxeSchemaItem[] => {
-    return columnConfigs
+    const schema = columnConfigs
       .filter((config) => config.searchable === true)
       .map((config) => {
         const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
@@ -85,6 +86,7 @@ export function useSetSchema() {
 
         return schemaItem;
       });
+    return schema;
   };
 
   /**
@@ -202,8 +204,104 @@ export function useSetSchema() {
     return typeMap[type] || 'Input';
   };
 
+  /**
+   * 请求获取列配置转换为 VxeTable 的 columns schema 格式
+   * @param operationColumn - 操作列配置数组
+   * @param pageID - 页面id
+   * @returns ColumnDefinition[] 列配置数组
+   */
+  const getViewSchema = async (
+    operationColumn: ColumnDefinition[],
+    pageID: string,
+  ): Promise<ColumnDefinition[]> => {
+    const { rs, fieldList, displayFldList, pkFldList } =
+      await mainGetViewFieldConfigApi({ pageID });
+
+    if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
+      return operationColumn || [];
+    }
+
+    // 将字符串转换为数组
+    const displayFields = displayFldList ? displayFldList.split(',') : [];
+    const pkFields = pkFldList ? pkFldList.split(',') : [];
+
+    // 将 fieldList 转换为 ColumnDefinition[]
+    const columns: ColumnDefinition[] = fieldList.map((field) => {
+      // 判断字段是否可见
+      const visible = displayFields.includes(field.fieldName);
+
+      // 根据 value 确定字段类型
+      let fieldType = FieldType.STRING;
+
+      if (field.value) {
+        if (field.value.startsWith('date::') || field.value.includes('^F^d^')) {
+          fieldType = FieldType.DATE;
+        } else if (
+          field.value.startsWith('datetime::') ||
+          field.value.includes('^F^dt^')
+        ) {
+          fieldType = FieldType.DATETIME;
+        } else if (field.value.includes('^F^t^')) {
+          fieldType = FieldType.STRING; // 时间类型，如果没有特定的类型则使用字符串
+        } else if (field.value.includes('enum.')) {
+          fieldType = FieldType.SELECT;
+
+          // 提取枚举名称
+          // 匹配 `enum.xxx` 或 `enum::xxx` 格式
+          const enumMatch = field.value.match(/\.?enum[.:]{1,2}([^,]+)/);
+
+          if (enumMatch && enumMatch[1]) {
+            (field as any).enumName = enumMatch[1].trim(); // 去除可能的空格;
+          }
+        } else if (field.value.startsWith('multirow::')) {
+          fieldType = FieldType.STRING;
+        } else if (field.fieldType === 2) {
+          fieldType = FieldType.NUMBER;
+        }
+      }
+
+      // 创建列定义
+      const column: ColumnDefinition = {
+        title: field.displayName,
+        dataIndex: field.fieldName,
+        visible,
+        searchable: visible, // 默认可搜索
+        type: fieldType,
+        ellipsis: true, // 默认开启省略
+      };
+
+      // 如果是主键字段，添加特殊标记
+      if (pkFields.includes(field.fieldName)) {
+        // column.isPrimaryKey = true;
+      }
+
+      // 如果有枚举名称，添加到列定义
+      if ((field as any).enumName) {
+        column.enumName = (field as any).enumName;
+      }
+
+      // 根据字段类型设置其他属性
+      if (fieldType === FieldType.DATE || fieldType === FieldType.DATETIME) {
+        column.width = 180; // 日期类型宽度设置大一些
+      } else if (fieldType === FieldType.NUMBER) {
+        column.width = 100; // 数字类型宽度适中
+        column.align = 'right'; // 数字类型右对齐
+      }
+
+      return column;
+    });
+
+    // 添加操作列
+    if (operationColumn && operationColumn.length > 0) {
+      columns.push(...operationColumn);
+    }
+
+    return columns;
+  };
+
   return {
     generateSchema,
     generateColumns,
+    getViewSchema,
   };
 }
