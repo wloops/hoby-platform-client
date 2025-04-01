@@ -161,13 +161,23 @@ async function executeServiceAction(
 
     // 如果同时配置了 fields 字段，则将记录中的这些字段值添加到 params 中
     if (Array.isArray(action.fields) && action.fields.length > 0) {
+      // 传递了指定字段
       action.fields.forEach((field) => {
         if (record[field] !== undefined) {
           serviceParams[field] = record[field];
         }
       });
     }
-
+    // 空数组则不提取任何字段
+    else {
+      // 默认关键字段列表
+      const defaultFields = ['id', 'code', 'name', props.rowKey];
+      defaultFields.forEach((field) => {
+        if (record[field] !== undefined) {
+          serviceParams[field] = record[field];
+        }
+      });
+    }
     // 如果配置了 api 方法，则调用它
     if (action.api) {
       const result = await action.api(serviceParams);
