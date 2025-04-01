@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 
 import { message, Modal, Select } from 'ant-design-vue';
 
+import { mainSendFileDataApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 // const props = defineProps({
@@ -69,6 +70,8 @@ const addSpecValue = (specCate) => {
     if (item.specCate === specCate) {
       item.queryProductSpecValue.push({
         specValue: '',
+        specCate,
+        isNew: 'true', // 标记为新添加的规格值
       });
     }
   });
@@ -103,10 +106,13 @@ const addNewSpecType = () => {
 
   // 添加新规格类型
   editedSpecsList.value.push({
+    productName: productData.value.name,
     specCate: specTypeKey,
     queryProductSpecValue: [
       {
         specValue: '',
+        specCate: specTypeKey,
+        isNew: 'true',
       },
     ],
   });
@@ -142,37 +148,65 @@ const getSpecTypeName = (specCate) => {
 
 // 保存更改
 const saveChanges = () => {
-  console.warn('决定库存的规格', selectedStockSpecs.value);
-  console.warn('决定价格的规格', selectedPriceSpecs.value);
-  console.warn('editedSpecsList', editedSpecsList.value);
-  console.warn('productData', productData.value);
-  const result = {
-    companyName: productData.value.company,
-    productName: productData.value.name,
-    specAttrCateListForWare: selectedStockSpecs.value.join(','),
-    specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
-    queryProductSpecCate: editedSpecsList.value,
-  };
-  const finalResult = {
-    queryProduct: [result],
-  };
-  console.warn('result', finalResult);
-  // // 过滤掉空值
-  // const updatedSpecs = {};
+  // 先检查是否有未填写的新增规格值
+  const hasEmptyNewSpec = editedSpecsList.value.some((spec) =>
+    spec.queryProductSpecValue.some(
+      (item) => item.isNew && !item.specValue.trim(),
+    ),
+  );
 
-  // Object.keys(editedSpecs).forEach((key) => {
-  //   const filteredValues = editedSpecs[key].filter((value) => value.trim());
-  //   if (filteredValues.length > 0) {
-  //     updatedSpecs[key] = filteredValues;
-  //   }
-  // });
+  if (hasEmptyNewSpec) {
+    Modal.error({
+      title: '保存失败',
+      content: '请填写所有新增的规格值后再保存',
+    });
+    return;
+  }
 
-  // emit('save', {
-  //   productId: props.productId,
-  //   specifications: updatedSpecs,
-  //   stockSpecs: selectedStockSpecs.value,
-  //   priceSpecs: selectedPriceSpecs.value,
-  // });
+  Modal.confirm({
+    title: '确认保存',
+    content: '确定要保存当前规格信息吗？',
+    okText: '确定',
+    cancelText: '取消',
+    onOk() {
+      // 保存逻辑...
+      const result = {
+        companyName: productData.value.company,
+        productName: productData.value.name,
+        specAttrCateListForWare: selectedStockSpecs.value.join(','),
+        specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+        // 过滤掉空值
+        queryProductSpecCate: editedSpecsList.value
+          .map((spec) => ({
+            ...spec,
+            queryProductSpecValue: spec.queryProductSpecValue.filter((item) =>
+              item.specValue.trim(),
+            ),
+          }))
+          .filter((spec) => spec.queryProductSpecValue.length > 0),
+      };
+
+      const finalResult = {
+        queryProduct: [result],
+      };
+
+      const params = {
+        bllID: 'factoryProductStandard',
+        serviceID: 1,
+        fileDate: JSON.stringify(finalResult),
+      };
+
+      mainSendFileDataApi(params)
+        .then((res) => {
+          console.warn(res);
+          message.success('规格信息保存成功');
+          isOpen.value = false;
+        })
+        .catch((error) => {
+          message.error(`保存失败：${error.message || '服务器错误'}`);
+        });
+    },
+  });
 };
 
 const editedSpecsList = ref([]);
@@ -183,6 +217,12 @@ const open = async (product) => {
   editedSpecsList.value = [];
   let list = [];
   list = await getSpecTypeNameList(product);
+  // 初始化时给每个规格值添加 isNew 字段
+  list.queryProductSpecCate.forEach((spec) => {
+    spec.queryProductSpecValue.forEach((value) => {
+      value.isNew = 'false'; // 已有数据标记为非新增
+    });
+  });
   editedSpecsList.value = list.queryProductSpecCate;
   console.warn(product);
   console.warn(productData.value);
@@ -262,13 +302,20 @@ defineExpose({
             </button>
           </div>
         </div>
-
+        <div
+          class="flex-shrink-0 border-b border-yellow-500 bg-white px-6 py-4"
+        >
+          <h3 class="flex items-center text-lg font-medium text-gray-800">
+            <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+            {{ editedSpecsList[0].productName }}
+          </h3>
+        </div>
         <!-- 固定的规格选择区域 -->
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="space-y-4">
             <!-- 库存规格选择 -->
             <div class="flex items-center justify-between">
-              <h4 class="text-sm font-medium text-gray-900">
+              <h4 class="flex-1 text-sm font-medium text-gray-900">
                 决定库存的规格：
               </h4>
               <Select
@@ -277,6 +324,7 @@ defineExpose({
                 style="width: 300px"
                 placeholder="请选择库存规格"
                 @change="handleStockSpecChange"
+                class="flex-1"
               >
                 <SelectOption
                   v-for="type in availableSpecTypes"
@@ -290,7 +338,7 @@ defineExpose({
 
             <!-- 价格规格选择 -->
             <div class="flex items-center justify-between">
-              <h4 class="text-sm font-medium text-gray-900">
+              <h4 class="flex-1 text-sm font-medium text-gray-900">
                 决定价格的规格：
               </h4>
               <Select
@@ -299,6 +347,7 @@ defineExpose({
                 style="width: 300px"
                 placeholder="请选择价格规格"
                 @change="handlePriceSpecChange"
+                class="flex-1"
               >
                 <SelectOption
                   v-for="type in availableSpecTypes"
@@ -351,6 +400,12 @@ defineExpose({
                     v-model="value.specValue"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     :placeholder="`请输入${item.specCate}`"
+                    :readonly="value.isNew === 'false'"
+                    :class="{
+                      'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
+                        value.isNew === 'false',
+                      'bg-white': value.isNew === 'true',
+                    }"
                   />
                   <button
                     class="flex-shrink-0 text-red-500 hover:text-red-700"

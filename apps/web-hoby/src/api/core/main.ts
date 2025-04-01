@@ -85,3 +85,11 @@ export async function mainSelectRecrdApi(data: any) {
     withCredentials: true,
   });
 }
+/**
+ * 文件数据发送接口
+ */
+export async function mainSendFileDataApi(data: any) {
+  return requestClient.post<any>('/buttonServiceOnFileData', data, {
+    withCredentials: true,
+  });
+}
