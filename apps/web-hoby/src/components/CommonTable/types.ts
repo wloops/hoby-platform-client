@@ -72,6 +72,10 @@ export interface ActionButtonProps {
   fields?: string[]; // 要从记录中提取的字段
   successMsg?: string; // 成功提示消息
   errorMsg?: string; // 错误提示消息
+
+  // 添加批量操作相关属性
+  batchable?: boolean; // 是否支持批量操作，默认为false
+  batchConfirm?: string; // 批量操作确认提示文本
 }
 
 // 批量操作事件数据

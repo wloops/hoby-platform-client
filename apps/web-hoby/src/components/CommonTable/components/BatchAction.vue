@@ -55,7 +55,9 @@ const showBatchActions = computed(() => {
 // 合并批量操作按钮和列操作按钮
 const mergedActions = computed(() => {
   if (!props.useColumnActions) return props.batchActions;
-  return [...props.batchActions, ...props.columnActions];
+  return [...props.batchActions, ...props.columnActions].filter(
+    (action) => action.batchable !== false,
+  );
 });
 
 // 检查按钮是否应该禁用（基于选中记录的状态）

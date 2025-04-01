@@ -546,6 +546,7 @@ const getDefaultActions = (pageID: string) => {
       label: '查看',
       type: 'default' as VxeButtonType,
       size: 'small',
+      batchable: false,
       api: mainSelectRecrdApi,
       params: (row: TableRecord) => ({
         INTERPAGEID: pageID,
@@ -557,6 +558,7 @@ const getDefaultActions = (pageID: string) => {
       label: '编辑',
       type: 'primary' as VxeButtonType,
       size: 'small',
+      batchable: false,
       api: mainUpdateRecrdApi,
       params: (row: TableRecord) => ({
         INTERPAGEID: pageID,
