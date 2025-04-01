@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 
+import { message, Modal } from 'ant-design-vue';
+
+import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import EditProductModel from './components/EditProductModel.vue';
@@ -257,13 +260,38 @@ const openEditModal = (product) => {
 };
 
 // 删除产品型号
-const deleteProductModel = (id) => {
+const deleteProductModel = (product, id) => {
   // console.log('当前产品', products.value, product, product.name);
-  products.value = products.value.filter((product) => product.id !== id);
-  // 如果删除后当前页没有数据，则跳转到上一页
-  if (products.value.length === 0 && currentPage.value > 1) {
-    currentPage.value--;
-  }
+
+  Modal.confirm({
+    title: '提示',
+    content: `确定要删除 "${product.name}" 吗？`,
+    onOk: () => {
+      const params = {
+        pageID: 'productModel', // 页面ID
+        pageButtonID: 'deletePrdModel', // 按钮ID
+        companyName: product.company,
+        productName: product.name,
+        srlID: product.model,
+      };
+
+      mainServiceApi(params)
+        .then((res) => {
+          console.warn(res);
+          products.value = products.value.filter(
+            (product) => product.id !== id,
+          );
+          message.success('产品型号删除成功');
+        })
+        .catch((error) => {
+          message.error(`删除失败：${error.message || '服务器错误'}`);
+        });
+      // 如果删除后当前页没有数据，则跳转到上一页
+      if (products.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--;
+      }
+    },
+  });
 };
 const currentPage = ref(1); // 当前页码
 const pageSize = ref(10); // 每页显示的规格数量
@@ -387,7 +415,7 @@ const resetPage = () => {
             <span class="ml-10 flex-1">型号：{{ product.model }}</span>
             <button
               class="btn-text-danger flex-none"
-              @click="deleteProductModel(product.id)"
+              @click="deleteProductModel(product, product.id)"
             >
               <svg
                 class="mr-1 h-4 w-4"

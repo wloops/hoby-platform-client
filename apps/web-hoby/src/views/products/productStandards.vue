@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 
+import { message, Modal } from 'ant-design-vue';
+
+import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import EditSpecificationModal from './components/EditSpecificationModal.vue';
@@ -180,13 +183,37 @@ onMounted(async () => {
 // ]);
 
 // 删除产品
-const deleteProduct = (id) => {
-  // console.log('当前产品', products.value, product, product.name);
-  products.value = products.value.filter((product) => product.id !== id);
-  // 如果删除后当前页没有数据，则跳转到上一页
-  if (products.value.length === 0 && currentPage.value > 1) {
-    currentPage.value--;
-  }
+const deleteProduct = (product, id) => {
+  // console.log('当前产品', products.value, product, id);
+
+  Modal.confirm({
+    title: '提示',
+    content: `确定要删除 "${product.name}" 吗？`,
+    onOk: () => {
+      const params = {
+        pageID: 'productStandards', // 页面ID
+        pageButtonID: 'deletePrdStd', // 按钮ID
+        companyName: product.company,
+        productName: product.name,
+      };
+
+      mainServiceApi(params)
+        .then((res) => {
+          console.warn(res);
+          products.value = products.value.filter(
+            (product) => product.id !== id,
+          );
+          message.success('产品删除成功');
+        })
+        .catch((error) => {
+          message.error(`删除失败：${error.message || '服务器错误'}`);
+        });
+      // 如果删除后当前页没有数据，则跳转到上一页
+      if (products.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--;
+      }
+    },
+  });
 };
 
 const currentPage = ref(1); // 当前页码
@@ -316,7 +343,7 @@ const resetPage = () => {
             <div class="flex items-center gap-4">
               <button
                 class="btn-text-danger"
-                @click="deleteProduct(product.id)"
+                @click="deleteProduct(product, product.id)"
               >
                 <svg
                   class="mr-1 h-4 w-4"

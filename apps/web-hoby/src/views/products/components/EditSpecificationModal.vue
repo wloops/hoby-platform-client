@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 
 import { message, Modal, Select } from 'ant-design-vue';
 
-import { mainSendFileDataApi } from '#/api';
+import { mainSendFileDataApi, mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 // const props = defineProps({
@@ -129,7 +129,23 @@ const removeSpecType = (specCate, index) => {
     onOk: () => {
       editedSpecsList.value.forEach((item) => {
         if (item.specCate === specCate) {
-          editedSpecsList.value.splice(index, 1);
+          const params = {
+            pageID: 'EditSpecificationModal', // 页面ID
+            pageButtonID: 'prdStdDeleteSpec', // 按钮ID
+            companyName: productData.value?.company,
+            productName: productData.value?.name,
+            specAttrCate: specCate,
+          };
+
+          mainServiceApi(params)
+            .then((res) => {
+              console.warn(res);
+              editedSpecsList.value.splice(index, 1);
+              message.success('规格删除成功');
+            })
+            .catch((error) => {
+              message.error(`删除失败：${error.message || '服务器错误'}`);
+            });
         }
       });
     },
@@ -307,7 +323,7 @@ defineExpose({
         >
           <h3 class="flex items-center text-lg font-medium text-gray-800">
             <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
-            {{ editedSpecsList[0].productName }}
+            {{ productData.name }}
           </h3>
         </div>
         <!-- 固定的规格选择区域 -->
