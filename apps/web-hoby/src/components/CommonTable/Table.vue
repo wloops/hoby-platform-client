@@ -23,6 +23,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   mainDeleteRecrdApi,
   mainGetViewDataApi,
+  mainGetViewSearchDataApi,
   mainSelectRecrdApi,
   mainUpdateRecrdApi,
 } from '#/api';
@@ -432,7 +433,6 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
         const formParams = {
           currentPage: page.currentPage,
           numOfPerPage: page.pageSize,
-          queryConditions: searchFormString,
         };
         // 如果有自定义请求方法，则使用自定义请求方法
         if (props.requestApi) {
@@ -441,17 +441,21 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
 
         // 如果提供了pageID，使用mainGetViewDataApi获取数据
         if (props.params && props.params.pageID) {
+          const hasValue = Object.values(formValues).some(
+            (value) => value !== undefined,
+          ); // 至少有一个字段有值
           try {
-            const {
-              rs,
-              records,
-              recNumOfCurPage: total,
-            } = await mainGetViewDataApi({
+            const params = {
               INTERPAGEID: props.params.pageID,
               INTERCURPAGENO: page.currentPage,
-              INTERPAGESIZE: page.pageSize,
+              [hasValue ? 'INTERRECNUMPERPAGE' : 'INTERPAGESIZE']:
+                page.pageSize,
               queryConditions: searchFormString,
-            });
+            };
+            const api = hasValue
+              ? mainGetViewSearchDataApi
+              : mainGetViewDataApi;
+            const { rs, records, recNumOfCurPage: total } = await api(params);
 
             if (rs === '1' && Array.isArray(records)) {
               return {

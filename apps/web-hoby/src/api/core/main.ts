@@ -17,6 +17,14 @@ export async function mainGetViewDataApi(data: any) {
     withCredentials: true,
   });
 }
+/**
+ * 通用获取单数据集页面搜索记录接口
+ */
+export async function mainGetViewSearchDataApi(data: any) {
+  return requestClient.post<any>('/GenDataGrpOnQueryConditions', data, {
+    withCredentials: true,
+  });
+}
 
 /**
  * 通用获取单数据集接口
