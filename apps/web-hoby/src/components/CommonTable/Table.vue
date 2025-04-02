@@ -14,7 +14,6 @@ import { computed, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { CloseOutlined } from '@ant-design/icons-vue';
 // 按需导入 Ant Design Vue 组件
 import { Button, Modal, Tag } from 'ant-design-vue';
 // 导入 uuid 库
@@ -715,10 +714,10 @@ const handleAddClick = () => {
         <div class="flex items-center gap-1">
           <div class="batch-action-info" v-if="selectedRecords.length > 0">
             <Button type="text" @click="clearSelection">
-              <div class="stems-center flex gap-1">
-                <CloseOutlined />
+              <div class="stems-center flex items-center justify-center gap-1">
+                <span class="icon-[mdi--arrow-u-left-top] text-lg"></span>
                 <span class="selection-info">
-                  已选择
+                  已选
                   <span class="selected-count">{{
                     selectedRecords.length
                   }}</span>
