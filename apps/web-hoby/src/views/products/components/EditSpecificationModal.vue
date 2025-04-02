@@ -72,6 +72,7 @@ const addSpecValue = (specCate) => {
         specValue: '',
         specCate,
         isNew: 'true', // 标记为新添加的规格值
+        deleteStatus: 'normal', // 新添加的规格值初始状态
       });
     }
   });
@@ -81,7 +82,15 @@ const addSpecValue = (specCate) => {
 const removeSpecValue = (specCate, index) => {
   editedSpecsList.value.forEach((item) => {
     if (item.specCate === specCate) {
-      item.queryProductSpecValue.splice(index, 1);
+      const specValue = item.queryProductSpecValue[index];
+      if (specValue.isNew === 'true') {
+        // 如果是新增的规格值，直接从数组中移除
+        item.queryProductSpecValue.splice(index, 1);
+      } else {
+        // 如果是已有规格值，标记为删除状态
+        specValue.deleteStatus =
+          specValue.deleteStatus === 'normal' ? 'pending_delete' : 'normal';
+      }
     }
   });
 };
@@ -237,6 +246,7 @@ const open = async (product) => {
   list.queryProductSpecCate.forEach((spec) => {
     spec.queryProductSpecValue.forEach((value) => {
       value.isNew = 'false'; // 已有数据标记为非新增
+      value.deleteStatus = 'normal'; // 初始化状态为normal
     });
   });
   editedSpecsList.value = list.queryProductSpecCate;
@@ -421,6 +431,8 @@ defineExpose({
                       'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
                         value.isNew === 'false',
                       'bg-white': value.isNew === 'true',
+                      'text-gray-400 line-through':
+                        value.deleteStatus === 'pending_delete',
                     }"
                   />
                   <button
@@ -432,12 +444,38 @@ defineExpose({
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      :class="{
+                        'text-red-500':
+                          value.deleteStatus !== 'pending_delete' &&
+                          value.isNew !== 'true',
+                        'text-blue-500':
+                          value.deleteStatus === 'pending_delete',
+                        'text-gray-500': value.isNew === 'true',
+                      }"
                     >
                       <path
+                        v-if="
+                          value.deleteStatus !== 'pending_delete' &&
+                          value.isNew !== 'true'
+                        "
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                      <path
+                        v-if="value.deleteStatus === 'pending_delete'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1"
+                        d="M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5L4 8l5.5-5.5l1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"
+                      />
+                      <path
+                        v-if="value.isNew === 'true'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
                   </button>
