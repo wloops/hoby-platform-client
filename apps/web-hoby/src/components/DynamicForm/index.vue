@@ -9,7 +9,11 @@ import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
-import { mainGetViewFieldConfigApi, mainServiceApi } from '#/api';
+import {
+  mainAddRecrdApi,
+  mainGetViewFieldConfigApi,
+  mainServiceApi,
+} from '#/api';
 import { useSetFieldList } from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
@@ -238,7 +242,8 @@ const schema = ref<any>([
   },
 ]);
 
-const getSchema = async (pageID: string, record: Record<string, any>) => {
+const isAdd = ref(false);
+const getSchema = async (pageID: string, record?: Record<string, any>) => {
   // console.log('drawerApi', drawerApi.getData().getValues());
 
   const { convertToFormSchema } = useSetFieldList();
@@ -249,43 +254,67 @@ const getSchema = async (pageID: string, record: Record<string, any>) => {
 
   const originalFields = res.fieldList;
 
+  if (!record) {
+    isAdd.value = true;
+  }
+
   // 转换为表单结构
-  const formSchema = convertToFormSchema(originalFields, record);
+  const formSchema = convertToFormSchema(originalFields, record || {});
   schema.value = formSchema;
 };
 
 const confirm = async () => {
+  let formAPi: any = drawerApi;
   if (props.mode === 'drawer') {
-    const form = await drawerApi.getData().getValues();
-    drawerApi
-      .getData()
-      .validate()
-      .then(async (result: any) => {
-        if (result.valid) {
-          const code = await submitApi(form);
-          if (code) {
-            message.success('操作成功');
-            drawerApi.close();
-            return true;
-          }
-          message.error('操作失败');
-        }
-      });
-    drawerApi.getData().validateAndSubmitForm();
+    formAPi = drawerApi;
   } else if (props.mode === 'modal') {
-    modalApi.getData().validateAndSubmitForm();
+    formAPi = modalApi;
   }
+  const form = await formAPi.getData().getValues();
+  formAPi
+    .getData()
+    .validate()
+    .then(async (result: any) => {
+      if (result.valid) {
+        const code = await submitApi(form);
+        if (code) {
+          message.success('操作成功');
+          drawerApi.close();
+          return true;
+        }
+        message.error('操作失败');
+      }
+    });
+  drawerApi.getData().validateAndSubmitForm();
 };
 
 const submitApi = async (record: Record<string, any>) => {
   try {
-    const data = {
-      pageID: pageParams.value.pageID, // 页面ID
-      pageButtonID: pageParams.value.pageButtonID, // 按钮ID
-      ...record,
-    };
-    const { rs: code } = await mainServiceApi(data);
-    return code === '1';
+    return await submitCommonButton(record);
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+const submitCommonButton = async (record: Record<string, any>) => {
+  try {
+    if (isAdd.value) {
+      const data = {
+        pageID: pageParams.value.pageID, // 页面ID
+        pageButtonID: pageParams.value.pageButtonID, // 按钮ID
+        ...record,
+      };
+      const { rs: code } = await mainServiceApi(data);
+      return code === '1';
+    } else {
+      const addData = {
+        INTERPAGEID: pageParams.value.pageID, // 页面ID
+        INTERFORMDATA: JSON.stringify(record),
+      };
+      const { rs: code } = await mainAddRecrdApi(addData);
+      return code === '1';
+    }
   } catch (error) {
     console.error(error);
     return false;
@@ -314,7 +343,7 @@ const pageParams = ref<pageParam>({
   pageButtonID: '',
 });
 
-async function open(params: pageParam, record: Record<string, any>) {
+async function open(params: pageParam, record?: Record<string, any>) {
   pageParams.value = params;
   await getSchema(params.pageID, record);
   switch (props.mode) {

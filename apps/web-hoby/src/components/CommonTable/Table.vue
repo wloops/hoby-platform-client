@@ -97,8 +97,12 @@ const props = defineProps({
 });
 
 // 定义事件
-const emit = defineEmits(['selectionChange', 'batchAction', 'refresh']);
-
+const emit = defineEmits([
+  'selectionChange',
+  'batchAction',
+  'refresh',
+  'openDynamicForm',
+]);
 const { getEnumLabel, getEnumColor } = useEnums();
 
 // 查找操作列
@@ -553,7 +557,7 @@ const getDefaultActions = (pageID: string) => {
       api: mainSelectRecrdApi,
       params: (row: TableRecord) => ({
         INTERPAGEID: pageID,
-        id: row[props.rowKey],
+        INTERFORMDATA: JSON.stringify(row),
       }),
     },
     {
@@ -589,7 +593,9 @@ const processColumnActions = () => {
   // 找到操作列
   const actionCol = props.columns.find(
     (col) =>
-      (col.actions && col.actions.length > 0) || col.dataIndex === 'action',
+      (col.actions && col.actions.length > 0) ||
+      col.dataIndex === 'action' ||
+      col.type === 'operation',
   );
 
   // 如果没找到操作列，不处理
@@ -644,6 +650,11 @@ const handleAddClick = () => {
     // 可以根据实际需求实现
     console.warn('添加新记录，页面ID:', props.params.pageID);
     // 这里可以实现默认的新增逻辑
+    // 打开对话框
+    emit('openDynamicForm', {
+      buttonTitle: '新增',
+      pageID: props.params.pageID,
+    });
   }
 };
 

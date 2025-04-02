@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-01 17:11:00
+ * @LastEditTime: 2025-04-02 13:45:42
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,10 +11,10 @@ import type { ActionButtonProps, ColumnDefinition, TableRecord } from './types';
 
 import { onMounted, ref } from 'vue';
 
+import DynamicForm from '#/components/DynamicForm/index.vue';
 import { useSetSchema } from '#/composables';
 
 import Table from './Table.vue';
-
 // 定义组件接收的属性
 const props = defineProps({
   // 表格列配置
@@ -81,6 +81,26 @@ const props = defineProps({
 
 const loading = ref(true);
 
+const dynamicFormRef = ref<null | {
+  open: (
+    params: { pageButtonID: string; pageID: string },
+    record: Record<string, any>,
+  ) => void;
+}>(null);
+const dynamicFormTitle = ref('');
+
+const openDynamicForm = (
+  params: { buttonTitle: string; pageButtonID?: string; pageID: string },
+  record?: Record<string, any>,
+) => {
+  const formParams = {
+    pageID: params.pageID,
+    pageButtonID: params?.pageButtonID || '',
+  };
+  dynamicFormRef.value?.open(formParams, record || {});
+  dynamicFormTitle.value = params.buttonTitle || '';
+};
+
 const sendColumns = ref<ColumnDefinition[]>([]);
 const { getViewSchema } = useSetSchema();
 onMounted(async () => {
@@ -109,7 +129,9 @@ onMounted(async () => {
       :min-selected="minSelected"
       :enable-batch-actions="enableBatchActions"
       :use-column-actions="useColumnActions"
+      @open-dynamic-form="openDynamicForm"
     />
+    <DynamicForm ref="dynamicFormRef" :title="dynamicFormTitle" />
   </div>
 </template>
 

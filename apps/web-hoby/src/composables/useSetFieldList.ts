@@ -62,7 +62,8 @@ export function useSetFieldList() {
         formItem.defaultValue = record[item.fieldName] || '';
       }
 
-      const fieldType = (item.value && item.value.split('::')[0]) || '';
+      // const fieldType = (item.value && item.value.split('::')[0]) || '';
+      const fieldType = getFieldType(item.value);
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
         case 'form': {
@@ -202,6 +203,41 @@ export function useSetFieldList() {
   return {
     convertToFormSchema,
   };
+}
+
+function getFieldType(value: string) {
+  let fieldType = '';
+  if (value) {
+    if (value.startsWith('date::') || value.includes('^F^d^')) {
+      fieldType = 'date';
+    } else if (value.startsWith('datetime::') || value.includes('^F^dt^')) {
+      fieldType = 'datetime';
+    } else if (value.includes('^F^t^')) {
+      fieldType = 'datetime'; // 时间类型，如果没有特定的类型则使用字符串
+      // eslint-disable-next-line regexp/no-unused-capturing-group
+    } else if (/\.?enum[.:]{1,2}([^,]+)/.test(value)) {
+      fieldType = 'enum';
+
+      // // 提取枚举名称
+      // // 匹配 `enum.xxx` 或 `enum::xxx` 格式
+      // const enumMatch = value.match(/\.?enum[.:]{1,2}([^,]+)/);
+
+      // if (enumMatch && enumMatch[1]) {
+      //   (field as any).enumName = enumMatch[1].trim(); // 去除可能的空格;
+      // }
+    } else if (value.startsWith('multirow::')) {
+      fieldType = 'input';
+    } else if (value.startsWith('query::')) {
+      fieldType = 'query';
+    } else if (value.startsWith('form::')) {
+      fieldType = 'form';
+    } else if (value.startsWith('readOnly::')) {
+      fieldType = 'readOnly';
+    } else if (value.startsWith('queryArea::')) {
+      fieldType = 'query';
+    }
+  }
+  return fieldType;
 }
 
 export default useSetFieldList;

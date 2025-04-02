@@ -105,7 +105,7 @@ export interface ColumnDefinition {
   dataIndex: string;
   visible: boolean;
   searchable?: boolean;
-  type: FieldType;
+  type: FieldType | string;
   width?: number;
   fixed?: 'left' | 'right' | boolean;
   align?: 'center' | 'left' | 'right';
