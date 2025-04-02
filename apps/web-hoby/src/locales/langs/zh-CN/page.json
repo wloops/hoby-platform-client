@@ -158,14 +158,14 @@
         "orderSettlement": "订单结算凭证",
         "paymentSettlement": "付款结算凭证",
         "receiptSettlement": "收款结算凭证"
-      },
-      "config": {
-        "title": "结算配置",
-        "salesShare": "销售分成规则",
-        "prepaidPercentage": "订单预付百分比",
-        "paymentPeriod": "订单付款账期",
-        "defaultPayment": "缺省支付账户"
       }
+    },
+    "config": {
+      "title": "结算配置",
+      "salesShare": "销售分成规则",
+      "prepaidPercentage": "订单预付百分比",
+      "paymentPeriod": "订单付款账期",
+      "defaultPayment": "缺省支付账户"
     }
   }
 }

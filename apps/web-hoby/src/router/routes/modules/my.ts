@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-31 18:37:58
+ * @LastEditTime: 2025-04-02 11:29:06
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\seller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -135,59 +135,56 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+    ],
+  },
+  {
+    meta: {
+      title: $t('page.my.config.title'),
+      icon: 'mdi:cog-pause-outline',
+      authority: ['my'],
+    },
+    name: 'MyConfig',
+    path: '/my/config',
+    children: [
       {
         meta: {
-          title: $t('page.my.fundAccount.config.title'),
-          icon: 'mdi:cog-pause-outline',
+          title: $t('page.my.config.salesShare'),
+          icon: 'mdi:chart-pie',
           authority: ['my'],
         },
-        name: 'MyConfig',
-        path: '/my/fund/config',
-        children: [
-          {
-            meta: {
-              title: $t('page.my.fundAccount.config.salesShare'),
-              icon: 'mdi:chart-pie',
-              authority: ['my'],
-            },
-            name: 'MySalesShare',
-            path: '/my/fund/config/sales-share',
-            component: () => import('#/views/my/fund/config/sales-share.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.fundAccount.config.prepaidPercentage'),
-              icon: 'mdi:percent',
-              authority: ['my'],
-            },
-            name: 'MyPrepaidPercentage',
-            path: '/my/fund/config/prepaid-percentage',
-            component: () =>
-              import('#/views/my/fund/config/prepaid-percentage.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.fundAccount.config.paymentPeriod'),
-              icon: 'mdi:calendar-clock',
-              authority: ['my'],
-            },
-            name: 'MyPaymentPeriod',
-            path: '/my/fund/config/payment-period',
-            component: () =>
-              import('#/views/my/fund/config/payment-period.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.fundAccount.config.defaultPayment'),
-              icon: 'mdi:wallet-outline',
-              authority: ['my'],
-            },
-            name: 'MyDefaultPayment',
-            path: '/my/fund/config/default-payment',
-            component: () =>
-              import('#/views/my/fund/config/default-payment.vue'),
-          },
-        ],
+        name: 'MySalesShare',
+        path: '/my/config/sales-share',
+        component: () => import('#/views/my/config/sales-share.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.config.prepaidPercentage'),
+          icon: 'mdi:percent',
+          authority: ['my'],
+        },
+        name: 'MyPrepaidPercentage',
+        path: '/my/config/prepaid-percentage',
+        component: () => import('#/views/my/config/prepaid-percentage.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.config.paymentPeriod'),
+          icon: 'mdi:calendar-clock',
+          authority: ['my'],
+        },
+        name: 'MyPaymentPeriod',
+        path: '/my/config/payment-period',
+        component: () => import('#/views/my/config/payment-period.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.config.defaultPayment'),
+          icon: 'mdi:wallet-outline',
+          authority: ['my'],
+        },
+        name: 'MyDefaultPayment',
+        path: '/my/config/default-payment',
+        component: () => import('#/views/my/config/default-payment.vue'),
       },
     ],
   },
