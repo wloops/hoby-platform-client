@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-01 17:55:13
+ * @LastEditTime: 2025-04-01 18:24:55
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,7 +19,7 @@ import { FieldType } from '#/components/CommonTable/types';
 
 const pageParams = ref({
   pageID: 'myPrivateWareShopPage',
-  showAddButton: true, // 控制是否显示新增按钮
+  showAddButton: false, // 控制是否显示新增按钮
   onAdd: () => {
     // 自定义新增处理逻辑
     console.warn('新增');
@@ -27,55 +27,15 @@ const pageParams = ref({
 });
 // 定义表格列配置
 const columns = ref<ColumnDefinition[]>([
-  // {
-  //   title: '仓库',
-  //   dataIndex: 'wareName',
-  //   visible: true,
-  //   searchable: true,
-  //   type: FieldType.STRING,
-  // },
-  // {
-  //   title: '签约日期',
-  //   dataIndex: 'signDate',
-  //   visible: true,
-  //   searchable: true,
-  //   type: FieldType.DATE,
-  //   width: 180,
-  // },
-  // {
-  //   title: '有效期',
-  //   dataIndex: 'validityPeriod',
-  //   visible: true,
-  //   searchable: true,
-  //   type: FieldType.STRING,
-  //   width: 180,
-  // },
-  // {
-  //   title: '营业中',
-  //   dataIndex: 'onCateStatus',
-  //   visible: true,
-  //   searchable: true,
-  //   type: FieldType.SELECT,
-  //   width: 180,
-  //   enumName: 'boolean',
-  // },
-  // {
-  //   title: '状态',
-  //   dataIndex: 'status',
-  //   visible: true,
-  //   searchable: true,
-  //   type: FieldType.SELECT,
-  //   width: 100,
-  //   enumName: 'warehouseStatus',
-  // },
   {
     title: '操作',
     dataIndex: 'operation',
     visible: true,
     type: FieldType.OPERATION,
-    defaultActions: ['view', 'edit', 'delete'],
+    // defaultActions: ['view', 'edit', 'delete'],
+    defaultActions: false,
     actionColumnProps: {
-      width: 480,
+      width: 200,
       fixed: 'right',
       align: 'center',
     },
