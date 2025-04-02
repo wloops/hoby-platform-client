@@ -264,6 +264,166 @@ const localEnums: Enums = {
       color: 'default',
     },
   },
+  // 地址类型
+  地址类型: {
+    '0': {
+      label: '未知',
+      color: 'default',
+    },
+    '1': {
+      label: '家庭',
+      color: 'processing',
+    },
+    '2': {
+      label: '单位',
+      color: 'processing',
+    },
+    '20': {
+      label: '仓库',
+      color: 'processing',
+    },
+    '1001': {
+      label: '宿舍',
+      color: 'processing',
+    },
+    '1002': {
+      label: '教室',
+      color: 'processing',
+    },
+    '1003': {
+      label: '操场',
+      color: 'processing',
+    },
+    '2003': {
+      label: '经营场所',
+      color: 'processing',
+    },
+  },
+  // 证件类型
+  证件类型: {
+    '0': {
+      label: '身份证',
+      color: 'default',
+    },
+    '1': {
+      label: '护照',
+      color: 'default',
+    },
+    '2': {
+      label: '户口簿',
+      color: 'default',
+    },
+    '3': {
+      label: '军官证',
+      color: 'default',
+    },
+    '4': {
+      label: '士兵证',
+      color: 'default',
+    },
+    '5': {
+      label: '警官证',
+      color: 'default',
+    },
+    '6': {
+      label: '台胞证',
+      color: 'default',
+    },
+    '7': {
+      label: '回乡证',
+      color: 'default',
+    },
+    '8': {
+      label: 'USBKEY',
+      color: 'default',
+    },
+    '9': {
+      label: '数字证书',
+      color: 'default',
+    },
+    '10': {
+      label: '指纹',
+      color: 'default',
+    },
+    '11': {
+      label: '人脸识别数据',
+      color: 'default',
+    },
+    '12': {
+      label: '军人身份证件',
+      color: 'default',
+    },
+    '13': {
+      label: '武装警察身份证件',
+      color: 'default',
+    },
+    '14': {
+      label: '授权密钥',
+      color: 'default',
+    },
+    '26': {
+      label: '邮箱',
+      color: 'default',
+    },
+    '27': {
+      label: '手机',
+      color: 'default',
+    },
+    '28': {
+      label: '应用系统会员',
+      color: 'default',
+    },
+    '29': {
+      label: '应用系统操作员',
+      color: 'default',
+    },
+    '30': {
+      label: '微信openID',
+      color: 'default',
+    },
+    '99': {
+      label: '其他',
+      color: 'default',
+    },
+  },
+  // 会员状态
+  会员状态: {
+    '0': {
+      label: '作废',
+      color: 'error', // 通常作废状态用红色/error表示
+    },
+    '101002': {
+      label: '注册',
+      color: 'processing', // 注册中状态用蓝色/processing表示
+    },
+    '101006': {
+      label: '拒绝启用',
+      color: 'warning', // 拒绝状态用橙色/warning表示
+    },
+    '102002': {
+      label: '注销',
+      color: 'default', // 注销状态用默认灰色
+    },
+    '104002': {
+      label: '锁住',
+      color: 'error', // 锁定状态用红色/error表示
+    },
+    '105002': {
+      label: '活动',
+      color: 'success', // 活动状态用绿色/success表示
+    },
+  },
+  // 登录状态
+  登录状态: {
+    '0': {
+      label: '未登录',
+      color: 'default',
+    },
+    '1': {
+      label: '已登录',
+      color: 'success',
+    },
+  },
 };
 
 // 自定义 Hook

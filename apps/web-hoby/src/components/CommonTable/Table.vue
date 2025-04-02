@@ -364,7 +364,7 @@ const { generateSchema, generateColumns } = useSetSchema();
 
 const formOptions: VbenFormProps = {
   // 默认展开
-  collapsed: false,
+  collapsed: true,
   // fieldMappingTime: [['date', ['start', 'end']]],
   schema: props.columns.length > 0 ? generateSchema(props.columns) : [],
 
