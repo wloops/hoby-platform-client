@@ -7,6 +7,8 @@ import { ref } from 'vue';
 
 import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
+import { message } from 'ant-design-vue';
+
 import { mainGetViewFieldConfigApi, mainServiceApi } from '#/api';
 import { useSetFieldList } from '#/composables';
 
@@ -260,7 +262,13 @@ const confirm = async () => {
       .validate()
       .then(async (result: any) => {
         if (result.valid) {
-          await submitApi(form);
+          const code = await submitApi(form);
+          if (code) {
+            message.success('操作成功');
+            drawerApi.close();
+            return true;
+          }
+          message.error('操作失败');
         }
       });
     drawerApi.getData().validateAndSubmitForm();

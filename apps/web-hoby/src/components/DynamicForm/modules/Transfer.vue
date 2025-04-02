@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 11:09:38
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-31 15:53:41
+ * @LastEditTime: 2025-04-02 11:19:00
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\DynamicForm\modules\Transfer.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -73,12 +73,7 @@ const handleFocus = async () => {
 
 function open() {
   handleFocus();
-  modalApi
-    // .setData({
-    //   content: modelValue.value,
-    //   payload: '外部传递的数据 payload',
-    // })
-    .open();
+  modalApi.setState({ title: props.sourceData.displayName }).open();
 }
 
 function onConfirm(targetKeys: string) {
@@ -96,6 +91,7 @@ function onConfirm(targetKeys: string) {
     />
     <Modal
       ref="transferRef"
+      :title="props.sourceData.displayName"
       :data-source="transferValue"
       @confirm="onConfirm"
     />
