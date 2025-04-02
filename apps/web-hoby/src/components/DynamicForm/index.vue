@@ -13,6 +13,7 @@ import {
   mainAddRecrdApi,
   mainGetViewFieldConfigApi,
   mainServiceApi,
+  mainUpdateRecrdApi,
 } from '#/api';
 import { useSetFieldList } from '#/composables';
 
@@ -299,13 +300,20 @@ const submitApi = async (record: Record<string, any>) => {
 
 const submitCommonButton = async (record: Record<string, any>) => {
   try {
-    if (isAdd.value) {
+    if (submitType.value === 'add') {
       const data = {
         pageID: pageParams.value.pageID, // 页面ID
         pageButtonID: pageParams.value.pageButtonID, // 按钮ID
         ...record,
       };
       const { rs: code } = await mainServiceApi(data);
+      return code === '1';
+    } else if (submitType.value === 'edit') {
+      const data = {
+        INTERPAGEID: pageParams.value.pageID, // 页面ID
+        INTERFORMDATA: JSON.stringify(record), // 表单数据
+      };
+      const { rs: code } = await mainUpdateRecrdApi(data);
       return code === '1';
     } else {
       const addData = {
@@ -343,8 +351,14 @@ const pageParams = ref<pageParam>({
   pageButtonID: '',
 });
 
-async function open(params: pageParam, record?: Record<string, any>) {
+const submitType = ref<'add' | 'default' | 'edit' | 'view'>('default');
+async function open(
+  params: pageParam,
+  record?: Record<string, any>,
+  type?: 'add' | 'default' | 'edit' | 'view',
+) {
   pageParams.value = params;
+  submitType.value = type || 'default';
   await getSchema(params.pageID, record);
   switch (props.mode) {
     case 'auto': {

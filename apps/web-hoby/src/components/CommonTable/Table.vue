@@ -24,8 +24,6 @@ import {
   mainDeleteRecrdApi,
   mainGetViewDataApi,
   mainGetViewSearchDataApi,
-  mainSelectRecrdApi,
-  mainUpdateRecrdApi,
 } from '#/api';
 import { useEnums, useServiceCall } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
@@ -247,7 +245,7 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
   };
 
   // 如果需要确认，则显示确认对话框
-  if (action.confirm) {
+  if (action.confirm && (!action.runMode || action.runMode === 'default')) {
     let confirmText = '';
 
     // 根据confirm属性生成确认文本
@@ -565,11 +563,15 @@ const getDefaultActions = (pageID: string) => {
       type: 'default' as VxeButtonType,
       size: 'small',
       batchable: false,
-      api: mainSelectRecrdApi,
-      params: (row: TableRecord) => ({
-        INTERPAGEID: pageID,
-        INTERFORMDATA: JSON.stringify(row),
-      }),
+      onClick: (row: TableRecord) => {
+        emit('openDynamicForm', {
+          buttonTitle: '查看',
+          pageID,
+          mode: 'modal',
+          record: row,
+          type: 'view',
+        });
+      },
     },
     {
       key: 'edit',
@@ -577,11 +579,15 @@ const getDefaultActions = (pageID: string) => {
       type: 'primary' as VxeButtonType,
       size: 'small',
       batchable: false,
-      api: mainUpdateRecrdApi,
-      params: (row: TableRecord) => ({
-        INTERPAGEID: pageID,
-        id: row[props.rowKey],
-      }),
+      onClick: (row: TableRecord) => {
+        emit('openDynamicForm', {
+          buttonTitle: '编辑',
+          pageID,
+          mode: 'modal',
+          record: row,
+          type: 'edit',
+        });
+      },
     },
     {
       key: 'delete',
@@ -593,7 +599,7 @@ const getDefaultActions = (pageID: string) => {
       api: mainDeleteRecrdApi,
       params: (row: TableRecord) => ({
         INTERPAGEID: pageID,
-        id: row[props.rowKey],
+        INTERFORMDATA: JSON.stringify(row),
       }),
     },
   ];
@@ -665,6 +671,7 @@ const handleAddClick = () => {
     emit('openDynamicForm', {
       buttonTitle: '新增',
       pageID: props.params.pageID,
+      type: 'add',
     });
   }
 };
