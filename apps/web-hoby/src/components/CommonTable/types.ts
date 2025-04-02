@@ -73,6 +73,8 @@ export interface ActionButtonProps {
   successMsg?: string; // 成功提示消息
   errorMsg?: string; // 错误提示消息
 
+  // 按钮执行模式
+  runMode?: 'default' | 'drawer' | 'modal' | 'route'; // 默认不传为直接执行，drawer为弹抽屉执行，modal为弹窗执行，route为跳转执行
   // 添加批量操作相关属性
   batchable?: boolean; // 是否支持批量操作，默认为false
   batchConfirm?: string; // 批量操作确认提示文本

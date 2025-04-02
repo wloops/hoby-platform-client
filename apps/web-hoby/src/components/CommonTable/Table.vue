@@ -225,13 +225,24 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
 
   // 确认操作的通用处理
   const handleConfirm = () => {
-    // 如果配置了 API 或参数，则调用服务操作方法
-    if (action.api || action.params) {
-      executeServiceAction(action, row);
-    }
-    // 否则执行原有的 onClick 回调
-    else if (action.onClick) {
-      executeAction(action, row, () => action.onClick?.(row));
+    // 根据 runMode 决定执行方式
+    if (action.runMode === 'modal' || action.runMode === 'drawer') {
+      // 打开弹窗
+      emit('openDynamicForm', {
+        buttonTitle: action.label || action.text,
+        pageID: props.params?.pageID || '',
+        mode: action.runMode || 'drawer',
+        record: row,
+      });
+    } else {
+      // 默认执行方式
+      if (action.api || action.params) {
+        // 如果配置了 API 或参数，则调用服务操作方法
+        executeServiceAction(action, row);
+      } else if (action.onClick) {
+        // 否则执行原有的 onClick 回调
+        executeAction(action, row, () => action.onClick?.(row));
+      }
     }
   };
 
