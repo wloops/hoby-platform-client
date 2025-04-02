@@ -1,8 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 
-import { Modal } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
 
+import { mainSendFileDataApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 // const props = defineProps({
@@ -65,13 +66,19 @@ const isOpen = ref(false);
 
 // 添加规格值
 const addSpecValue = (specCate) => {
-  editedSpecsList.value.forEach((item) => {
-    if (item.specCate === specCate) {
-      item.querySpecValue.push({
-        specValue: '',
-      });
-    }
-  });
+  const specItem = editedSpecsList.value.find(
+    (item) => item.specCate === specCate,
+  );
+  if (specItem) {
+    specItem.querySpecValue = specItem.querySpecValue || [];
+    specItem.querySpecValue.push({
+      companyName: specData.value.company,
+      specAttrCate: specData.value.name,
+      specValue: '',
+      specAttr: '',
+      isNew: 'true',
+    });
+  }
 };
 
 // 删除规格值
@@ -116,19 +123,19 @@ const removeSpecValue = (specCate, index) => {
 // };
 
 // 删除规格类型
-const removeSpecType = (specCate, index) => {
-  Modal.confirm({
-    title: '提示',
-    content: `确定要删除 "${specCate}" 规格吗？`,
-    onOk: () => {
-      editedSpecsList.value.forEach((item) => {
-        if (item.specCate === specCate) {
-          editedSpecsList.value.splice(index, 1);
-        }
-      });
-    },
-  });
-};
+// const removeSpecType = (specCate, index) => {
+//   Modal.confirm({
+//     title: '提示',
+//     content: `确定要删除 "${specCate}" 规格吗？`,
+//     onOk: () => {
+//       editedSpecsList.value.forEach((item) => {
+//         if (item.specCate === specCate) {
+//           editedSpecsList.value.splice(index, 1);
+//         }
+//       });
+//     },
+//   });
+// };
 
 // 获取规格类型名称
 // const getSpecTypeName = (specCate) => {
@@ -142,33 +149,65 @@ const removeSpecType = (specCate, index) => {
 
 // 保存更改
 const saveChanges = () => {
-  console.warn('editedSpecsList', editedSpecsList.value);
-  console.warn('specData', specData.value);
-  const result = {
-    companyName: specData.value.company,
-    specAttrCate: specData.value.name,
-    querySpecValue: editedSpecsList.value,
-  };
-  const finalResult = {
-    querySpecCate: [result],
-  };
-  console.warn('result', finalResult);
-  // // 过滤掉空值
-  // const updatedSpecs = {};
+  // 先检查是否有未填写的新增规格值
+  const hasEmptyNewSpec = editedSpecsList.value.some((spec) =>
+    spec.querySpecValue.some((item) => item.isNew && !item.specAttr.trim()),
+  );
 
-  // Object.keys(editedSpecs).forEach((key) => {
-  //   const filteredValues = editedSpecs[key].filter((value) => value.trim());
-  //   if (filteredValues.length > 0) {
-  //     updatedSpecs[key] = filteredValues;
-  //   }
-  // });
+  if (hasEmptyNewSpec) {
+    Modal.error({
+      title: '保存失败',
+      content: '请填写所有新增的规格值后再保存',
+    });
+    return;
+  }
 
-  // emit('save', {
-  //   productId: props.productId,
-  //   specifications: updatedSpecs,
-  //   stockSpecs: selectedStockSpecs.value,
-  //   priceSpecs: selectedPriceSpecs.value,
-  // });
+  Modal.confirm({
+    title: '确认保存',
+    content: '确定要保存当前规格信息吗？',
+    okText: '确定',
+    cancelText: '取消',
+    onOk() {
+      // 构建符合要求的保存数据结构
+      const currentSpec = editedSpecsList.value[0];
+      const querySpecValue =
+        currentSpec?.querySpecValue
+          .filter((item) => item.specAttr.trim()) // 过滤掉空值
+          .map((item) => ({
+            companyName: item.companyName || specData.value.company,
+            specAttrCate: item.specAttrCate || specData.value.name,
+            specAttr: item.specAttr,
+          })) || [];
+
+      const finalResult = {
+        querySpecCate: [
+          {
+            companyName: specData.value.company,
+            specAttrCate: specData.value.name,
+            querySpecValue,
+          },
+        ],
+      };
+
+      console.warn('最终保存数据:', finalResult);
+
+      const params = {
+        bllID: 'hobyFactorySpecStdPreview',
+        serviceID: 1,
+        fileDate: JSON.stringify(finalResult),
+      };
+
+      mainSendFileDataApi(params)
+        .then((res) => {
+          console.warn(res);
+          message.success('规格信息保存成功');
+          isOpen.value = false;
+        })
+        .catch((error) => {
+          message.error(`保存失败：${error.message || '服务器错误'}`);
+        });
+    },
+  });
 };
 
 const editedSpecsList = ref([]);
@@ -177,15 +216,32 @@ const specData = ref(null);
 const open = async (product) => {
   specData.value = product;
   editedSpecsList.value = [];
-  let list = [];
-  list = await getSpecTypeNameList(product);
-  editedSpecsList.value = list.querySpecValue;
-  console.warn(product);
-  console.warn('specData:');
-  console.warn(specData.value);
-  console.warn(list);
-  console.warn(editedSpecsList.value);
-  isOpen.value = true;
+  try {
+    const apiData = await getSpecTypeNameList(product);
+    console.warn('API数据:', apiData);
+
+    const querySpecValue = apiData.querySpecValue || [];
+
+    const processedValues = querySpecValue.map((value) => ({
+      companyName: value.companyName || product.company,
+      specAttrCate: value.specAttrCate || product.name,
+      specValue: value.specAttr,
+      specAttr: value.specAttr,
+      isNew: 'false',
+    }));
+
+    editedSpecsList.value = [
+      {
+        specCate: product.name,
+        querySpecValue: processedValues,
+      },
+    ];
+
+    isOpen.value = true;
+  } catch (error) {
+    console.error('打开模态框失败:', error);
+    message.error('加载规格数据失败');
+  }
 };
 // 获取规格类型名称
 const getSpecTypeNameList = async (product) => {
@@ -201,12 +257,13 @@ const getSpecTypeNameList = async (product) => {
     };
 
     const { data } = await useMainGetData(reqParams);
-    // console.log(reqParams.pageDataGrpID);
-    console.warn(data.value);
-    return data.value || {};
+    console.warn('API返回数据:', data.value);
+
+    // 直接返回API数据，不需要包装成querySpecCate
+    return data.value || { querySpecValue: [] };
   } catch (error) {
     console.error('获取规格类型列表失败:', error);
-    return {};
+    return { querySpecValue: [] };
   }
 };
 
@@ -272,29 +329,36 @@ defineExpose({
                   >
                     添加{{ specData.name }}
                   </button>
-                  <button
+                  <!-- <button
                     class="text-sm font-medium text-red-600 hover:text-red-700"
                     @click="removeSpecType(specData.name)"
                   >
                     删除规格
-                  </button>
+                  </button> -->
                 </div>
               </div>
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 <div
-                  v-for="(item, index) in editedSpecsList"
+                  v-for="(valueItem, index) in editedSpecsList[0]
+                    ?.querySpecValue || []"
                   :key="index"
                   class="flex items-center gap-2 rounded-md bg-white p-2 transition-colors hover:bg-gray-50"
                 >
                   <input
                     type="text"
-                    v-model="item.specAttr"
+                    v-model="valueItem.specAttr"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    :placeholder="`请输入${item.specValue}`"
+                    :placeholder="`请输入${valueItem.specValue}`"
+                    :readonly="valueItem.isNew === 'false'"
+                    :class="{
+                      'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
+                        valueItem.isNew === 'false',
+                      'bg-white': valueItem.isNew === 'true',
+                    }"
                   />
                   <button
                     class="flex-shrink-0 text-red-500 hover:text-red-700"
-                    @click="removeSpecValue(item.specValue, index)"
+                    @click="removeSpecValue(specData.name, index)"
                   >
                     <svg
                       class="h-5 w-5"

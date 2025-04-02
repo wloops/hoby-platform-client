@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 
+import { message, Modal } from 'ant-design-vue';
+
+import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import EditSpecStandard from './components/EditSpecStandard.vue';
@@ -109,11 +112,35 @@ const isCollapsed = (id) => collapsedState.value[id];
 
 // 删除规格类型
 const deleteSpec = (id) => {
-  specs.value = specs.value.filter((spec) => spec.id !== id);
-  // 如果删除后当前页没有数据，则跳转到上一页
-  if (paginatedSpecs.value.length === 0 && currentPage.value > 1) {
-    currentPage.value--;
-  }
+  // console.log(specs.value, id);
+  const specToDelete = specs.value.find((spec) => spec.id === id);
+  if (!specToDelete) return;
+  Modal.confirm({
+    title: '提示',
+    content: `确定要删除 "${specToDelete.name}" 吗？`,
+    onOk: () => {
+      const params = {
+        pageID: 'specStandards', // 页面ID
+        pageButtonID: 'deleteSpec', // 按钮ID
+        companyName: specToDelete.company,
+        specAttrCate: specToDelete.name,
+      };
+
+      mainServiceApi(params)
+        .then((res) => {
+          console.warn(res);
+          specs.value = specs.value.filter((spec) => spec.id !== id);
+          message.success('规格删除成功');
+        })
+        .catch((error) => {
+          message.error(`删除失败：${error.message || '服务器错误'}`);
+        });
+      // 如果删除后当前页没有数据，则跳转到上一页
+      if (paginatedSpecs.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--;
+      }
+    },
+  });
 };
 
 // 删除规格值
@@ -304,7 +331,7 @@ const resetPage = () => {
               <div
                 v-for="value in spec.values"
                 :key="value"
-                class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 pr-0 text-sm text-gray-700 shadow-sm"
+                class="mb-2 mr-4 flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
               >
                 <span>{{ value.specValue }}</span>
                 <!-- <button
