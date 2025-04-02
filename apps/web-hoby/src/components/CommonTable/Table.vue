@@ -10,7 +10,7 @@ import type {
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { computed, h, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -712,20 +712,26 @@ const handleAddClick = () => {
 
       <!-- 选中记录 -->
       <template #toolbar-actions>
-        <div class="batch-action-info" v-if="selectedRecords.length > 0">
-          <Button
-            type="text"
-            size="small"
-            :icon="h(CloseOutlined)"
-            @click="clearSelection"
-          >
-            已选 {{ selectedRecords.length || 0 }} /
-            {{ props.tableData.length || 0 }}
+        <div class="flex items-center gap-1">
+          <div class="batch-action-info" v-if="selectedRecords.length > 0">
+            <Button type="text" @click="clearSelection">
+              <div class="stems-center flex gap-1">
+                <CloseOutlined />
+                <span class="selection-info">
+                  已选择
+                  <span class="selected-count">{{
+                    selectedRecords.length
+                  }}</span>
+                  条
+                </span>
+              </div>
+            </Button>
+          </div>
+
+          <Button v-if="showAddButton" type="primary" @click="handleAddClick">
+            新增
           </Button>
         </div>
-        <Button v-if="showAddButton" type="primary" @click="handleAddClick">
-          新增
-        </Button>
       </template>
 
       <template #tag="{ column, row }">
@@ -754,5 +760,17 @@ const handleAddClick = () => {
   display: flex;
   gap: 8px;
   justify-content: center;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.selected-count {
+  margin: 0 4px;
+  font-weight: bold;
+  color: #1890ff;
 }
 </style>
