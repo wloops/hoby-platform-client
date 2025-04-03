@@ -283,59 +283,24 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
 
 // 处理批量操作事件，更新现有方法
 async function handleBatchAction(event: any) {
-  emit('batchAction', event);
+  // emit('batchAction', event);
 
   // 如果事件包含操作对象
   if (event.action) {
     const action = event.action;
 
     // 如果配置了 API 或参数，且有选中记录
-    if (
-      (action.api || action.params) &&
-      event.records &&
-      event.records.length > 0
-    ) {
+    if ((action.api || action.params) && event.record) {
       try {
-        // 获取服务参数
-        let serviceParams: Record<string, any> = {};
-
-        // 如果配置了自定义 batchParams 函数，则调用它来获取批量参数
-        if (typeof action.batchParams === 'function') {
-          serviceParams = action.batchParams(event.records);
-        }
-        // 如果配置了静态 params 对象，则使用它
-        else if (action.params && typeof action.params === 'object') {
-          serviceParams = { ...action.params };
-        }
-
-        // 添加记录 ID 列表到参数中
-        if (props.rowKey && event.records.length > 0) {
-          serviceParams.ids = event.records.map(
-            (record: TableRecord) => record[props.rowKey],
+        // 默认执行方式
+        if (action.api || action.params) {
+          // 如果配置了 API 或参数，则调用服务操作方法
+          executeServiceAction(action, event.record);
+        } else if (action.onClick) {
+          // 否则执行原有的 onClick 回调
+          executeAction(action, event.record, () =>
+            action.onClick?.(event.record),
           );
-        }
-
-        // 如果配置了 api 方法，则调用它
-        if (action.api) {
-          await action.api(serviceParams);
-
-          // 如果需要自动刷新，则刷新表格
-          if (action.autoRefresh !== false) {
-            refreshTable();
-          }
-        }
-        // 否则使用通用的 useServiceCall 方法
-        else {
-          await useServiceCall(serviceParams, {
-            successMessage:
-              action.successMsg ||
-              `批量${action.label || action.text || '操作'}成功`,
-            errorMessage:
-              action.errorMsg ||
-              `批量${action.label || action.text || '操作'}失败`,
-            refreshFunc:
-              action.autoRefresh === false ? undefined : refreshTable,
-          });
         }
       } catch (error) {
         console.error('批量服务操作执行失败:', error);

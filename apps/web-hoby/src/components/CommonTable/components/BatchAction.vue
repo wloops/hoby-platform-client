@@ -76,8 +76,11 @@ function isButtonDisabled(action: ActionButtonProps): boolean {
 
 // 处理批量操作按钮点击
 function handleActionClick(action: ActionButtonProps): void {
-  const onClick = action.onClick as ((record: TableRecord) => void) | undefined;
-  if (typeof onClick !== 'function') return;
+  // 检查是否有onClick函数或api/params配置
+  const hasOnClick = typeof action.onClick === 'function';
+  const hasApiConfig = action.api || action.params;
+
+  if (!hasOnClick && !hasApiConfig) return;
 
   // 如果需要确认，则显示确认对话框
   if (action.confirm) {
@@ -104,17 +107,19 @@ function handleActionClick(action: ActionButtonProps): void {
               record: TableRecord,
             ) => boolean;
             if (!disabledFn(record)) {
-              onClick(record);
+              // 触发事件
+              emit('action', {
+                action,
+                record,
+              });
             }
           } else if (!action.disabled) {
-            onClick(record);
+            // 触发事件
+            emit('action', {
+              action,
+              record,
+            });
           }
-        });
-
-        // 触发事件
-        emit('action', {
-          action,
-          records: props.selectedRecords,
         });
 
         // 如果需要操作后清空选择，可以触发clear事件
@@ -130,10 +135,18 @@ function handleActionClick(action: ActionButtonProps): void {
       if (typeof action.disabled === 'function') {
         const disabledFn = action.disabled as (record: TableRecord) => boolean;
         if (!disabledFn(record)) {
-          onClick(record);
+          // 触发事件
+          emit('action', {
+            action,
+            record,
+          });
         }
       } else if (!action.disabled) {
-        onClick(record);
+        // 触发事件
+        emit('action', {
+          action,
+          record,
+        });
       }
     });
 
