@@ -301,12 +301,11 @@ const submitApi = async (record: Record<string, any>) => {
 const submitCommonButton = async (record: Record<string, any>) => {
   try {
     if (submitType.value === 'add') {
-      const data = {
-        pageID: pageParams.value.pageID, // 页面ID
-        pageButtonID: pageParams.value.pageButtonID, // 按钮ID
-        ...record,
+      const addData = {
+        INTERPAGEID: pageParams.value.pageID, // 页面ID
+        INTERFORMDATA: JSON.stringify(record),
       };
-      const { rs: code } = await mainServiceApi(data);
+      const { rs: code } = await mainAddRecrdApi(addData);
       return code === '1';
     } else if (submitType.value === 'edit') {
       const data = {
@@ -316,11 +315,12 @@ const submitCommonButton = async (record: Record<string, any>) => {
       const { rs: code } = await mainUpdateRecrdApi(data);
       return code === '1';
     } else {
-      const addData = {
-        INTERPAGEID: pageParams.value.pageID, // 页面ID
-        INTERFORMDATA: JSON.stringify(record),
+      const data = {
+        pageID: pageParams.value.pageID, // 页面ID
+        pageButtonID: pageParams.value.pageButtonID, // 按钮ID
+        ...record,
       };
-      const { rs: code } = await mainAddRecrdApi(addData);
+      const { rs: code } = await mainServiceApi(data);
       return code === '1';
     }
   } catch (error) {
