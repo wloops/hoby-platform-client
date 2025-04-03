@@ -173,13 +173,12 @@ const getSpecTypeName = (specCate) => {
 
 // 保存更改
 const saveChanges = () => {
-  // 先检查是否有未填写的新增规格值
+  // 检查是否有未填写的新增规格值
   const hasEmptyNewSpec = editedSpecsList.value.some((spec) =>
     spec.queryProductSpecValue.some(
-      (item) => item.isNew && !item.specValue.trim(),
+      (item) => item.isNew === 'true' && !item.specValue.trim(),
     ),
   );
-
   if (hasEmptyNewSpec) {
     Modal.error({
       title: '保存失败',
@@ -193,43 +192,112 @@ const saveChanges = () => {
     content: '确定要保存当前规格信息吗？',
     okText: '确定',
     cancelText: '取消',
-    onOk() {
-      // 保存逻辑...
-      const result = {
-        companyName: productData.value.company,
-        productName: productData.value.name,
-        specAttrCateListForWare: selectedStockSpecs.value.join(','),
-        specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
-        // 过滤掉空值
-        queryProductSpecCate: editedSpecsList.value
-          .map((spec) => ({
-            ...spec,
-            queryProductSpecValue: spec.queryProductSpecValue.filter((item) =>
-              item.specValue.trim(),
-            ),
-          }))
-          .filter((spec) => spec.queryProductSpecValue.length > 0),
-      };
+    async onOk() {
+      try {
+        // 1. 准备待删除的数据
+        const toDeleteSpecs = [];
 
-      const finalResult = {
-        queryProduct: [result],
-      };
+        // 分离待删除的数据
+        editedSpecsList.value.forEach((spec) => {
+          const deleteValues = spec.queryProductSpecValue
+            .filter((item) => item.deleteStatus === 'pending_delete')
+            .map((item) => ({
+              specValue: item.specValue,
+              specCate: item.specCate,
+              isNew: item.isNew,
+              deleteStatus: item.deleteStatus,
+            }));
 
-      const params = {
-        bllID: 'factoryProductStandard',
-        serviceID: 1,
-        fileDate: JSON.stringify(finalResult),
-      };
-
-      mainSendFileDataApi(params)
-        .then((res) => {
-          console.warn(res);
-          message.success('规格信息保存成功');
-          isOpen.value = false;
-        })
-        .catch((error) => {
-          message.error(`保存失败：${error.message || '服务器错误'}`);
+          if (deleteValues.length > 0) {
+            toDeleteSpecs.push({
+              specCate: spec.specCate,
+              queryProductSpecValue: deleteValues,
+              productName: productData.value.name,
+            });
+          }
         });
+
+        // 2. 如果有待删除项，先执行删除
+        if (toDeleteSpecs.length > 0) {
+          const deleteParams = {
+            bllID: 'factoryProductStandard',
+            dataGrpIDList: 'queryProductSpecValue',
+            serviceID: 2,
+            fileDate: JSON.stringify({
+              queryProduct: [
+                {
+                  companyName: productData.value.company,
+                  productName: productData.value.name,
+                  specAttrCateListForWare: '',
+                  specAttrCateListForPrice: '',
+                  queryProductSpecCate: toDeleteSpecs,
+                },
+              ],
+            }),
+          };
+          await mainSendFileDataApi(deleteParams);
+          message.success('已删除标记的规格值');
+
+          // 从本地数据中移除已删除的项
+          editedSpecsList.value.forEach((spec) => {
+            spec.queryProductSpecValue = spec.queryProductSpecValue.filter(
+              (item) => item.deleteStatus !== 'pending_delete',
+            );
+          });
+
+          // 移除空规格类型
+          editedSpecsList.value = editedSpecsList.value.filter(
+            (spec) => spec.queryProductSpecValue.length > 0,
+          );
+        }
+
+        // 3. 准备保存的数据
+        const toSaveSpecs = editedSpecsList.value
+          .map((spec) => ({
+            specCate: spec.specCate,
+            queryProductSpecValue: spec.queryProductSpecValue
+              .filter(
+                (item) =>
+                  item.specValue.trim() &&
+                  item.deleteStatus !== 'pending_delete',
+              )
+              .map((item) => ({
+                specValue: item.specValue,
+                specCate: item.specCate,
+                isNew: item.isNew,
+                deleteStatus: item.deleteStatus,
+              })),
+            productName: productData.value.name,
+          }))
+          .filter((spec) => spec.queryProductSpecValue.length > 0);
+
+        // 4. 执行保存
+        if (toSaveSpecs.length > 0) {
+          const saveParams = {
+            bllID: 'factoryProductStandard',
+            serviceID: 1,
+            fileDate: JSON.stringify({
+              queryProduct: [
+                {
+                  companyName: productData.value.company,
+                  productName: productData.value.name,
+                  specAttrCateListForWare: selectedStockSpecs.value.join(','),
+                  specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+                  queryProductSpecCate: toSaveSpecs,
+                },
+              ],
+            }),
+          };
+          await mainSendFileDataApi(saveParams);
+          message.success('规格信息保存成功');
+        } else {
+          message.warning('没有需要保存的规格数据');
+        }
+
+        isOpen.value = false;
+      } catch (error) {
+        message.error(`操作失败：${error.message || '服务器错误'}`);
+      }
     },
   });
 };
