@@ -329,6 +329,7 @@ const submitCommonButton = async (record: Record<string, any>) => {
   }
 };
 
+const submitType = ref<'add' | 'default' | 'edit' | 'view'>('default');
 // 抽屉表单
 const [Drawer, drawerApi] = useVbenDrawer({
   // 连接抽离的组件
@@ -351,7 +352,6 @@ const pageParams = ref<pageParam>({
   pageButtonID: '',
 });
 
-const submitType = ref<'add' | 'default' | 'edit' | 'view'>('default');
 async function open(
   params: pageParam,
   record?: Record<string, any>,
@@ -360,35 +360,27 @@ async function open(
   pageParams.value = params;
   submitType.value = type || 'default';
   await getSchema(params.pageID, record);
+  let formApi: any = drawerApi;
   switch (props.mode) {
     case 'auto': {
       // 自动
-      if (window.innerWidth < 768) {
-        drawerApi.open();
-      } else {
-        modalApi.open();
-      }
-
+      formApi = window.innerWidth < 768 ? drawerApi : modalApi;
       break;
     }
     case 'drawer': {
-      drawerApi.open();
-
+      formApi.open();
       break;
     }
     case 'modal': {
-      modalApi.open();
-
+      formApi = modalApi;
       break;
     }
     case 'use': {
       break;
     }
-    default: {
-      // 默认
-      drawerApi.open();
-    }
   }
+  props.mode !== 'use' &&
+    formApi.setState({ showConfirmButton: type !== 'view' }).open();
 }
 
 defineExpose({
