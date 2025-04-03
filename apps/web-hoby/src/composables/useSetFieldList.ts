@@ -60,6 +60,15 @@ export function useSetFieldList() {
       // 处理默认值
       if (record && record[item.fieldName]) {
         formItem.defaultValue = record[item.fieldName] || '';
+        // item.value 里面有this.xxx 默认值就取record[xxx],然后设置为不可修改
+        if (item.value.includes('this.')) {
+          const field = item.value.split('this.')[1].split(',')[0];
+          formItem.defaultValue = record[field] || '';
+        }
+        formItem.componentProps = {
+          ...formItem.componentProps,
+          disabled: item.value.includes('auto') || item.value.includes('this.'),
+        };
       }
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';
