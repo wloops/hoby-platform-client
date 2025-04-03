@@ -123,7 +123,6 @@ export function useSetFieldList() {
                 ...params,
                 ...recordRef.value,
               });
-              // console.log(recordRef.value, params);
             },
             afterFetch: (data: any) => {
               return afterFetch('query', data, extractName);
@@ -147,12 +146,17 @@ export function useSetFieldList() {
             api: getAreaApi,
             params: {
               condition: item.value,
-              ...recordRef.value,
+            },
+            beforeFetch: (params: any) => {
+              return (params = {
+                ...params,
+                ...recordRef.value,
+              });
             },
             afterFetch: (data: { code: string; name: string }[]) => {
               return data.map((item: any) => ({
                 label: item.name,
-                value: item.code,
+                value: item.name,
               }));
             },
             alwaysLoad: true,
