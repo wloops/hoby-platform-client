@@ -77,6 +77,7 @@ const addSpecValue = (specCate) => {
         specValue: '',
         specCate,
         isNew: 'true', // 标记为新添加的规格值
+        deleteStatus: 'normal', // 新添加的规格值初始状态
       });
     }
   });
@@ -86,7 +87,15 @@ const addSpecValue = (specCate) => {
 const removeSpecValue = (specCate, index) => {
   editedSpecsList.value.forEach((item) => {
     if (item.specCate === specCate) {
-      item.productModelSpecValue.splice(index, 1);
+      const specValue = item.productModelSpecValue[index];
+      if (specValue.isNew === 'true') {
+        // 如果是新增的规格值，直接从数组中移除
+        item.productModelSpecValue.splice(index, 1);
+      } else {
+        // 如果是已有规格值，标记为删除状态
+        specValue.deleteStatus =
+          specValue.deleteStatus === 'normal' ? 'pending_delete' : 'normal';
+      }
     }
   });
 };
@@ -178,7 +187,7 @@ const saveChanges = () => {
   // 先检查是否有未填写的新增规格值
   const hasEmptyNewSpec = editedSpecsList.value.some((spec) =>
     spec.productModelSpecValue.some(
-      (item) => item.isNew && !item.specValue.trim(),
+      (item) => item.isNew === 'true' && !item.specValue.trim(),
     ),
   );
 
@@ -195,66 +204,122 @@ const saveChanges = () => {
     content: '确定要保存当前规格信息吗？',
     okText: '确定',
     cancelText: '取消',
-    onOk() {
-      // 保存逻辑...
-      console.warn('决定库存的规格', selectedStockSpecs.value);
-      console.warn('决定价格的规格', selectedPriceSpecs.value);
-      console.warn('editedSpecsList', editedSpecsList.value);
-      console.warn('productData', productData.value);
-      const result = {
-        companyName: productData.value.company,
-        productName: productData.value.name,
-        srlID: productData.value.model,
-        specAttrCateListForWare: selectedStockSpecs.value.join(','),
-        specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
-        productModelSpecCate: editedSpecsList.value
-          .map((spec) => ({
-            ...spec,
-            productModelSpecValue: spec.productModelSpecValue.filter((item) =>
-              item.specValue.trim(),
-            ),
-          }))
-          .filter((spec) => spec.productModelSpecValue.length > 0),
-      };
+    async onOk() {
+      try {
+        // 1. 准备待删除的数据
+        const toDeleteSpecs = [];
 
-      const finalResult = {
-        productModel: [result],
-      };
-      console.warn('result', finalResult);
+        // 分离待删除的数据
+        editedSpecsList.value.forEach((spec) => {
+          const deleteValues = spec.productModelSpecValue
+            .filter((item) => item.deleteStatus === 'pending_delete')
+            .map((item) => ({
+              productName: item.productName,
+              srlID: item.srlID,
+              specValue: item.specValue,
+              specCate: item.specCate,
+              isNew: item.isNew,
+              deleteStatus: item.deleteStatus,
+            }));
 
-      const params = {
-        bllID: 'hobyFactoryPrdModelPreview',
-        serviceID: 1,
-        fileDate: JSON.stringify(finalResult),
-      };
-
-      mainSendFileDataApi(params)
-        .then((res) => {
-          console.warn(res);
-          message.success('规格信息保存成功');
-          isOpen.value = false;
-        })
-        .catch((error) => {
-          message.error(`保存失败：${error.message || '服务器错误'}`);
+          if (deleteValues.length > 0) {
+            toDeleteSpecs.push({
+              specCate: spec.specCate,
+              productModelSpecValue: deleteValues,
+              productName: productData.value.name,
+              srlID: productData.value.model,
+            });
+          }
         });
+
+        // 2. 如果有待删除项，先执行删除
+        if (toDeleteSpecs.length > 0) {
+          const deleteParams = {
+            bllID: 'hobyFactoryPrdModelPreview',
+            dataGrpIDList: 'productModelSpecValue',
+            serviceID: 2,
+            fileDate: JSON.stringify({
+              productModel: [
+                {
+                  companyName: productData.value.company,
+                  productName: productData.value.name,
+                  srlID: productData.value.model,
+                  specAttrCateListForWare: '',
+                  specAttrCateListForPrice: '',
+                  productModelSpecCate: toDeleteSpecs,
+                },
+              ],
+            }),
+          };
+          await mainSendFileDataApi(deleteParams);
+          message.success('已删除标记的规格值');
+
+          // 从本地数据中移除已删除的项
+          editedSpecsList.value.forEach((spec) => {
+            spec.productModelSpecValue = spec.productModelSpecValue.filter(
+              (item) => item.deleteStatus !== 'pending_delete',
+            );
+          });
+
+          // 移除空规格类型
+          editedSpecsList.value = editedSpecsList.value.filter(
+            (spec) => spec.productModelSpecValue.length > 0,
+          );
+        }
+
+        // 3. 准备保存的数据
+        const toSaveSpecs = editedSpecsList.value
+          .map((spec) => ({
+            specCate: spec.specCate,
+            productModelSpecValue: spec.productModelSpecValue
+              .filter(
+                (item) =>
+                  item.specValue.trim() &&
+                  item.deleteStatus !== 'pending_delete',
+              )
+              .map((item) => ({
+                productName: item.productName,
+                srlID: item.srlID,
+                specValue: item.specValue,
+                specCate: item.specCate,
+                isNew: item.isNew,
+                deleteStatus: item.deleteStatus,
+              })),
+            productName: productData.value.name,
+            srlID: productData.value.model,
+          }))
+          .filter((spec) => spec.productModelSpecValue.length > 0);
+
+        // 4. 执行保存
+        if (toSaveSpecs.length > 0) {
+          const saveParams = {
+            bllID: 'hobyFactoryPrdModelPreview',
+            serviceID: 1,
+            fileDate: JSON.stringify({
+              productModel: [
+                {
+                  companyName: productData.value.company,
+                  productName: productData.value.name,
+                  srlID: productData.value.model,
+                  specAttrCateListForWare: selectedStockSpecs.value.join(','),
+                  specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+                  productModelSpecCate: toSaveSpecs,
+                },
+              ],
+            }),
+          };
+          await mainSendFileDataApi(saveParams);
+          message.success('规格信息保存成功');
+        } else {
+          message.warning('没有需要保存的规格数据');
+        }
+
+        isOpen.value = false;
+      } catch (error) {
+        message.error(`操作失败：${error.message || '服务器错误'}`);
+      }
     },
   });
-  // // 过滤掉空值
-  // const updatedSpecs = {};
-
-  // Object.keys(editedSpecs).forEach((key) => {
-  //   const filteredValues = editedSpecs[key].filter((value) => value.trim());
-  //   if (filteredValues.length > 0) {
-  //     updatedSpecs[key] = filteredValues;
-  //   }
-  // });
-
-  // emit('save', {
-  //   productId: props.productId,
-  //   specifications: updatedSpecs,
-  //   stockSpecs: selectedStockSpecs.value,
-  //   priceSpecs: selectedPriceSpecs.value,
-  // });
 };
 
 const editedSpecsList = ref([]);
@@ -269,6 +334,7 @@ const open = async (product) => {
   list.productModelSpecCate.forEach((spec) => {
     spec.productModelSpecValue.forEach((value) => {
       value.isNew = 'false'; // 已有数据标记为非新增
+      value.deleteStatus = 'normal'; // 初始化状态为normal
     });
   });
   editedSpecsList.value = list.productModelSpecCate;
@@ -492,6 +558,8 @@ defineExpose({
                         'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
                           value.isNew === 'false',
                         'bg-white': value.isNew === 'true',
+                        'text-gray-400 line-through':
+                          value.deleteStatus === 'pending_delete',
                       }"
                     />
                     <button
@@ -503,12 +571,38 @@ defineExpose({
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        :class="{
+                          'text-red-500':
+                            value.deleteStatus !== 'pending_delete' &&
+                            value.isNew !== 'true',
+                          'text-blue-500':
+                            value.deleteStatus === 'pending_delete',
+                          'text-gray-500': value.isNew === 'true',
+                        }"
                       >
                         <path
+                          v-if="
+                            value.deleteStatus !== 'pending_delete' &&
+                            value.isNew !== 'true'
+                          "
                           stroke-linecap="round"
                           stroke-linejoin="round"
                           stroke-width="2"
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                        <path
+                          v-if="value.deleteStatus === 'pending_delete'"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1"
+                          d="M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5L4 8l5.5-5.5l1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"
+                        />
+                        <path
+                          v-if="value.isNew === 'true'"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
                     </button>

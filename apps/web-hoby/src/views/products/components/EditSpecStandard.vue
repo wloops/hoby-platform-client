@@ -76,7 +76,8 @@ const addSpecValue = (specCate) => {
       specAttrCate: specData.value.name,
       specValue: '',
       specAttr: '',
-      isNew: 'true',
+      isNew: 'true', // 标记为新添加的规格值
+      deleteStatus: 'normal', // 新添加的规格值初始状态
     });
   }
 };
@@ -85,7 +86,15 @@ const addSpecValue = (specCate) => {
 const removeSpecValue = (specCate, index) => {
   editedSpecsList.value.forEach((item) => {
     if (item.specCate === specCate) {
-      item.querySpecValue.splice(index, 1);
+      const specValue = item.querySpecValue[index];
+      if (specValue.isNew === 'true') {
+        // 如果是新增的规格值，直接从数组中移除
+        item.querySpecValue.splice(index, 1);
+      } else {
+        // 如果是已有规格值，标记为删除状态
+        specValue.deleteStatus =
+          specValue.deleteStatus === 'normal' ? 'pending_delete' : 'normal';
+      }
     }
   });
 };
@@ -151,7 +160,9 @@ const removeSpecValue = (specCate, index) => {
 const saveChanges = () => {
   // 先检查是否有未填写的新增规格值
   const hasEmptyNewSpec = editedSpecsList.value.some((spec) =>
-    spec.querySpecValue.some((item) => item.isNew && !item.specAttr.trim()),
+    spec.querySpecValue.some(
+      (item) => item.isNew === 'true' && !item.specAttr.trim(),
+    ),
   );
 
   if (hasEmptyNewSpec) {
@@ -167,49 +178,99 @@ const saveChanges = () => {
     content: '确定要保存当前规格信息吗？',
     okText: '确定',
     cancelText: '取消',
-    onOk() {
-      // 构建符合要求的保存数据结构
-      const currentSpec = editedSpecsList.value[0];
-      const querySpecValue =
-        currentSpec?.querySpecValue
-          .filter((item) => item.specAttr.trim()) // 过滤掉空值
-          .map((item) => ({
-            companyName: item.companyName || specData.value.company,
-            specAttrCate: item.specAttrCate || specData.value.name,
-            specAttr: item.specAttr,
-          })) || [];
+    async onOk() {
+      try {
+        // 1. 准备待删除的数据 - 按照新格式构建
+        const toDeleteSpecs = {
+          querySpecCate: [],
+        };
+        // 分离待删除的数据
+        editedSpecsList.value.forEach((spec) => {
+          const deleteValues = spec.querySpecValue
+            .filter((item) => item.deleteStatus === 'pending_delete')
+            .map((item) => ({
+              companyName: specData.value.company,
+              specAttrCate: specData.value.name,
+              specAttr: item.specAttr || item.specValue,
+            }));
 
-      const finalResult = {
-        querySpecCate: [
-          {
-            companyName: specData.value.company,
-            specAttrCate: specData.value.name,
-            querySpecValue,
-          },
-        ],
-      };
-
-      console.warn('最终保存数据:', finalResult);
-
-      const params = {
-        bllID: 'hobyFactorySpecStdPreview',
-        serviceID: 1,
-        fileDate: JSON.stringify(finalResult),
-      };
-
-      mainSendFileDataApi(params)
-        .then((res) => {
-          console.warn(res);
-          message.success('规格信息保存成功');
-          isOpen.value = false;
-        })
-        .catch((error) => {
-          message.error(`保存失败：${error.message || '服务器错误'}`);
+          if (deleteValues.length > 0) {
+            toDeleteSpecs.querySpecCate.push({
+              companyName: specData.value.company,
+              specAttrCate: specData.value.name,
+              querySpecValue: deleteValues,
+            });
+          }
         });
+
+        // 2. 如果有待删除项，先执行删除
+        if (toDeleteSpecs.querySpecCate.length > 0) {
+          const deleteParams = {
+            bllID: 'hobyFactorySpecStdPreview',
+            dataGrpIDList: 'querySpecValue',
+            serviceID: 2,
+            fileDate: JSON.stringify(toDeleteSpecs),
+          };
+
+          console.warn('删除参数:', deleteParams); // 调试用
+          await mainSendFileDataApi(deleteParams);
+          message.success('已删除标记的规格值');
+
+          // 从本地数据中移除已删除的项
+          editedSpecsList.value.forEach((spec) => {
+            spec.querySpecValue = spec.querySpecValue.filter(
+              (item) => item.deleteStatus !== 'pending_delete',
+            );
+          });
+
+          // 移除空规格类型
+          editedSpecsList.value = editedSpecsList.value.filter(
+            (spec) => spec.querySpecValue.length > 0,
+          );
+        }
+
+        // 3. 准备保存的数据 - 调整为要求的格式
+        const toSaveSpecs = {
+          querySpecCate: [
+            {
+              companyName: specData.value.company,
+              specAttrCate: specData.value.name,
+              querySpecValue: editedSpecsList.value[0].querySpecValue
+                .filter(
+                  (item) =>
+                    (item.specValue || item.specAttr) &&
+                    item.deleteStatus !== 'pending_delete',
+                )
+                .map((item) => ({
+                  companyName: specData.value.company,
+                  specAttrCate: specData.value.name,
+                  specAttr: item.specAttr || item.specValue,
+                })),
+            },
+          ],
+        };
+
+        // 4. 执行保存
+        if (toSaveSpecs.querySpecCate[0].querySpecValue.length > 0) {
+          const saveParams = {
+            bllID: 'hobyFactorySpecStdPreview',
+            serviceID: 1,
+            fileDate: JSON.stringify(toSaveSpecs),
+          };
+          console.warn('保存参数:', saveParams); // 调试用
+          await mainSendFileDataApi(saveParams);
+          message.success('规格信息保存成功');
+        } else {
+          message.warning('没有需要保存的规格数据');
+        }
+
+        isOpen.value = false;
+      } catch (error) {
+        message.error(`操作失败：${error.message || '服务器错误'}`);
+      }
     },
   });
 };
-
 const editedSpecsList = ref([]);
 const specData = ref(null);
 // 打开模态框
@@ -220,14 +281,16 @@ const open = async (product) => {
     const apiData = await getSpecTypeNameList(product);
     console.warn('API数据:', apiData);
 
+    // 处理API返回的数据
     const querySpecValue = apiData.querySpecValue || [];
 
     const processedValues = querySpecValue.map((value) => ({
       companyName: value.companyName || product.company,
       specAttrCate: value.specAttrCate || product.name,
-      specValue: value.specAttr,
-      specAttr: value.specAttr,
+      specValue: value.specAttr || value.specValue || '',
+      specAttr: value.specAttr || value.specValue || '',
       isNew: 'false',
+      deleteStatus: 'normal',
     }));
 
     editedSpecsList.value = [
@@ -240,7 +303,7 @@ const open = async (product) => {
     isOpen.value = true;
   } catch (error) {
     console.error('打开模态框失败:', error);
-    message.error('加载规格数据失败');
+    message.error(`加载规格数据失败: ${error.message || '未知错误'}`);
   }
 };
 // 获取规格类型名称
@@ -354,6 +417,8 @@ defineExpose({
                       'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
                         valueItem.isNew === 'false',
                       'bg-white': valueItem.isNew === 'true',
+                      'text-gray-400 line-through':
+                        valueItem.deleteStatus === 'pending_delete',
                     }"
                   />
                   <button
@@ -365,12 +430,38 @@ defineExpose({
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      :class="{
+                        'text-red-500':
+                          valueItem.deleteStatus !== 'pending_delete' &&
+                          valueItem.isNew !== 'true',
+                        'text-blue-500':
+                          valueItem.deleteStatus === 'pending_delete',
+                        'text-gray-500': valueItem.isNew === 'true',
+                      }"
                     >
                       <path
+                        v-if="
+                          valueItem.deleteStatus !== 'pending_delete' &&
+                          valueItem.isNew !== 'true'
+                        "
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                      <path
+                        v-if="valueItem.deleteStatus === 'pending_delete'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1"
+                        d="M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5L4 8l5.5-5.5l1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"
+                      />
+                      <path
+                        v-if="valueItem.isNew === 'true'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
                   </button>
