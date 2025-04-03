@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-03 11:24:29
+ * @LastEditTime: 2025-04-03 15:27:51
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -119,12 +119,21 @@ onMounted(async () => {
   // 处理枚举值
   loading.value = false;
 });
+
+const tableRef = ref<null | {
+  refresh: () => void;
+}>(null);
+
+const refresh = () => {
+  tableRef.value?.refresh();
+};
 </script>
 
 <template>
   <div>
     <Table
       v-if="!loading"
+      ref="tableRef"
       :columns="sendColumns"
       :params="params"
       :table-data="tableData"
@@ -143,6 +152,7 @@ onMounted(async () => {
       ref="dynamicFormRef"
       :title="dynamicFormTitle"
       :mode="runMode"
+      @refresh="refresh"
     />
   </div>
 </template>

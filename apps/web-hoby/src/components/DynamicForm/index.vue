@@ -41,6 +41,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['refresh']);
+
 const schema = ref<any>([
   {
     // 组件需要在 #/adapter.ts内注册，并加上类型
@@ -280,13 +282,14 @@ const confirm = async () => {
         const code = await submitApi(form);
         if (code) {
           message.success('操作成功');
-          drawerApi.close();
+          formAPi.close();
+          emit('refresh');
           return true;
         }
         message.error('操作失败');
       }
     });
-  drawerApi.getData().validateAndSubmitForm();
+  formAPi.getData().validateAndSubmitForm();
 };
 
 const submitApi = async (record: Record<string, any>) => {
