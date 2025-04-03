@@ -408,6 +408,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
         checkStrictly: false, // 是否严格模式
         checkField: 'checked', // 数据中标识选中的字段名
         showHeader: true, // 是否显示表头
+        trigger: 'row', // 触发方式
+        range: true, // 是否支持范围选择
       }
     : {
         highlight: true,
@@ -433,6 +435,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   keepSource: true,
   rowConfig: {
     keyField: props.rowKey, // 设置行数据唯一标识的字段名
+    isCurrent: true,
+    isHover: true,
   },
   pagerConfig: {},
   proxyConfig: {
@@ -463,11 +467,13 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
               INTERCURPAGENO: page.currentPage,
               [hasValue ? 'INTERRECNUMPERPAGE' : 'INTERPAGESIZE']:
                 page.pageSize,
-              queryConditions: searchFormString,
             };
             const api = hasValue
               ? mainGetViewSearchDataApi
               : mainGetViewDataApi;
+            if (hasValue) {
+              params.queryConditions = searchFormString;
+            }
             const { rs, records, recNumOfCurPage: total } = await api(params);
 
             if (rs === '1' && Array.isArray(records)) {
@@ -529,6 +535,7 @@ if (
 
 // 使用 VxeTableGridOptions 支持的方式创建 Grid
 const [Grid, gridApi] = useVbenVxeGrid({
+  showSearchForm: formOptions?.schema && formOptions?.schema?.length > 0,
   formOptions,
   gridOptions,
   gridEvents: {

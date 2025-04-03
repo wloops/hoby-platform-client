@@ -189,7 +189,7 @@ export function useSetSchema() {
    * @param type - 字段类型
    * @returns 组件类型
    */
-  const getComponentByType = (type: FieldType): string => {
+  const getComponentByType = (type: FieldType | string): string => {
     const typeMap: Record<string, string> = {
       [FieldType.STRING]: 'Input',
       [FieldType.NUMBER]: 'InputNumber',
@@ -214,7 +214,7 @@ export function useSetSchema() {
     operationColumn: ColumnDefinition[],
     pageID: string,
   ): Promise<ColumnDefinition[]> => {
-    const { rs, fieldList, displayFldList, pkFldList } =
+    const { rs, fieldList, displayFldList, pkFldList, queryPanelFldList } =
       await mainGetViewFieldConfigApi({ pageID });
 
     if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
@@ -224,11 +224,16 @@ export function useSetSchema() {
     // 将字符串转换为数组
     const displayFields = displayFldList ? displayFldList.split(',') : [];
     const pkFields = pkFldList ? pkFldList.split(',') : [];
+    const queryPanelFields = queryPanelFldList
+      ? queryPanelFldList.split(',')
+      : [];
 
     // 将 fieldList 转换为 ColumnDefinition[]
     const columns: ColumnDefinition[] = fieldList.map((field) => {
       // 判断字段是否可见
       const visible = displayFields.includes(field.fieldName);
+      // 判断字段是否在查询面板中
+      const searchable = queryPanelFields.includes(field.fieldName);
 
       // 根据 value 确定字段类型
       let fieldType = FieldType.STRING;
@@ -266,7 +271,7 @@ export function useSetSchema() {
         title: field.displayName,
         dataIndex: field.fieldName,
         visible,
-        searchable: visible, // 默认可搜索
+        searchable, // 默认可搜索
         type: fieldType,
         ellipsis: true, // 默认开启省略
       };
