@@ -76,6 +76,18 @@ export function useSetFieldList() {
       const fieldType = getFieldType(item.value);
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
+        case 'enum': {
+          formItem.component = 'ApiSelect';
+          formItem.componentProps = {
+            placeholder: `请选择${item.displayName}`,
+            api: selectApi,
+            params,
+            afterFetch: (data: any) => {
+              return data.data.enumValues;
+            },
+          };
+          break;
+        }
         case 'form': {
           formItem.component = markRaw(Transfer);
           // formItem.component = 'ApiTransfer';

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-28 17:14:48
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-28 21:07:02
+ * @LastEditTime: 2025-04-03 15:20:53
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\DynamicForm\modules\utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -18,8 +18,14 @@ export function parseQueryString(
 ): Record<string, string> {
   // 移除开头的 "query::"|"form::"
   // 定义需要移除的前缀列表
-  const PREFIXES_TO_REMOVE = ['query::', 'form::', 'data::'];
-
+  const PREFIXES_TO_REMOVE = [
+    'query::',
+    'form::',
+    'data::',
+    'enum::',
+    'auto.enum.',
+  ];
+  const isEnum = queryStr.includes('enum');
   // 移除指定的前缀
   let cleanStr = queryStr;
   for (const prefix of PREFIXES_TO_REMOVE) {
@@ -31,6 +37,14 @@ export function parseQueryString(
 
   // 分割所有键值对
   const keyValuePairs = cleanStr.split(',');
+
+  if (isEnum) {
+    return {
+      readFld: '',
+      table: '',
+      condition: `enum::${keyValuePairs[0] || ''}`,
+    };
+  }
 
   const result: Record<string, string> = {};
 
