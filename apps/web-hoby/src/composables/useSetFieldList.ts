@@ -2,6 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 
 import { markRaw, ref } from 'vue';
 
+import { useUserStore } from '@vben/stores';
+
 import { getAreaApi } from '#/api';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
@@ -58,19 +60,33 @@ export function useSetFieldList() {
         formItem.rules = 'required';
       }
 
-      // 处理默认值
-      if (record && record[item.fieldName]) {
-        formItem.defaultValue = record[item.fieldName] || '';
-        // item.value 里面有this.xxx 默认值就取record[xxx],然后设置为不可修改
-        if (item.value.includes('this.')) {
-          const field = item.value.split('this.')[1].split(',')[0];
-          formItem.defaultValue = record[field] || '';
-        }
-        formItem.componentProps = {
-          ...formItem.componentProps,
-          disabled: item.value.includes('auto') || item.value.includes('this.'),
-        };
+      // 处理默认值 start
+
+      formItem.defaultValue = record[item.fieldName] || '';
+      // item.value 里面有this.xxx 默认值就取record[xxx],然后设置为不可修改
+      if (item.value.includes('this.')) {
+        const field = item.value.split('this.')[1].split(',')[0];
+        formItem.defaultValue = record[field] || '';
       }
+      if (item.value.includes('active.')) {
+        const userStore = useUserStore();
+        const actionMap: any = {
+          tellerName: userStore.userInfo?.TELLERNAME,
+          tellerNo: userStore.userInfo?.memberID,
+          tellerCompanyName: userStore.userInfo?.TELLERCOMPANY,
+        };
+        const field = item.value.split('active.')[1].split(',')[0];
+
+        formItem.defaultValue = actionMap[field] || '';
+      }
+      formItem.componentProps = {
+        ...formItem.componentProps,
+        disabled:
+          item.value.includes('auto') ||
+          item.value.includes('this.') ||
+          item.value.includes('active.'),
+      };
+      // 处理默认值 end
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';
       const fieldType = getFieldType(item.value);
