@@ -2,6 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 
 import { markRaw, ref } from 'vue';
 
+import { getAreaApi } from '#/api';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
 import { useFormStore } from '#/store';
@@ -139,6 +140,32 @@ export function useSetFieldList() {
           formItem.modelPropName = 'value';
           break;
         }
+        case 'queryArea': {
+          formItem.component = 'ApiSelect';
+          formItem.componentProps = {
+            placeholder: `请选择${item.displayName}`,
+            api: getAreaApi,
+            params: {
+              condition: item.value,
+              ...recordRef.value,
+            },
+            afterFetch: (data: { code: string; name: string }[]) => {
+              return data.map((item: any) => ({
+                label: item.name,
+                value: item.code,
+              }));
+            },
+            alwaysLoad: true,
+          };
+          formItem.dependencies = {
+            triggerFields: Object.keys(record),
+            // trigger(values, form) {
+            trigger(values) {
+              recordRef.value = values;
+            },
+          };
+          break;
+        }
         case 'readOnly': {
           formItem.component = 'Input';
           formItem.componentProps = {
@@ -243,7 +270,7 @@ function getFieldType(value: string) {
     } else if (value.startsWith('readOnly::')) {
       fieldType = 'readOnly';
     } else if (value.startsWith('queryArea::')) {
-      fieldType = 'query';
+      fieldType = 'queryArea';
     }
   }
   return fieldType;
