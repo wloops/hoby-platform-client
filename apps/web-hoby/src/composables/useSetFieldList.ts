@@ -61,8 +61,6 @@ export function useSetFieldList() {
       }
 
       // 处理默认值 start
-
-      formItem.defaultValue = record[item.fieldName] || '';
       // item.value 里面有this.xxx 默认值就取record[xxx],然后设置为不可修改
       if (item.value.includes('this.')) {
         const field = item.value.split('this.')[1].split(',')[0];
@@ -86,6 +84,10 @@ export function useSetFieldList() {
           item.value.includes('this.') ||
           item.value.includes('active.'),
       };
+      // 记录带入的默认值优先级最高
+      if (record && record[item.fieldName]) {
+        formItem.defaultValue = record[item.fieldName] || '';
+      }
       // 处理默认值 end
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';

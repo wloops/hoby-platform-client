@@ -238,8 +238,8 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
         serviceParams = { ...action.params };
       }
       emit('openDynamicForm', {
+        ...serviceParams,
         buttonTitle: action.label || action.text,
-        pageID: serviceParams.pageID || '',
         mode: action.runMode || 'drawer',
         record: row,
       });
