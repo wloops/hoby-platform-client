@@ -1,66 +1,38 @@
 <!--
  * @Author: Loong wentloop@gmail.com
- * @Date: 2025-03-18 11:26:16
+ * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-28 21:35:37
- * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\warehouse\private\management\type.vue
+ * @LastEditTime: 2025-04-03 21:38:10
+ * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
 import type {
-  ColumnConfig,
-  PageChangeInfo,
-  SearchParams,
-  SelectionChangeEvent,
-  TableItem,
-} from '#/components/DataTable/types';
+  ColumnDefinition,
+  TableRecord,
+} from '#/components/CommonTable/types';
 
 import { ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import CommonTable from '#/components/CommonTable/index.vue';
 
-import DataTable from '#/components/DataTable/index.vue';
-import { FieldType } from '#/components/DataTable/types';
-import DynamicForm from '#/components/DynamicForm/index.vue';
-import { useMainGetData } from '#/composables';
-
-const pageTitle = $t(
-  'page.warehouse.myPrivateWarehouse.generalLedger.openWarehouse',
-);
-const pageID = 'hobySelPrivcateWareSrlDir';
-
-const dynamicFormRef = ref<null | {
-  open: (
-    params: { pageButtonID: string; pageID: string },
-    record: Record<string, any>,
-  ) => void;
-}>(null);
-const dynamicFormTitle = ref('');
-// 表格列配置
-const columns: ColumnConfig[] = [
-  {
-    title: '仓商',
-    dataIndex: 'saleCmpName',
-    visible: true,
-    searchable: true,
-    type: FieldType.STRING,
-    width: 180,
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    visible: true,
-    searchable: false,
-    type: FieldType.SELECT,
-    width: 100,
-    enumName: 'warehouseStatus',
-  },
+const pageParams = ref({
+  pageID: 'privateWareActivatedPage',
+  showAddButton: false, // 控制是否显示新增按钮
+  // onAdd: () => {
+  //   // 自定义新增处理逻辑
+  //   console.warn('新增');
+  // },
+});
+// 定义表格列配置
+const columns = ref<ColumnDefinition[]>([
   {
     title: '操作',
-    dataIndex: 'operation',
+    dataIndex: 'action',
     visible: true,
-    type: FieldType.OPERATION,
+    type: 'operation',
+    // defaultActions: ['view', 'edit', 'delete'],
+    defaultActions: false,
     actionColumnProps: {
       width: 200,
       fixed: 'right',
@@ -70,156 +42,92 @@ const columns: ColumnConfig[] = [
       {
         text: '建立仓储目录',
         type: 'link',
-        onClick: (record) => {
-          console.warn('建立仓储目录', record);
-          // 实现建立仓储目录逻辑
-          const params = { pageID, pageButtonID: 'createWareSKUDir' };
-          dynamicFormRef.value?.open(params, record);
-          dynamicFormTitle.value = '建立仓储目录';
-        },
-      },
-      {
-        text: '建立仓库仓储目录',
-        type: 'link',
-        onClick: (record) => {
-          console.warn('建立仓储目录', record);
-          // 实现建立仓储目录逻辑
-        },
+        danger: false,
+        visible: true, // 控制按钮是否显示
+        runMode: 'modal', //
+        batchable: false,
+        params: (record) => ({
+          pageID: 'hobySelPrivcateWareSrlDir',
+          pageButtonID: 'createWareSKUDir',
+          ...record,
+        }),
+        disabled: (record) => record && false, // 控制按钮是否禁用
+        successMsg: '建立仓储目录成功',
+        errorMsg: '建立仓储目录失败',
+        confirm: 'auto',
+        autoRefresh: true, // 默认为true，可省略
       },
     ],
   },
-];
+]);
 
-// 表格数据和状态
-const tableData = ref<TableItem[]>([]);
-const total = ref<number>(0);
-const currentPage = ref<number>(1);
-const pageSize = ref<number>(10);
-const loading = ref<boolean>(false);
+// 表格数据
+const tableData = ref([]);
+// 自定义请求方法示例 :request-api="customRequest"
+// const customRequest = async (formValues: any) => {
+//   console.warn('表单值:', formValues);
 
-// 引用组件实例并添加类型定义
-const dataTableRef = ref<null | {
-  clearSelection: () => void;
-  getCurrentPage: () => number;
-  getPageSize: () => number;
-  getSearchParams: () => Record<string, any>;
-  refresh: () => void;
-  resetSearch: () => void;
-  searchForm: Record<string, any>;
-  selectedRowKeys: Array<number | string>;
-  selectedRows: TableItem[];
-  setSelection: (keys: Array<number | string>, rows: TableItem[]) => void;
-}>(null);
+//   // 这里可以进行实际的API调用
+//   // const res = await api.getList(page, formValues);
+//   const params = {
+//     pageID: 'myBranchWareShopPage',
+//     pageDataGrpID: 'myBranchWareShop',
+//     ...formValues,
+//   };
+//   const { data, total } = await useMainGetData(params);
+//   return {
+//     items: data.value,
+//     total: total.value,
+//   };
+// };
 
-// API服务（模拟）
-const warehouseApi = {
-  getList: async (_params: SearchParams) => {
-    // 模拟API调用延迟
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const params = {
-      pageID: 'privateWareActivatedPage',
-      pageDataGrpID: 'privateWareActivated',
-      ..._params,
-    };
-    const { data, total } = await useMainGetData(params);
-    return {
-      data: data.value,
-      total: total.value,
-    };
-  },
-};
-
-// 获取仓库数据的方法
-const fetchWarehouseData = async (params: SearchParams) => {
-  try {
-    return await warehouseApi.getList(params);
-  } catch (error) {
-    console.error('获取仓库数据失败:', error);
-    return {
-      data: [],
-      total: 0,
-    };
-  }
-};
-
-// 处理搜索事件
-const handleSearch = (formData: Record<string, any>) => {
-  console.warn('搜索条件：', formData);
-};
-
-// 处理分页变化
-const handlePageChange = (pagination: PageChangeInfo) => {
-  console.warn('分页变化：', pagination);
-  // 获取选中数据示例
-  if (dataTableRef.value) {
-    const { selectedRows } = dataTableRef.value;
-    console.warn('当前选中行：', selectedRows);
-  }
-};
+// 选中的记录
+const selectedRows = ref<TableRecord[]>([]);
 
 // 处理选择变化
-const handleSelectionChange = (event: SelectionChangeEvent) => {
-  const { keys, rows } = event;
-  console.warn('选中行变化：', keys, rows);
+const handleSelectionChange = ({
+  records,
+  keys,
+}: {
+  keys: string[];
+  records: TableRecord[];
+}) => {
+  console.warn('选中的记录:', records);
+  console.warn('选中的键值:', keys);
+  selectedRows.value = records;
 };
 
-// 工具方法
-function refreshTable() {
-  if (dataTableRef.value) {
-    dataTableRef.value.refresh();
-  }
-}
+const tableRef = ref<null | {
+  refresh: () => void;
+}>(null);
 
-function getCurrentState() {
-  if (dataTableRef.value) {
-    const page = dataTableRef.value.getCurrentPage();
-    const size = dataTableRef.value.getPageSize();
-    const params = dataTableRef.value.getSearchParams();
-    console.warn('当前状态：', { page, size, params });
-  }
-}
+// // 刷新表格方法示例
+// function refreshTable() {
+//   tableRef.value?.refresh();
+// }
 
-// 暴露给外部组件调用的方法
-defineExpose({
-  refreshTable,
-  getCurrentState,
-});
+// 批量操作按钮示例
+// const batchActions = [
+//   {
+//     text: '批量审核',
+//     params: {
+//       pageID: 'batchApprove',
+//       pageButtonID: 'batchApprove',
+//     },
+//     confirm: '确定要批量审核选中的记录吗？',
+//     successMsg: '批量审核成功',
+//     errorMsg: '批量审核失败',
+//   },
+// ];
 </script>
 
 <template>
-  <Page auto-content-height :title="pageTitle" class="warehouse-type-page">
-    <!-- 使用v-model绑定方式 -->
-    <DataTable
-      ref="dataTableRef"
-      :columns="columns"
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      v-model:loading="loading"
-      :data-source="tableData"
-      :total="total"
-      :fetch-data-func="fetchWarehouseData"
-      :row-selection="true"
-      row-key="id"
-      @search="handleSearch"
-      @page-change="handlePageChange"
-      @selection-change="handleSelectionChange"
-    />
-    <DynamicForm ref="dynamicFormRef" :title="dynamicFormTitle" />
-  </Page>
+  <CommonTable
+    ref="tableRef"
+    :params="pageParams"
+    :columns="columns"
+    :table-data="tableData"
+    :show-search="true"
+    @selection-change="handleSelectionChange"
+  />
 </template>
-
-<style scoped>
-.warehouse-type-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-:deep(.vben-page-content) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-}
-</style>
