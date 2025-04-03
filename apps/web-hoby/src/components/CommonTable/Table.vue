@@ -226,9 +226,20 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
     // 根据 runMode 决定执行方式
     if (action.runMode === 'modal' || action.runMode === 'drawer') {
       // 打开弹窗
+      // 获取服务参数
+      let serviceParams: Record<string, any> = {};
+
+      // 如果配置了自定义 params 函数，则调用它来获取参数
+      if (typeof action.params === 'function') {
+        serviceParams = action.params(row);
+      }
+      // 如果配置了静态 params 对象，则使用它
+      else if (action.params && typeof action.params === 'object') {
+        serviceParams = { ...action.params };
+      }
       emit('openDynamicForm', {
         buttonTitle: action.label || action.text,
-        pageID: props.params?.pageID || '',
+        pageID: serviceParams.pageID || '',
         mode: action.runMode || 'drawer',
         record: row,
       });
