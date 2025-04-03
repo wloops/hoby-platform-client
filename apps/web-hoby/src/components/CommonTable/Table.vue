@@ -560,15 +560,13 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
 
   return map[type];
 }
-
 // 添加默认操作按钮配置
-const getDefaultActions = (pageID: string) => {
+const getDefaultActions = (pageID: string): ActionButtonProps[] => {
   return [
     {
       key: 'view',
       label: '查看',
-      type: 'default' as VxeButtonType,
-      size: 'small',
+      type: 'link',
       batchable: false,
       onClick: (row: TableRecord) => {
         emit('openDynamicForm', {
@@ -583,8 +581,7 @@ const getDefaultActions = (pageID: string) => {
     {
       key: 'edit',
       label: '编辑',
-      type: 'primary' as VxeButtonType,
-      size: 'small',
+      type: 'link',
       batchable: false,
       onClick: (row: TableRecord) => {
         emit('openDynamicForm', {
@@ -599,10 +596,9 @@ const getDefaultActions = (pageID: string) => {
     {
       key: 'delete',
       label: '删除',
-      type: 'error' as VxeButtonType,
+      type: 'link',
       danger: true,
       confirm: '确定要删除此记录吗？',
-      size: 'small',
       api: mainDeleteRecrdApi,
       params: (row: TableRecord) => ({
         INTERPAGEID: pageID,
@@ -638,7 +634,7 @@ const processColumnActions = () => {
     if (Array.isArray(actionCol.defaultActions)) {
       const showActionKeys = actionCol.defaultActions;
       const filteredActions = defaultActions.filter((action) =>
-        showActionKeys.includes(action.key),
+        showActionKeys.includes(action.key as string),
       );
 
       // 将筛选后的默认操作按钮添加到actions数组
