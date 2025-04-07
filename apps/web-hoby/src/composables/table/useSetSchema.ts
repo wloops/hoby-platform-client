@@ -39,7 +39,7 @@ export function useSetSchema() {
     const schema = columnConfigs
       .filter((config) => config.searchable === true)
       .map((config) => {
-        const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
+        // const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
         const schemaItem: VxeSchemaItem = {
           fieldName: config.dataIndex,
           label: config.title,
@@ -56,13 +56,9 @@ export function useSetSchema() {
         }
 
         // 处理选项类组件 有enumName
-        if (
-          config.type === FieldType.SELECT &&
-          config.enumName &&
-          getEnumList(config.enumName)
-        ) {
+        if (config.type === FieldType.SELECT && config.enumName) {
           schemaItem.componentProps = {
-            options: getEnumList(config.enumName) as any[],
+            options: config.options,
             allowClear: true,
             placeholder: '请选择',
           };
@@ -109,9 +105,15 @@ export function useSetSchema() {
         const column: any = {
           field: config.dataIndex,
           title: config.title,
+          minWidth: calculateColumnWidth(
+            config.type as FieldType,
+            config.title,
+          ), // 设置最小宽度
+          resizable: true, // 允许手动调整列宽
+          showOverflow: config.ellipsis ? 'tooltip' : null, // 内容溢出显示tooltip
         };
 
-        // 处理宽度
+        // 如果是固定宽度，则使用指定宽度
         if (config.width) {
           column.width = config.width;
         }
@@ -124,11 +126,6 @@ export function useSetSchema() {
         // 处理固定列
         if (config.fixed) {
           column.fixed = config.fixed;
-        }
-
-        // 处理省略
-        if (config.ellipsis) {
-          column.showOverflow = 'ellipsis';
         }
 
         // 处理日期格式化
@@ -221,6 +218,7 @@ export function useSetSchema() {
     operationColumn: ColumnDefinition[],
     pageID: string,
   ): Promise<ColumnDefinition[]> => {
+    const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
     const { rs, fieldList, displayFldList, pkFldList, queryPanelFldList } =
       await mainGetViewFieldConfigApi({ pageID });
 
@@ -293,16 +291,15 @@ export function useSetSchema() {
         column.enumName = (field as any).enumName;
       }
 
-      // 根据字段类型设置其他属性
-      if (fieldType === FieldType.DATE || fieldType === FieldType.DATETIME) {
-        column.width = 180; // 日期类型宽度设置大一些
-      } else if (fieldType === FieldType.NUMBER) {
-        column.width = 100; // 数字类型宽度适中
-        column.align = 'right'; // 数字类型右对齐
-      }
-
       return column;
     });
+
+    // 处理枚举选项
+    for (const column of columns) {
+      if (column.enumName) {
+        column.options = await getEnumList(column.enumName);
+      }
+    }
 
     // 添加操作列
     if (operationColumn && operationColumn.length > 0) {
@@ -318,3 +315,30 @@ export function useSetSchema() {
     getViewSchema,
   };
 }
+
+/**
+ * 根据字段类型和内容计算合适的列宽度
+ * @param fieldType - 字段类型
+ * @param title - 列标题
+ * @returns 计算后的列宽度
+ */
+const calculateColumnWidth = (fieldType: FieldType, title: string): number => {
+  // 基础宽度：标题文字长度 * 每个字符的平均宽度(假设中文16px，英文8px)
+  const baseTitleWidth = [...title].reduce((width, char) => {
+    return width + (/[\u4E00-\u9FA5]/.test(char) ? 16 : 8);
+  }, 0);
+  // 根据不同字段类型设置最小宽度
+  const minWidthMap: Record<string, number> = {
+    [FieldType.STRING]: 120,
+    [FieldType.NUMBER]: 100,
+    [FieldType.SELECT]: 140,
+    [FieldType.DATE]: 140,
+    [FieldType.DATETIME]: 180,
+    [FieldType.TIME]: 120,
+    [FieldType.CHECKBOX]: 80,
+    [FieldType.SWITCH]: 80,
+  };
+
+  // 取标题宽度和最小宽度的最大值
+  return Math.max(baseTitleWidth + 32, minWidthMap[fieldType] || 120);
+};

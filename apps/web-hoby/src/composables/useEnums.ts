@@ -1,5 +1,7 @@
 import { ref } from 'vue';
 
+import { mainGetCommonQueryData } from '#/api';
+
 // 定义枚举类型
 /**
  * 枚举项
@@ -442,6 +444,21 @@ export function useEnums() {
     const mapKey = enumName || id;
 
     const enumValue = enums.value[mapKey]?.[key];
+    const label = enumValue?.label;
+    if (!label) {
+      // 读取缓存中的
+      const optionsStr = window.sessionStorage.getItem(mapKey as string);
+      let label = '';
+      if (optionsStr) {
+        const options = JSON.parse(optionsStr);
+        options.forEach((item: { label: string; value: string }) => {
+          if (key === item.value) {
+            label = item.label;
+          }
+        });
+      }
+      return label;
+    }
     return enumValue?.label || '未知';
   };
 
@@ -455,7 +472,7 @@ export function useEnums() {
     const [enumName, id] = type.split('|') as [keyof Enums, string];
     const mapKey = enumName || id;
     const enumValue = enums.value[mapKey]?.[key];
-    return enumValue?.color || '#434B52'; // 默认灰色
+    return enumValue?.color || '';
   };
 
   /**
@@ -463,18 +480,33 @@ export function useEnums() {
    * @param type 枚举类型（如 'restockingStatus'）
    * @returns 枚举键值对列表（如 [{ value: '0', label: '不需要进货', color: 'default' }]）
    */
-  const getEnumList = (
-    type: keyof Enums,
-  ): Array<{ color?: string; label: string; value: string }> => {
-    return (
-      (enums.value[type] &&
-        Object.entries(enums.value[type]).map(([key, item]) => ({
-          value: key,
-          label: item.label,
-          color: item.color, // color 非必填
-        }))) ||
-      []
-    );
+  const getEnumList = async (
+    type: string,
+  ): Promise<{ color?: string; label: string; value: string }[]> => {
+    if (enums.value[type]) {
+      return Object.entries(enums.value[type]).map(([key, item]) => ({
+        value: key,
+        label: item.label,
+        color: item.color, // color 非必填
+      }));
+    } else {
+      const sessionStorageEnum = window.sessionStorage.getItem(type);
+      if (sessionStorageEnum) {
+        const storageEnumOptions = JSON.parse(sessionStorageEnum);
+        return storageEnumOptions;
+      }
+      // 通过请求获取枚举列表
+      const params = {
+        INTERQUERYCON: `enum::${type}`,
+        INTERFLDNAMELIST: '',
+        INTERRESID: '',
+      };
+      const res = await mainGetCommonQueryData(params);
+      const options = res?.data?.enumValues;
+      // 将options存入
+      window.sessionStorage.setItem(type, JSON.stringify(options));
+      return options;
+    }
   };
 
   return {
