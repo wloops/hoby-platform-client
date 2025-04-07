@@ -52,9 +52,10 @@ async function loadFromCache(): Promise<AreaData | null> {
  * 从数据中提取版本信息
  * 假设数据格式为：[{..., version?: string}, ...]
  */
-function getDataVersion(data: AreaData): string {
+function getDataVersion(_data: AreaData): string {
   // 如果数据中有版本字段则使用，否则使用默认值
-  return data[0]?.version || 'default-version';
+  // return data[0]?.version || 'default-version';
+  return 'default-version';
 }
 
 /**

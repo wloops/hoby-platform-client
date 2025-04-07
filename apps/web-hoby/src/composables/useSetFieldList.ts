@@ -88,6 +88,12 @@ export function useSetFieldList() {
           item.value.includes('auto') ||
           item.value.includes('this.') ||
           item.value.includes('active.'),
+        placeholder:
+          item.value.includes('auto') ||
+          item.value.includes('this.') ||
+          item.value.includes('active.')
+            ? ' '
+            : `请输入${item.displayName}`,
       };
       if (isAdd) {
         formItem.defaultValue = '';
