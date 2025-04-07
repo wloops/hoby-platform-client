@@ -402,6 +402,9 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           { field: 'price', title: 'Price' },
           { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
         ],
+  columnConfig: {
+    width: 'auto',
+  },
   editConfig: {
     mode: 'cell',
     trigger: 'click',
