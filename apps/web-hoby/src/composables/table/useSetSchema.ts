@@ -105,10 +105,10 @@ export function useSetSchema() {
         const column: any = {
           field: config.dataIndex,
           title: config.title,
-          minWidth: calculateColumnWidth(
-            config.type as FieldType,
-            config.title,
-          ), // 设置最小宽度
+          // minWidth: calculateColumnWidth(
+          //   config.type as FieldType,
+          //   config.title,
+          // ), // 设置最小宽度
           resizable: true, // 允许手动调整列宽
           showOverflow: config.ellipsis ? 'tooltip' : null, // 内容溢出显示tooltip
         };
@@ -316,29 +316,29 @@ export function useSetSchema() {
   };
 }
 
-/**
- * 根据字段类型和内容计算合适的列宽度
- * @param fieldType - 字段类型
- * @param title - 列标题
- * @returns 计算后的列宽度
- */
-const calculateColumnWidth = (fieldType: FieldType, title: string): number => {
-  // 基础宽度：标题文字长度 * 每个字符的平均宽度(假设中文16px，英文8px)
-  const baseTitleWidth = [...title].reduce((width, char) => {
-    return width + (/[\u4E00-\u9FA5]/.test(char) ? 16 : 8);
-  }, 0);
-  // 根据不同字段类型设置最小宽度
-  const minWidthMap: Record<string, number> = {
-    [FieldType.STRING]: 120,
-    [FieldType.NUMBER]: 100,
-    [FieldType.SELECT]: 140,
-    [FieldType.DATE]: 140,
-    [FieldType.DATETIME]: 180,
-    [FieldType.TIME]: 120,
-    [FieldType.CHECKBOX]: 80,
-    [FieldType.SWITCH]: 80,
-  };
+// /**
+//  * 根据字段类型和内容计算合适的列宽度
+//  * @param fieldType - 字段类型
+//  * @param title - 列标题
+//  * @returns 计算后的列宽度
+//  */
+// const calculateColumnWidth = (fieldType: FieldType, title: string): number => {
+//   // 基础宽度：标题文字长度 * 每个字符的平均宽度(假设中文16px，英文8px)
+//   const baseTitleWidth = [...title].reduce((width, char) => {
+//     return width + (/[\u4E00-\u9FA5]/.test(char) ? 16 : 8);
+//   }, 0);
+//   // 根据不同字段类型设置最小宽度
+//   const minWidthMap: Record<string, number> = {
+//     [FieldType.STRING]: 120,
+//     [FieldType.NUMBER]: 100,
+//     [FieldType.SELECT]: 140,
+//     [FieldType.DATE]: 140,
+//     [FieldType.DATETIME]: 180,
+//     [FieldType.TIME]: 120,
+//     [FieldType.CHECKBOX]: 80,
+//     [FieldType.SWITCH]: 80,
+//   };
 
-  // 取标题宽度和最小宽度的最大值
-  return Math.max(baseTitleWidth + 32, minWidthMap[fieldType] || 120);
-};
+//   // 取标题宽度和最小宽度的最大值
+//   return Math.max(baseTitleWidth + 32, minWidthMap[fieldType] || 120);
+// };

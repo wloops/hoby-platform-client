@@ -403,7 +403,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
         ],
   columnConfig: {
-    width: 'auto',
+    // width: 'auto',
+    minWidth: 'auto',
   },
   editConfig: {
     mode: 'cell',
