@@ -27,6 +27,11 @@ export function useSetFieldList() {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
     }
+    // 如果record为空
+    let isAdd = false;
+    if (Object.keys(record).length === 0) {
+      isAdd = true;
+    }
     sourceData.forEach((item) => {
       if (!record[item.fieldName]) {
         record[item.fieldName] = '';
@@ -84,9 +89,19 @@ export function useSetFieldList() {
           item.value.includes('this.') ||
           item.value.includes('active.'),
       };
-      // 记录带入的默认值优先级最高
-      if (record && record[item.fieldName]) {
-        formItem.defaultValue = record[item.fieldName] || '';
+      if (isAdd) {
+        formItem.defaultValue = '';
+        if (item.value.includes('auto')) {
+          formItem.dependencies = {
+            show: () => false,
+            triggerFields: Object.keys(record),
+          };
+        }
+      } else {
+        // 记录带入的默认值优先级最高
+        if (record[item.fieldName]) {
+          formItem.defaultValue = record[item.fieldName] || '';
+        }
       }
       // 处理默认值 end
 
@@ -94,6 +109,28 @@ export function useSetFieldList() {
       const fieldType = getFieldType(item.value);
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
+        // case 'boolean': {
+        //   formItem.component = 'Switch';
+        //   break;
+        // }
+        case 'date': {
+          formItem.component = 'DatePicker';
+          formItem.componentProps = {
+            ...formItem.componentProps,
+            valueFormat: 'YYYYMMDD',
+          };
+          break;
+        }
+        case 'datetime': {
+          formItem.component = 'DatePicker';
+          formItem.componentProps = {
+            ...formItem.componentProps,
+            showTime: true,
+            format: 'YYYY-MM-DD HH:mm:ss',
+            valueFormat: 'YYYYMMDDHHmmss',
+          };
+          break;
+        }
         case 'enum': {
           formItem.component = 'ApiSelect';
           formItem.componentProps = {
@@ -209,35 +246,17 @@ export function useSetFieldList() {
 
           break;
         }
+        case 'time': {
+          formItem.component = 'TimePicker';
+          formItem.componentProps = {
+            ...formItem.componentProps,
+            valueFormat: 'HHmmss',
+          };
+          break;
+        }
+
         default: {
-          // 根据数据类型设置不同的组件
-          switch (item.type) {
-            case 'boolean': {
-              formItem.component = 'Switch';
-              break;
-            }
-            case 'date': {
-              formItem.component = 'DatePicker';
-              break;
-            }
-            case 'datetime': {
-              formItem.component = 'DatePicker';
-              formItem.componentProps = {
-                ...formItem.componentProps,
-                showTime: true,
-              };
-              break;
-            }
-            case 'float':
-            case 'int':
-            case 'number': {
-              formItem.component = 'InputNumber';
-              break;
-            }
-            default: {
-              formItem.component = 'Input';
-            }
-          }
+          formItem.component = 'Input';
         }
       }
 
@@ -283,7 +302,7 @@ function getFieldType(value: string) {
     } else if (value.startsWith('datetime::') || value.includes('^F^dt^')) {
       fieldType = 'datetime';
     } else if (value.includes('^F^t^')) {
-      fieldType = 'datetime'; // 时间类型，如果没有特定的类型则使用字符串
+      fieldType = 'time'; // 时间类型，如果没有特定的类型则使用字符串
       // eslint-disable-next-line regexp/no-unused-capturing-group
     } else if (/\.?enum[.:]{1,2}([^,]+)/.test(value)) {
       fieldType = 'enum';

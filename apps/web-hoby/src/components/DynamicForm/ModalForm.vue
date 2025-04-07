@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-25 14:36:54
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-26 11:54:59
+ * @LastEditTime: 2025-04-07 10:11:55
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\DynamicForm\ModalForm.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -31,6 +31,10 @@ const props = defineProps({
     default: () => [],
     type: Array as () => VbenFormSchema[],
   },
+  width: {
+    default: 700,
+    type: Number,
+  },
 });
 
 const modalForm = ref<null | {
@@ -48,7 +52,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <Modal :title="props.title">
+  <Modal :title="props.title" class="w-[40%]">
     <Form
       ref="modalForm"
       :form-config="props.formConfig"

@@ -245,7 +245,6 @@ const schema = ref<any>([
   },
 ]);
 
-const isAdd = ref(false);
 const getSchema = async (pageID: string, record?: Record<string, any>) => {
   // console.log('drawerApi', drawerApi.getData().getValues());
 
@@ -257,12 +256,11 @@ const getSchema = async (pageID: string, record?: Record<string, any>) => {
 
   const originalFields = res.fieldList;
 
-  if (!record) {
-    isAdd.value = true;
-  }
-
   // 转换为表单结构
-  const formSchema = convertToFormSchema(originalFields, record || {});
+  const formSchema = convertToFormSchema(
+    originalFields,
+    submitType.value === 'add' ? ({} as any) : record,
+  );
   schema.value = formSchema;
 };
 
