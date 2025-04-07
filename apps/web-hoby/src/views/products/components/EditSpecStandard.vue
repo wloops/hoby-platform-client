@@ -343,8 +343,8 @@ defineExpose({
 <template>
   <div
     v-if="isOpen"
-    class="absolute inset-0 overflow-y-auto"
-    style="z-index: 202; height: calc(100% + 32px)"
+    class="absolute inset-0 h-full overflow-y-auto"
+    style="z-index: 202"
   >
     <!-- Modal -->
     <div class="flex h-full items-end justify-center text-center">

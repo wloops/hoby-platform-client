@@ -6,6 +6,7 @@ import { message, Modal } from 'ant-design-vue';
 import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
+import addProductStandard from './components/addProductStandard.vue';
 import EditSpecificationModal from './components/EditSpecificationModal.vue';
 
 // 产品展开状态
@@ -88,6 +89,7 @@ const getSpecValueList = async (spec, index) => {
 // const isEditModalOpen = ref(false);
 const currentEditingProduct = ref(null);
 const editSpecificationModalRef = ref(null);
+const addProductStandardRef = ref(null);
 
 // 打开编辑模态框
 const openEditModal = (product) => {
@@ -96,6 +98,11 @@ const openEditModal = (product) => {
   currentEditingProduct.value = product;
   // isEditModalOpen.value = true;
   editSpecificationModalRef.value.open(product);
+};
+
+// 打开新增产品模态框
+const openAddProductStandardModal = () => {
+  addProductStandardRef.value.open();
 };
 
 // // 关闭编辑模态框
@@ -303,7 +310,7 @@ const resetPage = () => {
         <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
           产品标准管理
         </h1> -->
-        <button class="btn-primary">
+        <button class="btn-primary" @click="openAddProductStandardModal()">
           <svg
             class="mr-2 h-4 w-4"
             fill="none"
@@ -317,10 +324,15 @@ const resetPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          创建产品标准
+          新增产品标准
         </button>
       </div>
-
+      <!-- 新增产品模态框 -->
+      <addProductStandard
+        ref="addProductStandardRef"
+        @refresh="fetchProducts"
+      />
+      <!-- 编辑产品规格模态框 -->
       <EditSpecificationModal ref="editSpecificationModalRef" />
 
       <!-- 产品列表 -->
