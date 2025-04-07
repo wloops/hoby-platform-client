@@ -84,6 +84,12 @@ export function useSetSchema() {
           };
         }
 
+        if (config.type === FieldType.TIME) {
+          schemaItem.component === 'TimePicker';
+          schemaItem.componentProps = {
+            valueFormat: 'HHmmss',
+          };
+        }
         return schemaItem;
       });
     return schema;
@@ -198,6 +204,7 @@ export function useSetSchema() {
       [FieldType.DATETIME]: 'DatePicker',
       [FieldType.CHECKBOX]: 'Checkbox',
       [FieldType.SWITCH]: 'Switch',
+      [FieldType.TIME]: 'TimePicker',
       // 添加其他需要的映射...
     };
 
@@ -247,7 +254,7 @@ export function useSetSchema() {
         ) {
           fieldType = FieldType.DATETIME;
         } else if (field.value.includes('^F^t^')) {
-          fieldType = FieldType.STRING; // 时间类型，如果没有特定的类型则使用字符串
+          fieldType = FieldType.TIME; // 时间类型
           // eslint-disable-next-line regexp/no-unused-capturing-group
         } else if (/\.?enum[.:]{1,2}([^,]+)/.test(field.value)) {
           fieldType = FieldType.SELECT;

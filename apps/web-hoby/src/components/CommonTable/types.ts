@@ -8,16 +8,18 @@
  * @SELECT 选择
  * @STRING 字符串
  * @SWITCH 开关
+ * @TIME 时间
  */
 export enum FieldType {
-  CHECKBOX = 'checkbox', // 新增复选框类型
-  DATE = 'date', // 新增日期类型
-  DATETIME = 'datetime', // 新增日期时间类型
+  CHECKBOX = 'checkbox', // 复选框类型
+  DATE = 'date', // 日期类型
+  DATETIME = 'datetime', // 日期时间类型
   NUMBER = 'number',
-  OPERATION = 'operation', // 新增操作类型
+  OPERATION = 'operation', // 操作类型
   SELECT = 'select',
   STRING = 'string',
-  SWITCH = 'switch', // 新增开关类型
+  SWITCH = 'switch', // 开关类型
+  TIME = 'time', // 时间类型
 }
 
 // 按钮类型定义
