@@ -55,6 +55,16 @@
   },
   "shop": {
     "title": "我的店铺",
+    "saleOrder": {
+      "title": "销售订单",
+      "pendingOrders": "待接单",
+      "pendingShipment": "待配货",
+      "deliveryInProgress": "配送中",
+      "toBeSignedFor": "待签收",
+      "pendingPayment": "待收款",
+      "completed": "已完成",
+      "all": "全部"
+    },
     "myPrivateWarehouse": {
       "title": "我的私仓店铺",
       "shop": "私仓店铺",
