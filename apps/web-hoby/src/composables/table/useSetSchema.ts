@@ -102,6 +102,7 @@ export function useSetSchema() {
     return columnConfigs
       .filter((config) => config.visible)
       .map((config) => {
+        const { getEnumColor } = useEnums(); // 避免顶层调用,改为在函数内部调用;
         const column: any = {
           field: config.dataIndex,
           title: config.title,
@@ -138,7 +139,9 @@ export function useSetSchema() {
 
         // 处理select类型渲染为Tag
         if (config.type === FieldType.SELECT) {
-          column.slots = { default: 'tag' };
+          if (getEnumColor(config.enumName as string)) {
+            column.slots = { default: 'tag' };
+          }
 
           column.params = {
             enumName: config.enumName,
