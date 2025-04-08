@@ -25,7 +25,7 @@ const isOpen = ref(false);
 // const editedSpecs = reactive({});
 
 // 新规格类型名称
-const newSpecTypeName = ref('');
+// const newSpecTypeName = ref('');
 
 // 已选择的规格类型
 const selectedStockSpecs = ref([]);
@@ -102,40 +102,40 @@ const removeSpecValue = (specCate, index) => {
 
 // 添加新规格类型
 const addNewSpecType = () => {
-  if (!newSpecTypeName.value.trim()) return;
+  if (selectedNewSpecTypes.value.length === 0) {
+    message.warning('请至少选择一个规格类型');
+    return;
+  }
 
-  // 转换为驼峰命名作为key
-  const specTypeKey = newSpecTypeName.value
-    .trim()
-    .replaceAll(/[\s-]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ''))
-    .replace(/^[A-Z]/, (c) => c.toLowerCase());
+  selectedNewSpecTypes.value.forEach((specCate) => {
+    // 检查是否已存在
+    const alreadyExists = editedSpecsList.value.some(
+      (item) => item.specCate === specCate,
+    );
 
-  // 检查是否已存在
-  editedSpecsList.value.forEach((item) => {
-    if (item.specCate === specTypeKey) {
-      message.error(`规格类型 "${newSpecTypeName.value}" 已存在`);
-      return false;
+    if (!alreadyExists) {
+      // 添加新规格类型
+      editedSpecsList.value.push({
+        productName: productData.value.name,
+        srlID: productData.value.model,
+        specCate,
+        productModelSpecValue: [
+          {
+            productName: productData.value.name,
+            srlID: productData.value.model,
+            specValue: '',
+            specCate,
+            isNew: 'true',
+          },
+        ],
+      });
     }
   });
 
-  // 添加新规格类型
-  editedSpecsList.value.push({
-    productName: productData.value.name,
-    srlID: productData.value.model,
-    specCate: specTypeKey,
-    productModelSpecValue: [
-      {
-        productName: productData.value.name,
-        srlID: productData.value.model,
-        specValue: '',
-        specCate: specTypeKey,
-        isNew: 'true',
-      },
-    ],
-  });
-
-  // 清空输入
-  newSpecTypeName.value = '';
+  // 清空选择
+  selectedNewSpecTypes.value = [];
+  // 重新获取可选的规格类型（过滤掉已添加的）
+  fetchAvailableSpecCategories();
 };
 
 // 删除规格类型
@@ -145,29 +145,29 @@ const removeSpecType = (specCate, index) => {
   Modal.confirm({
     title: '提示',
     content: `确定要删除 "${specCate}" 规格吗？`,
-    onOk: () => {
-      editedSpecsList.value.forEach((item) => {
-        if (item.specCate === specCate) {
-          const params = {
-            pageID: 'EditProductModel', // 页面ID
-            pageButtonID: 'prdModelDeleteSpec', // 按钮ID
-            companyName: productData.value?.company,
-            productName: productData.value?.name,
-            srlID: productData.value?.model,
-            specAttrCate: specCate,
-          };
+    async onOk() {
+      try {
+        const params = {
+          pageID: 'EditProductModel',
+          pageButtonID: 'prdModelDeleteSpec',
+          companyName: productData.value?.company,
+          productName: productData.value?.name,
+          srlID: productData.value?.model,
+          specAttrCate: specCate,
+        };
 
-          mainServiceApi(params)
-            .then((res) => {
-              console.warn(res);
-              editedSpecsList.value.splice(index, 1);
-              message.success('规格删除成功');
-            })
-            .catch((error) => {
-              message.error(`删除失败：${error.message || '服务器错误'}`);
-            });
-        }
-      });
+        await mainServiceApi(params);
+
+        // 从本地数据中移除规格类型
+        editedSpecsList.value.splice(index, 1);
+
+        // 重新获取可选的规格类型
+        await fetchAvailableSpecCategories();
+
+        message.success('规格删除成功');
+      } catch (error) {
+        message.error(`删除失败：${error.message || '服务器错误'}`);
+      }
     },
   });
 };
@@ -324,6 +324,8 @@ const saveChanges = () => {
 
 const editedSpecsList = ref([]);
 const productData = ref(null);
+const availableSpecCategories = ref([]); // 存储所有可选的规格类型
+const selectedNewSpecTypes = ref([]); // 存储新选择的规格类型
 // 打开模态框
 const open = async (product) => {
   productData.value = product;
@@ -344,9 +346,32 @@ const open = async (product) => {
   selectedStockSpecs.value = list.specAttrCateListForWare
     ? list.specAttrCateListForWare.split(',')
     : [];
+
+  // 获取所有可选的规格类型
+  await fetchAvailableSpecCategories();
   isOpen.value = true;
 };
+// 获取可选的规格类型列表
+const fetchAvailableSpecCategories = async () => {
+  try {
+    const params = {
+      pageID: 'productStandards',
+      pageDataGrpID: 'queryProductSpecCate',
+      companyName: productData.value?.company,
+      productName: productData.value?.name,
+    };
+    const { data } = await useMainGetData(params);
+    availableSpecCategories.value = data.value || [];
 
+    // 过滤掉已经存在的规格类型
+    availableSpecCategories.value = availableSpecCategories.value.filter(
+      (item) =>
+        !editedSpecsList.value.some((spec) => spec.specCate === item.specCate),
+    );
+  } catch (error) {
+    message.error(`获取规格类型失败: ${error.message}`);
+  }
+};
 // 获取规格类型名称
 const getSpecTypeNameList = async (product) => {
   const userInfo = window.sessionStorage.getItem('userInfo');
@@ -620,7 +645,38 @@ defineExpose({
               <h4 class="whitespace-nowrap text-sm font-medium text-gray-900">
                 添加新规格类型：
               </h4>
-              <input
+              <Select
+                v-model:value="selectedNewSpecTypes"
+                mode="multiple"
+                style="width: 100%"
+                placeholder="请选择要添加的规格类型"
+                :options="
+                  availableSpecCategories.map((item) => ({
+                    value: item.specCate,
+                    label: item.specCate,
+                  }))
+                "
+              >
+                <SelectOption
+                  v-for="item in availableSpecCategories"
+                  :key="item.specCate"
+                  :value="item.specCate"
+                >
+                  {{ item.specCate }}
+                </SelectOption>
+              </Select>
+              <button
+                class="inline-flex items-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:bg-blue-50"
+                @click="addNewSpecType"
+                :disabled="selectedNewSpecTypes.length === 0"
+                :class="{
+                  'cursor-not-allowed opacity-50':
+                    selectedNewSpecTypes.length === 0,
+                }"
+              >
+                添加规格类型
+              </button>
+              <!-- <input
                 type="text"
                 v-model="newSpecTypeName"
                 class="flex-1 rounded-md border px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -635,7 +691,7 @@ defineExpose({
                 }"
               >
                 添加规格类型
-              </button>
+              </button> -->
             </div>
           </div>
 
