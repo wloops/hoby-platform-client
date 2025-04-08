@@ -110,7 +110,6 @@ export function useSetSchema() {
           //   config.type as FieldType,
           //   config.title,
           // ), // 设置最小宽度
-          resizable: true, // 允许手动调整列宽
           showOverflow: config.ellipsis ? 'tooltip' : null, // 内容溢出显示tooltip
         };
 
@@ -139,9 +138,9 @@ export function useSetSchema() {
 
         // 处理select类型渲染为Tag
         if (config.type === FieldType.SELECT) {
-          if (getEnumColor(config.enumName as string)) {
-            column.slots = { default: 'tag' };
-          }
+          column.slots = getEnumColor(config.enumName as string)
+            ? { default: 'tag' }
+            : { default: 'shiftLabel' };
 
           column.params = {
             enumName: config.enumName,

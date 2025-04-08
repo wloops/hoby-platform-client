@@ -406,6 +406,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
         ],
   columnConfig: {
     // width: 'auto',
+    resizable: true, // 允许手动调整列宽
     minWidth: 'auto',
   },
   editConfig: {
@@ -414,7 +415,10 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   },
   exportConfig: {},
   height: 'auto',
-  keepSource: true,
+  autoResize: true,
+  border: false,
+  round: true,
+  keepSource: false, // 保持原始值的状态，被某些功能所依赖，比如编辑状态、还原数据等（开启后影响性能，具体取决于数据量）
   rowConfig: {
     keyField: props.rowKey, // 设置行数据唯一标识的字段名
     isCurrent: true,
@@ -509,9 +513,10 @@ if (
 ) {
   // 使用 unshift 将复选框列添加到前面
   (gridOptions.columns as any[]).unshift({
-    align: 'center',
+    fixed: 'left',
+    field: 'checkbox',
     type: 'checkbox',
-    width: 50,
+    width: 60,
   });
 }
 
@@ -767,6 +772,14 @@ const handleAddClick = () => {
             ) || row[column.field]
           }}
         </Tag>
+      </template>
+      <template #shiftLabel="{ column, row }">
+        {{
+          getEnumLabel(
+            `${column.params.enumName}|${column.field}`,
+            row[column.field],
+          ) || row[column.field]
+        }}
       </template>
     </Grid>
   </Page>
