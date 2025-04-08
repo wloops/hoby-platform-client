@@ -2,13 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-03 13:45:06
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-03 14:19:56
+ * @LastEditTime: 2025-04-08 13:49:01
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\area\areaDataWithCache.ts
  * @Description: 地区数据缓存处理工具
  */
 import type { AreaData } from './types';
 
-const AREA_DATA_URL = './data/areaData.json';
+const AREA_DATA_URL = 'data/areaData.json';
 const CACHE_KEY = 'areaDataCache';
 
 let memoryCache: AreaData | null = null;
@@ -82,8 +82,9 @@ export async function getLoadAreaData(): Promise<AreaData> {
 
   // 从网络加载
   try {
-    const response = await fetch(AREA_DATA_URL);
-    const data: AreaData = await response.json();
+    // const response = await fetch(AREA_DATA_URL);
+    // const data: AreaData = await response.json();
+    const data: AreaData = await loadPublicFile(AREA_DATA_URL);
 
     // 保存到缓存
     saveToCache(data);
@@ -91,6 +92,26 @@ export async function getLoadAreaData(): Promise<AreaData> {
   } catch (error) {
     console.error('加载地区数据失败:', error);
     throw new Error('加载地区数据失败');
+  }
+}
+
+// 动态获取文件路径
+function getPublicFileUrl(path: string): string {
+  return `${import.meta.env.BASE_URL}${path}`;
+}
+// 读取文件内容
+async function loadPublicFile(path: string) {
+  const fileUrl = getPublicFileUrl(path);
+  try {
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${path}`);
+    }
+    const data = await response.json(); // 假设是 JSON 文件
+    return data;
+  } catch (error) {
+    console.error('Error loading file:', error);
+    return null;
   }
 }
 
