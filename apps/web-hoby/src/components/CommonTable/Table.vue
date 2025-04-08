@@ -110,6 +110,7 @@ const actionColumn = computed(() => {
 
 // 添加刷新方法
 function refreshTable() {
+  clearSelection();
   const gridInstance = gridApi?.grid;
   if (gridInstance && gridInstance.commitProxy) {
     gridInstance.commitProxy('query');
@@ -380,16 +381,17 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   checkboxConfig: props.showCheckbox
     ? {
         highlight: true,
-        labelField: 'name',
-        checkStrictly: false, // 是否严格模式
-        checkField: 'checked', // 数据中标识选中的字段名
+        // labelField: 'name',
+        checkStrictly: true, // 是否严格模式
+        // checkField: 'id', // 数据中标识选中的字段名
         showHeader: true, // 是否显示表头
         trigger: 'row', // 触发方式
         range: true, // 是否支持范围选择
+        reserve: true,
       }
     : {
         highlight: true,
-        labelField: 'name',
+        // labelField: 'name',
       },
   columns:
     props.columns.length > 0
@@ -737,7 +739,7 @@ const handleAddClick = () => {
                   <span class="selected-count">{{
                     selectedRecords.length
                   }}</span>
-                  条
+                  项
                 </span>
               </div>
             </Button>

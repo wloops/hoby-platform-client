@@ -93,7 +93,7 @@ const menus = computed(() => [
   {
     handler: toUser,
     icon: 'mdi:account-circle-outline' as any,
-    text: '我的',
+    text: '我的货比工作台',
   },
 ]);
 

@@ -1,324 +1,132 @@
 <!--
  * @Author: Loong wentloop@gmail.com
- * @Date: 2025-03-04 17:24:16
+ * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-17 13:48:29
- * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
+ * @LastEditTime: 2025-04-07 14:00:13
+ * @FilePath: \Example.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
-<script setup lang="ts">
-import type { ColumnsType } from 'ant-design-vue/es/table';
-import type { Dayjs } from 'dayjs';
+<script lang="ts" setup>
+import type {
+  ColumnDefinition,
+  TableRecord,
+} from '#/components/CommonTable/types';
 
-import { computed, h, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
+import CommonTable from '#/components/CommonTable/index.vue';
 
-import { Button, DatePicker, Form, Input, Table, Tag } from 'ant-design-vue';
-import dayjs from 'dayjs';
-
-import { useEnums, useMainGetData } from '#/composables';
-
-interface SettlementItem {
-  id: string;
-  orderNo: string; // 进货订单号
-  voucherType: string; // 凭证类型
-  purchaseUnit: string; // 收款单位
-  amount: number; // 结算金额
-  period: string; // 账期
-  interest: number; // 利率
-  estimatedInterest: number; // 预计利息
-  dueDate: string; // 履约日期
-  paymentStatus: string; // 付款状态
-  paidAmount: number; // 已付金额
-}
-
-interface SearchForm {
-  orderNo: string; // 进货订单号
-  purchaseUnit: string; // 收款单位
-  dueDate: Dayjs | undefined; // 履约日期
-}
-
-const router = useRouter();
-const loading = ref(false);
-const dataSource = ref<SettlementItem[]>([]);
-
-const { getEnumLabel, getEnumColor } = useEnums();
-
-// 搜索表单
-const searchForm = ref<SearchForm>({
-  orderNo: '',
-  purchaseUnit: '',
-  dueDate: undefined,
+const pageParams = ref({
+  pageID: 'myPurchasingOrderVoucherPage',
+  showAddButton: false, // 控制是否显示新增按钮
+  // onAdd: () => {
+  //   // 自定义新增处理逻辑
+  //   console.warn('新增');
+  // },
 });
-
-// 分页配置
-const pagination = ref({
-  current: 1,
-  pageSize: 20,
-  total: 0,
-  showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`,
-});
-
-const columns: ColumnsType<SettlementItem> = [
-  {
-    title: '进货订单号',
-    dataIndex: 'orderNo',
-    align: 'center',
-    width: 180,
-  },
-  {
-    title: '凭证类型',
-    dataIndex: 'voucherType',
-    align: 'center',
-    width: 180,
-    customRender: ({ text }) => getEnumLabel('voucherType', text),
-  },
-  {
-    title: '收款单位',
-    dataIndex: 'purchaseUnit',
-    align: 'center',
-    width: 180,
-  },
-  {
-    title: '结算金额',
-    dataIndex: 'amount',
-    align: 'right',
-    width: 120,
-    customRender: ({ text }) => `¥${text}`,
-  },
-  {
-    title: '账期',
-    dataIndex: 'period',
-    align: 'center',
-    width: 100,
-  },
-  {
-    title: '利率',
-    dataIndex: 'interest',
-    align: 'right',
-    width: 100,
-    customRender: ({ text }) => `¥${text}`,
-  },
-  {
-    title: '预计利息',
-    dataIndex: 'estimatedInterest',
-    align: 'right',
-    width: 100,
-    customRender: ({ text }) => `¥${text}`,
-  },
-  {
-    title: '履约日期',
-    dataIndex: 'dueDate',
-    align: 'center',
-    width: 120,
-    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD') : ''),
-  },
-  {
-    title: '付款状态',
-    dataIndex: 'paymentStatus',
-    align: 'center',
-    width: 100,
-    customRender: ({ text }) => {
-      return h(Tag, { color: getEnumColor('paymentStatus', text) }, () =>
-        getEnumLabel('paymentStatus', text),
-      );
-    },
-  },
-  {
-    title: '已付金额',
-    dataIndex: 'paidAmount',
-    align: 'right',
-    width: 120,
-    customRender: ({ text }) => `¥${text}`,
-  },
+// 定义表格列配置
+const columns = ref<ColumnDefinition[]>([
   {
     title: '操作',
-    width: 120,
-    fixed: 'right',
-    align: 'center',
-    customRender: ({ record }) => {
-      return h(
-        Button,
-        {
-          type: 'link',
-          onClick: () => viewDetail(record),
-        },
-        () => '完成付款',
-      );
+    dataIndex: 'action',
+    visible: true,
+    type: 'operation',
+    defaultActions: ['view'], // 默认显示的按钮 : view 查看, edit 编辑, delete 删除
+    // defaultActions: false,
+    actionColumnProps: {
+      // width: 200,
+      fixed: 'right',
+      align: 'center',
     },
+    actions: [
+      {
+        text: '示例按钮',
+        type: 'link',
+        danger: true,
+        visible: false, // 控制按钮是否显示
+        runMode: 'modal',
+        params: (record) => ({
+          pageID: '示例页面ID',
+          pageButtonID: '示例按钮ID',
+          ...record,
+        }),
+        disabled: (record) => record && false, // 控制按钮是否禁用
+        successMsg: '示例成功提示',
+        errorMsg: '示例失败提示',
+        confirm: 'auto',
+        autoRefresh: true, // 默认为true，可省略
+      },
+    ],
   },
-];
+]);
 
-// 表格滚动配置
-const scroll = computed(() => ({
-  y: 'calc(100vh - 300px)',
-}));
+// 表格数据
+const tableData = ref([]);
+// 自定义请求方法示例 :request-api="customRequest"
+// const customRequest = async (formValues: any) => {
+//   console.warn('表单值:', formValues);
 
-// 查看详情
-function viewDetail(row: SettlementItem) {
-  router.push({
-    name: 'BuyerSettlementDetail',
-    params: { id: row.id },
-  });
-}
+//   // 这里可以进行实际的API调用
+//   // const res = await api.getList(page, formValues);
+//   const params = {
+//     pageID: 'myBranchWareShopPage',
+//     pageDataGrpID: 'myBranchWareShop',
+//     ...formValues,
+//   };
+//   const { data, total } = await useMainGetData(params);
+//   return {
+//     items: data.value,
+//     total: total.value,
+//   };
+// };
 
-// 处理表格变化
-const handleTableChange = async (pag: any) => {
-  pagination.value.current = pag.current;
-  pagination.value.pageSize = pag.pageSize;
-  await fetchList();
+// 选中的记录
+const selectedRows = ref<TableRecord[]>([]);
+
+// 处理选择变化
+const handleSelectionChange = ({
+  records,
+  keys,
+}: {
+  keys: string[];
+  records: TableRecord[];
+}) => {
+  console.warn('选中的记录:', records);
+  console.warn('选中的键值:', keys);
+  selectedRows.value = records;
 };
 
-// 重置搜索
-const resetSearch = () => {
-  searchForm.value = {
-    orderNo: '',
-    purchaseUnit: '',
-    dueDate: undefined,
-  };
-  handleSearch();
-};
+const tableRef = ref<null | {
+  refresh: () => void;
+}>(null);
 
-// 搜索
-const handleSearch = () => {
-  pagination.value.current = 1;
-  fetchList();
-};
+// // 刷新表格方法示例
+// function refreshTable() {
+//   tableRef.value?.refresh();
+// }
 
-// 获取结算列表数据
-async function fetchList() {
-  loading.value = true;
-  try {
-    // TODO: 替换为实际的API调用
-    // const { current, pageSize } = pagination.value;
-    const { current, pageSize } = pagination.value;
-    const reqParams = {
-      pageID: 'myPurchasingOrderVoucherPage',
-      pageDataGrpID: 'purchasingOrderVoucherWaitPayment',
-      currentPage: current,
-      numOfPerPage: pageSize,
-    };
-    const { data, total } = await useMainGetData(reqParams);
-
-    // 将原始数据转换为目标格式
-    const response = {
-      items: (data.value as any[]).map((item: any, index: number) => ({
-        id: `${index + 1}`, // 生成唯一 ID
-        orderNo: item.billNo,
-        voucherType: item.billCate,
-        purchaseUnit: item.recvCompany,
-        amount: item.predictedInterest,
-        period: item.accountPeriodID,
-        interest: item.interestRate,
-        estimatedInterest: item.predictedInterest,
-        dueDate: item.endDate,
-        paymentStatus: item.payStatus,
-        paidAmount: item.paidAmt,
-      })),
-      total: total.value, // 总条数
-    };
-
-    // 更新数据源和分页信息
-    dataSource.value = response.items;
-    pagination.value.total = response.total;
-  } finally {
-    loading.value = false;
-  }
-}
-
-// 初始加载
-fetchList();
+// 批量操作按钮示例
+// const batchActions = [
+//   {
+//     text: '批量审核',
+//     params: {
+//       pageID: 'batchApprove',
+//       pageButtonID: 'batchApprove',
+//     },
+//     confirm: '确定要批量审核选中的记录吗？',
+//     successMsg: '批量审核成功',
+//     errorMsg: '批量审核失败',
+//   },
+// ];
 </script>
 
 <template>
-  <Page auto-content-height>
-    <div class="flex h-full flex-col overflow-hidden">
-      <!-- 搜索区域 -->
-      <div class="mb-2 rounded-lg bg-white p-4 shadow-sm">
-        <Form layout="inline" :model="searchForm">
-          <Form.Item label="进货订单号">
-            <Input
-              v-model:value="searchForm.orderNo"
-              placeholder="请输入进货订单号"
-              allow-clear
-            />
-          </Form.Item>
-          <Form.Item label="收款单位">
-            <Input
-              v-model:value="searchForm.purchaseUnit"
-              placeholder="请输入收款单位"
-              allow-clear
-            />
-          </Form.Item>
-          <Form.Item label="履约日期">
-            <DatePicker
-              v-model:value="searchForm.dueDate"
-              placeholder="请选择履约日期"
-              style="width: 200px"
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" @click="handleSearch">搜索</Button>
-            <Button class="ml-2" @click="resetSearch">重置</Button>
-          </Form.Item>
-        </Form>
-      </div>
-
-      <!-- 表格区域 -->
-      <div class="flex-1 overflow-hidden rounded-lg bg-white shadow-sm">
-        <Table
-          :columns="columns"
-          :data-source="dataSource"
-          :loading="loading"
-          :pagination="pagination"
-          :scroll="scroll"
-          bordered
-          size="middle"
-          row-key="id"
-          @change="handleTableChange"
-        />
-      </div>
-    </div>
-  </Page>
+  <CommonTable
+    ref="tableRef"
+    :params="pageParams"
+    :columns="columns"
+    :table-data="tableData"
+    :show-search="true"
+    @selection-change="handleSelectionChange"
+  />
 </template>
-
-<style scoped>
-:deep(.ant-table-wrapper) {
-  height: 100%;
-}
-
-:deep(.ant-spin-nested-loading) {
-  height: 100%;
-}
-
-:deep(.ant-spin-container) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-:deep(.ant-table) {
-  flex: 1;
-  overflow: hidden;
-}
-
-:deep(.ant-table-container) {
-  height: 100%;
-}
-
-:deep(.ant-table-body) {
-  height: calc(100% - 55px) !important;
-}
-
-:deep(.ant-pagination) {
-  margin: 16px !important;
-}
-
-:deep(.ant-form-inline .ant-form-item) {
-  margin-right: 16px;
-  margin-bottom: 16px;
-}
-</style>
