@@ -211,31 +211,18 @@ const deleteProduct = (product, id) => {
             (product) => product.id !== id,
           );
           message.success('产品删除成功');
+          // 如果删除后当前页没有数据，则跳转到上一页
+          if (products.value.length === 0 && currentPage.value > 1) {
+            currentPage.value--;
+          }
         })
         .catch((error) => {
           message.error(`删除失败：${error.message || '服务器错误'}`);
         });
-      // 如果删除后当前页没有数据，则跳转到上一页
-      if (products.value.length === 0 && currentPage.value > 1) {
-        currentPage.value--;
-      }
     },
   });
 };
 
-const currentPage = ref(1); // 当前页码
-const pageSize = ref(10); // 每页显示的规格数量
-// 计算总页数
-const totalPages = computed(() =>
-  Math.ceil(products.value.length / pageSize.value),
-);
-
-// 计算当前页显示的规格数据
-// const paginatedSpecs = computed(() => {
-//   const start = (currentPage.value - 1) * pageSize.value;
-//   const end = start + pageSize.value;
-//   return specs.value.slice(start, end);
-// });
 const productQuery = ref(''); // 搜索关键词
 // 搜索功能
 const search = () => {
@@ -246,6 +233,22 @@ const search = () => {
 const reset = () => {
   productQuery.value = '';
 };
+// 分页相关
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(10); // 每页显示的规格数量
+
+// 计算当前页显示的产品
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return products.value.slice(start, end);
+});
+
+// 计算总页数
+const totalPages = computed(() =>
+  Math.ceil(products.value.length / pageSize.value),
+);
+
 // 上一页
 const prevPage = () => {
   if (currentPage.value > 1) {
@@ -259,10 +262,12 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
+
 // 跳转到指定页
 const goToPage = (page) => {
   currentPage.value = page;
 };
+
 // 重置页码
 const resetPage = () => {
   currentPage.value = 1;
@@ -338,7 +343,7 @@ const resetPage = () => {
       <!-- 产品列表 -->
       <div class="mb-4 flex-grow space-y-6 overflow-y-auto pb-32">
         <div
-          v-for="product in products"
+          v-for="product in paginatedProducts"
           :key="product.id"
           class="overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
         >
@@ -374,7 +379,7 @@ const resetPage = () => {
               </button>
               <button class="btn-text-primary">
                 <svg
-                  class="mr-1 h-4 w-4"
+                  class="mr-2 h-4 w-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -383,10 +388,10 @@ const resetPage = () => {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    d="M12 4v16m8-8H4"
                   />
                 </svg>
-                编辑产品标准
+                创建产品型号
               </button>
               <button class="btn-text-primary" @click="openEditModal(product)">
                 <svg

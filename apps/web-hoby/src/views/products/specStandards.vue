@@ -74,8 +74,6 @@ onMounted(async () => {
 });
 
 const collapsedState = ref({}); // 用于存储展开/折叠状态
-const currentPage = ref(1); // 当前页码
-const pageSize = ref(10); // 每页显示的规格数量
 
 // 初始化 collapsedState，默认折叠所有规格类型
 const initializeCollapsedState = () => {
@@ -88,18 +86,6 @@ const initializeCollapsedState = () => {
 // onMounted(() => {
 //   initializeCollapsedState();
 // });
-
-// 计算总页数
-const totalPages = computed(() =>
-  Math.ceil(specs.value.length / pageSize.value),
-);
-
-// 计算当前页显示的规格数据
-const paginatedSpecs = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return specs.value.slice(start, end);
-});
 
 // 切换展开/折叠状态
 const toggleCollapse = (id, spec) => {
@@ -174,6 +160,22 @@ const search = () => {
 const reset = () => {
   specCateQuery.value = '';
 };
+
+// 分页相关
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(10); // 每页显示的规格数量
+
+// 计算当前页显示的规格数据
+const paginatedSpecs = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return specs.value.slice(start, end);
+});
+// 计算总页数
+const totalPages = computed(() =>
+  Math.ceil(specs.value.length / pageSize.value),
+);
+
 // 上一页
 const prevPage = () => {
   if (currentPage.value > 1) {
@@ -187,10 +189,12 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
+
 // 跳转到指定页
 const goToPage = (page) => {
   currentPage.value = page;
 };
+
 // 重置页码
 const resetPage = () => {
   currentPage.value = 1;
