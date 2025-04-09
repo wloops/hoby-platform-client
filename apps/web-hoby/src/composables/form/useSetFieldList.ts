@@ -115,7 +115,8 @@ export function useSetFieldList() {
       // 处理默认值 end
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';
-      const fieldType = getFieldType(item.value);
+      const fieldType = item.useType ?? getFieldType(item.value);
+
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
         // case 'boolean': {
@@ -273,10 +274,11 @@ export function useSetFieldList() {
       formItem.componentProps = {
         ...formItem.componentProps,
         disabled:
-          item.value.includes('auto') ||
-          item.value.includes('this.') ||
-          item.value.includes('active.') ||
-          (!isAdd && pkFields.includes(item.fieldName)),
+          formItem.componentProps.disabled ??
+          (item.value.includes('auto') ||
+            item.value.includes('this.') ||
+            item.value.includes('active.') ||
+            (!isAdd && pkFields.includes(item.fieldName))),
         placeholder: item.value.includes('auto')
           ? ' '
           : `请输入${item.displayName}`,

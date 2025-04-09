@@ -1,3 +1,4 @@
+<!-- eslint-disable array-callback-return -->
 <script setup lang="ts">
 import type { Mode } from './types';
 
@@ -245,22 +246,39 @@ const schema = ref<any>([
   },
 ]);
 
-const getSchema = async (pageID: string, record?: Record<string, any>) => {
+const getSchema = async (
+  pageID: string,
+  record?: Record<string, any>,
+  mySchema?: any,
+) => {
   // console.log('drawerApi', drawerApi.getData().getValues());
+  let pkFldList = '';
+  let originalFields = [];
+  if (mySchema && mySchema.length > 0) {
+    originalFields = mySchema;
+    pkFldList = mySchema
+      .map((item: { fieldName: any; isPrimaryKey: any }) => {
+        if (item.isPrimaryKey) {
+          return item.fieldName;
+        }
+      })
+      .join(',');
+  } else {
+    // 假设从API获取的原始字段数据
+    const res = await mainGetViewFieldConfigApi({
+      pageID,
+    });
+
+    originalFields = res.fieldList;
+    pkFldList = res.pkFldList;
+  }
 
   const { convertToFormSchema } = useSetFieldList();
-  // 假设从API获取的原始字段数据
-  const res = await mainGetViewFieldConfigApi({
-    pageID,
-  });
-
-  const originalFields = res.fieldList;
-
   // 转换为表单结构
   const formSchema = convertToFormSchema(
     originalFields,
     submitType.value === 'add' ? ({} as any) : record,
-    res.pkFldList,
+    pkFldList,
   );
   schema.value = formSchema;
 };
@@ -360,10 +378,11 @@ async function open(
   params: pageParam,
   record?: Record<string, any>,
   type?: 'add' | 'default' | 'edit' | 'view',
+  schema?: any,
 ) {
   pageParams.value = params;
   submitType.value = type || 'default';
-  await getSchema(params.pageID, record);
+  await getSchema(params.pageID, record, schema);
   let formApi: any = drawerApi;
   switch (props.mode) {
     case 'auto': {

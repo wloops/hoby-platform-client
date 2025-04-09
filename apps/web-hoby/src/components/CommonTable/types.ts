@@ -38,6 +38,30 @@ export interface TableRecord {
   [key: string]: any;
 }
 
+export interface CustomSchemaList {
+  // 显示文本
+  displayName: string;
+  // 域标识
+  fieldName: string;
+  // 域条件
+  value: string;
+  // 使用的域类型, 没有就根据value条件来匹配
+  useType?:
+    | 'date'
+    | 'datetime'
+    | 'enum'
+    | 'form'
+    | 'input'
+    | 'query'
+    | 'queryArea'
+    | 'readOnly'
+    | 'time';
+  // 是否主键 :默认false
+  isPrimaryKey?: boolean;
+  // 检验规则
+  valueConstraint?: string;
+}
+
 // 修复 AnyFunction 未定义的问题
 export type AnyFunction = (...args: any[]) => any;
 
@@ -66,7 +90,8 @@ export interface ActionButtonProps {
   // 操作后是否清除选择
   clearAfterAction?: boolean;
   autoRefresh?: boolean; // 点击后是否自动刷新表格，默认为true
-
+  // 自定义域列表
+  schema?: CustomSchemaList[];
   // 新增 API 相关属性
   api?: (params: any) => Promise<any>; // API 调用函数
   params?: ((record: any) => any) | Record<string, any>; // 单条记录参数

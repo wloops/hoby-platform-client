@@ -207,12 +207,12 @@ async function executeServiceAction(
     // 空数组则不提取任何字段
     else {
       // 默认关键字段列表
-      const defaultFields = ['id', 'code', 'name', props.rowKey];
-      defaultFields.forEach((field) => {
-        if (record[field] !== undefined) {
-          serviceParams[field] = record[field];
-        }
-      });
+      // const defaultFields = ['id', 'code', 'name', props.rowKey];
+      // defaultFields.forEach((field) => {
+      //   if (record[field] !== undefined) {
+      //     serviceParams[field] = record[field];
+      //   }
+      // });
     }
     // 如果配置了 api 方法，则调用它
     if (action.api) {
@@ -266,6 +266,7 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
         buttonTitle: action.label || action.text,
         mode: action.runMode || 'drawer',
         record: row,
+        schema: action.schema || [],
       });
     } else {
       // 默认执行方式
