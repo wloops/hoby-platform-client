@@ -661,7 +661,7 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
         emit('openDynamicForm', {
           buttonTitle: '查看',
           pageID,
-          mode: 'modal',
+          mode: 'drawer',
           record: row,
           type: 'view',
         });
@@ -676,7 +676,7 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
         emit('openDynamicForm', {
           buttonTitle: '编辑',
           pageID,
-          mode: 'modal',
+          mode: 'drawer',
           record: row,
           type: 'edit',
         });
