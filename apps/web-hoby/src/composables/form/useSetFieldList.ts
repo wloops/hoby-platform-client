@@ -23,10 +23,12 @@ export function useSetFieldList() {
   const convertToFormSchema = (
     sourceData: any[],
     record: Record<string, any>,
+    pkFldList: string,
   ): VbenFormSchema[] => {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
     }
+    const pkFields = pkFldList ? pkFldList.split(',') : [];
     // 如果record为空
     let isAdd = false;
     if (Object.keys(record).length === 0) {
@@ -45,7 +47,6 @@ export function useSetFieldList() {
         item,
         record,
       );
-
       const formItem: VbenFormSchema = {
         fieldName: item.fieldName,
         label: item.displayName,
@@ -55,10 +56,18 @@ export function useSetFieldList() {
         },
       };
 
+      // 附加默认占位符
+      formItem.componentProps = {
+        ...formItem.componentProps,
+        placeholder: item.value.includes('auto')
+          ? ' '
+          : `请输入${item.displayName}`,
+      };
+
       // 添加验证规则
       if (
-        item.valueConstraint === 'notnull'
-        // ||
+        item.valueConstraint === 'notnull' ||
+        (!isAdd && pkFields.includes(item.fieldName))
         // (item.otherProperties?.checkClass &&
         //   item.otherProperties.checkClass.includes('required'))
       ) {
@@ -82,16 +91,6 @@ export function useSetFieldList() {
 
         formItem.defaultValue = actionMap[field] || '';
       }
-      formItem.componentProps = {
-        ...formItem.componentProps,
-        disabled:
-          item.value.includes('auto') ||
-          item.value.includes('this.') ||
-          item.value.includes('active.'),
-        placeholder: item.value.includes('auto')
-          ? ' '
-          : `请输入${item.displayName}`,
-      };
       if (isAdd) {
         if (item.value.includes('auto')) {
           formItem.dependencies = {
@@ -265,6 +264,14 @@ export function useSetFieldList() {
       // 附加原始参数
       formItem.componentProps = {
         ...formItem.componentProps,
+        disabled:
+          item.value.includes('auto') ||
+          item.value.includes('this.') ||
+          item.value.includes('active.') ||
+          (!isAdd && pkFields.includes(item.fieldName)),
+        placeholder: item.value.includes('auto')
+          ? ' '
+          : `请输入${item.displayName}`,
         sourceData: item,
         record: recordRef.value,
       };

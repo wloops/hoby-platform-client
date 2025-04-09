@@ -260,6 +260,7 @@ const getSchema = async (pageID: string, record?: Record<string, any>) => {
   const formSchema = convertToFormSchema(
     originalFields,
     submitType.value === 'add' ? ({} as any) : record,
+    res.pkFldList,
   );
   schema.value = formSchema;
 };
