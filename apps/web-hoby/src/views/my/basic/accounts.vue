@@ -2,12 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-07 11:26:09
+ * @LastEditTime: 2025-04-09 19:18:04
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
 import type {
+  ActionButtonProps,
   ColumnDefinition,
   TableRecord,
 } from '#/components/CommonTable/types';
@@ -24,6 +25,7 @@ const pageParams = ref({
   //   console.warn('新增');
   // },
 });
+const pageButtons: ActionButtonProps[] = [];
 // 定义表格列配置
 const columns = ref<ColumnDefinition[]>([
   {
@@ -40,14 +42,39 @@ const columns = ref<ColumnDefinition[]>([
     },
     actions: [
       {
-        text: '示例按钮',
+        text: '修改密码',
         type: 'link',
         danger: true,
-        visible: false, // 控制按钮是否显示
+        visible: true, // 控制按钮是否显示
+        batchable: false,
         runMode: 'modal',
+        schema: [
+          {
+            fieldName: 'tellerNo',
+            displayName: '操作账号',
+            useType: 'input',
+            value: '',
+          },
+          {
+            fieldName: 'oldPinCiperUnderOriKey',
+            displayName: '旧密码',
+            useType: 'passwordEncBypk',
+            value: '',
+            valueConstraint: 'notnull',
+            isPrimaryKey: false,
+          },
+          {
+            fieldName: 'cipherText',
+            displayName: '新密码',
+            useType: 'passwordEncBypk',
+            value: '',
+            valueConstraint: 'notnull',
+            isPrimaryKey: false,
+          },
+        ],
         params: (record) => ({
-          pageID: '示例页面ID',
-          pageButtonID: '示例按钮ID',
+          pageID: 'myCompanyEmployeeTellNoPage',
+          pageButtonID: 'modifyLoginAccountPassword',
           ...record,
         }),
         disabled: (record) => record && false, // 控制按钮是否禁用
@@ -124,6 +151,7 @@ const tableRef = ref<null | {
   <CommonTable
     ref="tableRef"
     :params="pageParams"
+    :page-buttons="pageButtons"
     :columns="columns"
     :table-data="tableData"
     :show-search="true"

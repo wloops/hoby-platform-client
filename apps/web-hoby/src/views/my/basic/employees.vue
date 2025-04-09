@@ -2,12 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-07 10:23:34
+ * @LastEditTime: 2025-04-09 21:04:05
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\buyer\settlement.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
 import type {
+  ActionButtonProps,
   ColumnDefinition,
   TableRecord,
 } from '#/components/CommonTable/types';
@@ -24,6 +25,74 @@ const pageParams = ref({
   //   console.warn('新增');
   // },
 });
+const pageButtons: ActionButtonProps[] = [
+  {
+    key: 'import',
+    text: '新增员工',
+    runMode: 'modal',
+    schema: [
+      {
+        fieldName: 'tellerName',
+        displayName: '姓名',
+        useType: 'input',
+        value: '',
+      },
+      {
+        fieldName: 'mobile',
+        displayName: '手机',
+        useType: 'input',
+        value: '',
+        default: '13378999344',
+      },
+      {
+        fieldName: 'tellerNo',
+        displayName: '登录账号',
+        useType: 'input',
+        value: '',
+      },
+      {
+        fieldName: 'cipherText',
+        displayName: '登录密码',
+        useType: 'passwordEncBypk',
+        value: '',
+        valueConstraint: 'notnull',
+      },
+      {
+        fieldName: 'roleID',
+        displayName: '固定参数',
+        default: '小微企业超级用户',
+        value: '',
+        visible: true,
+      },
+      {
+        fieldName: 'instCateID',
+        displayName: '固定参数',
+        default: '小微企业客户',
+        value: '',
+        visible: true,
+      },
+      // {
+      //   fieldName: 'companyName',
+      //   displayName: '固定取值',
+      //   value: 'active.tellerCompanyName',
+      //   visible: true,
+      // },
+    ],
+    params: {
+      pageID: 'myCompanyEmployeePage',
+      pageButtonID: 'createEmployeeAndAccount',
+    },
+  },
+  // {
+  //   key: 'export',
+  //   label: '导出',
+  //   icon: 'icon-[mdi--download]',
+  //   disabled: (params: any) => params.selectedRecords.length === 0,
+  //   onClick: (params: any) => {
+  //     console.warn('页面按钮自定义点击逻辑', params);
+  //   },
+  // },
+];
 // 定义表格列配置
 const columns = ref<ColumnDefinition[]>([
   {
@@ -124,6 +193,7 @@ const tableRef = ref<null | {
   <CommonTable
     ref="tableRef"
     :params="pageParams"
+    :page-buttons="pageButtons"
     :columns="columns"
     :table-data="tableData"
     :show-search="true"
