@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { PropType } from 'vue';
+
 import type {
   ActionButtonProps,
   ButtonType,
@@ -25,10 +27,22 @@ import {
   mainGetViewDataApi,
   mainGetViewSearchDataApi,
 } from '#/api';
-import { useEnums, useServiceCall } from '#/composables';
+import { useEnums, useMainGetData, useServiceCall } from '#/composables';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
 import BatchAction from './components/BatchAction.vue';
+import ChildTable from './components/ChildTable.vue';
+
+// 定义子表相关的类型
+interface ChildTableParams {
+  childTableColumns: any[];
+  loadChildTableData?: (row: TableRecord) => Promise<any[]>;
+  childTableParams?:
+    | ((row: TableRecord) => Record<string, any>)
+    | Record<string, any>;
+  childTableDataTransform?: (data: any) => any[];
+  pageID?: string;
+}
 
 // 定义组件接收的属性
 const props = defineProps({
@@ -89,8 +103,17 @@ const props = defineProps({
   },
   // 参数
   params: {
-    type: Object,
-    default: () => {},
+    type: Object as PropType<ChildTableParams & Record<string, any>>,
+    default: () => ({
+      // 子表列配置
+      childTableColumns: [],
+      // 子表数据加载方法
+      loadChildTableData: null,
+      // 子表数据参数映射
+      childTableParams: (_record: any) => {},
+      // 子表数据转换方法
+      childTableDataTransform: (data: any): any[] => data,
+    }),
   },
 });
 
@@ -351,7 +374,6 @@ const processedTableData = computed(() => {
 const { generateSchema, generateColumns } = useSetSchema();
 
 // 根据传入的列配置生成表单配置
-
 const formOptions: VbenFormProps = {
   // 默认展开
   collapsed: true,
@@ -376,23 +398,70 @@ const handleSelectionChange = ({ records }: { records: TableRecord[] }) => {
   });
 };
 
+// 默认的加载子表数据方法
+const defaultLoadChildTableData = async (row: TableRecord): Promise<any[]> => {
+  try {
+    // 获取请求参数
+    const params =
+      typeof props.params.childTableParams === 'function'
+        ? props.params.childTableParams(row)
+        : {
+            INTERPAGEID: props.params?.pageID || '',
+            INTERFORMDATA: JSON.stringify({ parentId: row[props.rowKey] }),
+          };
+
+    // 调用API获取数据
+    const { data } = await useMainGetData(params);
+    const records = data.value || [];
+
+    // 转换数据
+    const transform =
+      props.params.childTableDataTransform || ((data: any) => data);
+    return transform(records);
+  } catch (error) {
+    console.error('加载子表数据失败:', error);
+    return [];
+  }
+};
+
 // 生成表格列配置
 const gridOptions: VxeTableGridOptions<TableRecord> = {
   checkboxConfig: props.showCheckbox
     ? {
         highlight: true,
-        // labelField: 'name',
-        checkStrictly: true, // 是否严格模式
-        // checkField: 'id', // 数据中标识选中的字段名
-        showHeader: true, // 是否显示表头
-        trigger: 'row', // 触发方式
-        range: true, // 是否支持范围选择
+        checkStrictly: true,
+        showHeader: true,
+        trigger: 'row',
+        range: true,
         reserve: true,
       }
     : {
         highlight: true,
-        // labelField: 'name',
       },
+  // 只在配置了子表时才启用展开功能
+  expandConfig:
+    props.params?.childTableColumns?.length > 0 ||
+    props.params?.loadChildTableData
+      ? {
+          trigger: 'row',
+          showIcon: true,
+          reserve: true,
+          lazy: true,
+          iconOpen: 'icon-[mdi--chevron-down]',
+          iconClose: 'icon-[mdi--chevron-right]',
+          loadMethod: async ({ row }) => {
+            // 如果有自定义的加载子表数据方法，则使用自定义方法
+            if (props.params?.loadChildTableData) {
+              const data = await props.params.loadChildTableData(row);
+              row.childTableData = data;
+              return;
+            }
+            // 使用默认的加载方法
+            const data = await defaultLoadChildTableData(row);
+            row.childTableData = data;
+          },
+        }
+      : undefined,
   columns:
     props.columns.length > 0
       ? generateColumns(props.columns)
@@ -448,11 +517,17 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
             (value) => value !== undefined,
           ); // 至少有一个字段有值
           try {
-            const params = {
+            const params: {
+              INTERCURPAGENO: number;
+              INTERPAGEID: string;
+              INTERRECNUMPERPAGE: number;
+              queryConditions?: string;
+            } = {
               INTERPAGEID: props.params.pageID,
               INTERCURPAGENO: page.currentPage,
-              [hasValue ? 'INTERRECNUMPERPAGE' : 'INTERPAGESIZE']:
-                page.pageSize,
+              INTERRECNUMPERPAGE: page.pageSize,
+              // [hasValue ? 'INTERRECNUMPERPAGE' : 'INTERPAGESIZE']:
+              //   page.pageSize,
             };
             const api = hasValue
               ? mainGetViewSearchDataApi
@@ -460,12 +535,12 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
             if (hasValue) {
               params.queryConditions = searchFormString;
             }
-            const { rs, records, recNumOfCurPage: total } = await api(params);
+            const { rs, records, totalRecNum: total } = await api(params);
 
             if (rs === '1' && Array.isArray(records)) {
               return {
                 items: records || [],
-                total: Number.parseInt(total || '0', 10),
+                total,
               };
             }
           } catch (error) {
@@ -518,6 +593,33 @@ if (
     type: 'checkbox',
     width: 60,
   });
+}
+
+// 确保始终添加展开列
+if (
+  props.columns.length > 0 &&
+  !props.columns.some((col) => col.type === 'expand') &&
+  // 只有在配置了子表时才添加展开列
+  (props.params?.childTableColumns?.length > 0 ||
+    props.params?.loadChildTableData)
+) {
+  // 添加展开列（在复选框列之后）
+  const expandColumn = {
+    fixed: 'left',
+    field: 'expand',
+    type: 'expand',
+    width: 60,
+    title: '',
+    slots: { content: 'expand' },
+  };
+
+  // 如果有复选框列，在其后添加展开列
+  if (props.showCheckbox) {
+    (gridOptions.columns as any[]).splice(1, 0, expandColumn);
+  } else {
+    // 否则在最前面添加
+    (gridOptions.columns as any[]).unshift(expandColumn);
+  }
 }
 
 // 使用 VxeTableGridOptions 支持的方式创建 Grid
@@ -674,6 +776,22 @@ const handleAddClick = () => {
 <template>
   <Page auto-content-height>
     <Grid>
+      <!-- 展开子表插槽 -->
+      <template #expand="{ row }">
+        <ChildTable
+          :row="row"
+          :columns="props.params?.childTableColumns || []"
+          :page-i-d="props.params?.pageID"
+          :page-data-grp-i-d="props.params?.pageDataGrpID"
+          :custom-params="{
+            ...(props.params?.childTableParams &&
+            typeof props.params.childTableParams === 'function'
+              ? props.params.childTableParams(row)
+              : {}),
+          }"
+        />
+      </template>
+
       <!-- 为每个操作列动态创建插槽 -->
       <template
         v-for="col in props.columns.filter(
@@ -802,5 +920,10 @@ const handleAddClick = () => {
   margin: 0 4px;
   font-weight: bold;
   color: #1890ff;
+}
+
+.child-table-container {
+  padding: 10px;
+  background-color: #fafafa;
 }
 </style>

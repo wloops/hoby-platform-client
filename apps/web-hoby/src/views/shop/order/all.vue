@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-08 16:43:52
+ * @LastEditTime: 2025-04-09 10:36:17
  * @FilePath:
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,9 +20,39 @@ import CommonTable from '#/components/CommonTable/index.vue';
 const pageParams = ref({
   pageID: 'sellerAllSaleOrderPage',
   showAddButton: false, // 控制是否显示新增按钮
-  // onAdd: () => {
-  //   // 自定义新增处理逻辑
-  //   console.warn('新增');
+  // 子表页面ID
+  pageDataGrpID: 'selGoodsInformationByOrderID',
+  // 子表列配置
+  childTableColumns: [
+    { field: 'companyName', title: '厂家' },
+    { field: 'productName', title: '产品' },
+    { field: 'srlID', title: '型号' },
+    { field: 'wareAttrValueList', title: '库存规格' },
+    { field: 'prdNum', title: '采购数量' },
+    { field: 'prdUnitPrc', title: '单价' },
+    { field: 'discount', title: '折扣' },
+    { field: 'priceAfterDiscount', title: '折后单价' },
+    { field: 'totalAmtAfterDiscount', title: '折后总价' },
+  ],
+  // 子表数据参数映射
+  childTableParams: (row: any) => ({
+    pageID: 'sellerWaitDistributionOrderPage',
+    pageDataGrpID: 'selGoodsInformationByOrderID',
+    billNo: row.billNo,
+  }),
+  // 自定义加载子表数据的方法
+  // loadChildTableData: async (row: any) => {
+  // 这里实现加载子表数据的逻辑
+  // 返回子表数据数组
+  // return await yourApi.getChildTableData(row.id);
+  // },
+  // 子表数据转换方法（可选）
+  // childTableDataTransform: (data: any) => {
+  //   // 转换数据格式
+  //   return data.map((item: any) => ({
+  //     ...item,
+  //     // 转换逻辑...
+  //   }));
   // },
 });
 // 定义表格列配置
