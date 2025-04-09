@@ -264,7 +264,7 @@ const saveChanges = () => {
           message.warning('没有需要保存的规格数据');
         }
 
-        isOpen.value = false;
+        // isOpen.value = false;
       } catch (error) {
         message.error(`操作失败：${error.message || '服务器错误'}`);
       }

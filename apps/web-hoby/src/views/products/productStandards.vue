@@ -7,6 +7,7 @@ import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import addProductStandard from './components/addProductStandard.vue';
+import createProductModel from './components/createProductModel.vue';
 import EditSpecificationModal from './components/EditSpecificationModal.vue';
 
 // 产品展开状态
@@ -90,6 +91,8 @@ const getSpecValueList = async (spec, index) => {
 const currentEditingProduct = ref(null);
 const editSpecificationModalRef = ref(null);
 const addProductStandardRef = ref(null);
+const currentAddingProduct = ref(null);
+const createProductModelRef = ref(null);
 
 // 打开编辑模态框
 const openEditModal = (product) => {
@@ -103,6 +106,12 @@ const openEditModal = (product) => {
 // 打开新增产品模态框
 const openAddProductStandardModal = () => {
   addProductStandardRef.value.open();
+};
+
+// 打开创建产品型号模态框
+const openCreateProductModel = (product) => {
+  currentAddingProduct.value = product;
+  createProductModelRef.value.open(product);
 };
 
 // // 关闭编辑模态框
@@ -337,6 +346,11 @@ const resetPage = () => {
         ref="addProductStandardRef"
         @refresh="fetchProducts"
       />
+      <!-- 创建产品型号模态框 -->
+      <createProductModel
+        ref="createProductModelRef"
+        @refresh="handleRefresh"
+      />
       <!-- 编辑产品规格模态框 -->
       <EditSpecificationModal ref="editSpecificationModalRef" />
 
@@ -377,7 +391,10 @@ const resetPage = () => {
                 </svg>
                 删除
               </button>
-              <button class="btn-text-primary">
+              <button
+                class="btn-text-primary"
+                @click="openCreateProductModel(product)"
+              >
                 <svg
                   class="mr-2 h-4 w-4"
                   fill="none"
