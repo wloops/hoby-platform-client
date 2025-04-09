@@ -32,6 +32,7 @@ import { useSetSchema } from '#/composables/table/useSetSchema';
 
 import BatchAction from './components/BatchAction.vue';
 import ChildTable from './components/ChildTable.vue';
+import PageButtonsGroup from './components/PageButtons.vue';
 
 // 定义子表相关的类型
 interface ChildTableParams {
@@ -80,6 +81,10 @@ const props = defineProps({
   rowKey: {
     type: String,
     default: 'id',
+  },
+  pageButtons: {
+    type: Array as () => ActionButtonProps[],
+    default: () => [],
   },
   // 批量操作按钮
   batchActions: {
@@ -872,6 +877,12 @@ const handleAddClick = () => {
           <Button v-if="showAddButton" type="primary" @click="handleAddClick">
             新增
           </Button>
+          <!-- 新增的页面按钮组件 -->
+          <PageButtonsGroup
+            :buttons="pageButtons"
+            :params="{ selectedRecords }"
+            @click="handleActionClick"
+          />
         </div>
       </template>
 

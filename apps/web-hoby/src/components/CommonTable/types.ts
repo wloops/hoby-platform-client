@@ -52,6 +52,7 @@ export interface CustomSchemaList {
     | 'enum'
     | 'form'
     | 'input'
+    | 'passwordEncBypk'
     | 'query'
     | 'queryArea'
     | 'readOnly'
@@ -60,6 +61,10 @@ export interface CustomSchemaList {
   isPrimaryKey?: boolean;
   // 检验规则
   valueConstraint?: string;
+  // 是否显示域
+  visible?: boolean;
+  // 缺省默认值
+  default?: string;
 }
 
 // 修复 AnyFunction 未定义的问题
@@ -71,6 +76,7 @@ export interface ActionButtonProps {
   text?: string;
   // 按钮标签（优先于text）
   label?: string;
+  icon?: string;
   // 按钮类型
   type?: VxeButtonType;
   // 是否危险操作
