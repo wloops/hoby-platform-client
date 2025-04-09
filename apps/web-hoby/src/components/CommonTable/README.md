@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-07 11:48:04
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-07 11:56:13
+ * @LastEditTime: 2025-04-09 16:30:38
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -23,6 +23,7 @@ CommonTable 是一个功能丰富的表格组件，提供了高度可定制的�
 - 支持表格数据自动刷新
 - 支持复选框选择功能
 - 自适应列宽和表格布局
+- 按钮支持自定义 schema 配置,可用于动态表单渲染
 
 ## 属性说明
 
@@ -96,7 +97,8 @@ interface ActionButtonProps {
   // 操作后是否清除选择
   clearAfterAction?: boolean;
   autoRefresh?: boolean; // 点击后是否自动刷新表格，默认为true
-
+  // 自定义域列表
+  schema?: CustomSchemaList[];
   // 新增 API 相关属性
   api?: (params: any) => Promise<any>; // API 调用函数
   params?: ((record: any) => any) | Record<string, any>; // 单条记录参数
@@ -112,6 +114,25 @@ interface ActionButtonProps {
   batchConfirm?: string; // 批量操作确认提示文本
 }
 ```
+
+### Schema 配置说明
+
+- `schema`: 数组类型，定义表单字段结构
+  - `fieldName`: 字段名称
+  - `displayName`: 显示名称
+  - `useType`: 字段类型（input、select、datepicker、readOnly等）
+  - `value`: 默认值
+  - `valueConstraint`: 值约束（notnull等）
+  - `isPrimaryKey`: 是否为主键
+
+### 其他按钮属性
+
+- `runMode`: 运行模式，支持 'modal'(对话框) 或 'drawer'(抽屉)
+- `visible`: 控制按钮是否显示，可以是布尔值或函数
+- `disabled`: 控制按钮是否禁用，可以是布尔值或函数
+- `confirm`: 确认提示，'auto'为自动生成，也可以自定义文本
+- `autoRefresh`: 操作完成后是否自动刷新表格
+- `successMsg`/`errorMsg`: 操作成功/失败的提示信息
 
 ## 事件
 
@@ -173,6 +194,16 @@ const columns = ref<ColumnDefinition[]>([
         danger: true,
         visible: false, // 控制按钮是否显示
         runMode: 'modal',
+        // schema: [
+        //   {
+        //     fieldName: 'id',
+        //     displayName: '自定义示例动态表单',
+        //     useType: 'input',
+        //     value: '',
+        //     valueConstraint: 'notnull',
+        //     isPrimaryKey: false,
+        //   },
+        // ],
         params: (record) => ({
           pageID: '示例页面ID',
           pageButtonID: '示例按钮ID',
