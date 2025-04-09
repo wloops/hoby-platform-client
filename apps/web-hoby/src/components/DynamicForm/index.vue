@@ -336,12 +336,14 @@ const [Drawer, drawerApi] = useVbenDrawer({
   // 连接抽离的组件
   connectedComponent: DrawerForm,
   onConfirm: confirm,
+  closeOnClickModal: false,
 });
 
 const [Modal, modalApi] = useVbenModal({
   // 连接抽离的组件
   connectedComponent: ModalForm,
   onConfirm: confirm,
+  closeOnClickModal: false,
 });
 
 interface pageParam {
