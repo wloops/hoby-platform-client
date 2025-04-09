@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-28 17:14:48
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-03 15:20:53
+ * @LastEditTime: 2025-04-09 13:42:47
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\DynamicForm\modules\utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -38,14 +38,6 @@ export function parseQueryString(
   // 分割所有键值对
   const keyValuePairs = cleanStr.split(',');
 
-  if (isEnum) {
-    return {
-      readFld: '',
-      table: '',
-      condition: `enum::${keyValuePairs[0] || ''}`,
-    };
-  }
-
   const result: Record<string, string> = {};
 
   // 处理每个键值对
@@ -61,6 +53,15 @@ export function parseQueryString(
       }
     }
   });
+
+  if (isEnum) {
+    return {
+      readFld: '',
+      table: '',
+      condition: `enum::${keyValuePairs[0] || ''}`,
+      ...result,
+    };
+  }
 
   return result;
 }

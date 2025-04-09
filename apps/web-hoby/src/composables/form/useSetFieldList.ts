@@ -6,6 +6,7 @@ import { useUserStore } from '@vben/stores';
 
 import { getAreaApi } from '#/api';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
+import { parseQueryString } from '#/components/DynamicForm/modules/utils';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
 import { useFormStore } from '#/store';
 
@@ -47,6 +48,9 @@ export function useSetFieldList() {
         item,
         record,
       );
+
+      const condition = parseQueryString(item.value, ['default']);
+
       const formItem: VbenFormSchema = {
         fieldName: item.fieldName,
         label: item.displayName,
@@ -97,6 +101,10 @@ export function useSetFieldList() {
             show: () => false,
             triggerFields: Object.keys(record),
           };
+        }
+        // 新增窗口表单域自动赋缺省值
+        if (condition?.default) {
+          formItem.defaultValue = condition.default;
         }
       } else {
         // 记录带入的默认值优先级最高
