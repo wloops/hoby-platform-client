@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-26 17:15:52
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-09 10:36:17
+ * @LastEditTime: 2025-04-09 14:36:01
  * @FilePath:
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,8 +20,6 @@ import CommonTable from '#/components/CommonTable/index.vue';
 const pageParams = ref({
   pageID: 'sellerAllSaleOrderPage',
   showAddButton: false, // 控制是否显示新增按钮
-  // 子表页面ID
-  pageDataGrpID: 'selGoodsInformationByOrderID',
   // 子表列配置
   childTableColumns: [
     { field: 'companyName', title: '厂家' },

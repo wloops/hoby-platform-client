@@ -5,6 +5,7 @@ import { markRaw, ref } from 'vue';
 import { useUserStore } from '@vben/stores';
 
 import { getAreaApi } from '#/api';
+import passwordEncBypk from '#/components/DynamicForm/modules/passwordEncBypk.vue';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { parseQueryString } from '#/components/DynamicForm/modules/utils';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
@@ -96,7 +97,7 @@ export function useSetFieldList() {
         formItem.defaultValue = actionMap[field] || '';
       }
       if (isAdd) {
-        if (item.value.includes('auto')) {
+        if (item.value.includes('auto') || item.visible) {
           formItem.dependencies = {
             show: () => false,
             triggerFields: Object.keys(record),
@@ -105,6 +106,9 @@ export function useSetFieldList() {
         // 新增窗口表单域自动赋缺省值
         if (condition?.default) {
           formItem.defaultValue = condition.default;
+        }
+        if (item?.default) {
+          formItem.defaultValue = item.default;
         }
       } else {
         // 记录带入的默认值优先级最高
@@ -186,6 +190,11 @@ export function useSetFieldList() {
             },
           };
 
+          break;
+        }
+        case 'passwordEncBypk': {
+          // formItem.component = 'InputPassword';
+          formItem.component = markRaw(passwordEncBypk);
           break;
         }
         case 'query': {

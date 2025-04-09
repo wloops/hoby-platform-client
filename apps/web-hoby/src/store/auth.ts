@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:52:42
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-31 18:01:02
+ * @LastEditTime: 2025-04-09 17:48:06
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -43,7 +43,6 @@ export const useAuthStore = defineStore('auth', () => {
       loginLoading.value = true;
       const { pkkey: pk } = await getPKApi();
       const encryptedPassword = encryption(pk, params.password);
-      console.error('encryptedPassword', encryptedPassword);
 
       const loginParams = {
         tellerNo: params.username,
