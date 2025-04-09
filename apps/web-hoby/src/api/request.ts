@@ -128,6 +128,11 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       }
       throw new Error(`${status}: ${msg}`);
     },
+    rejected: (error) => {
+      if (error.status === 403) {
+        doReAuthenticate();
+      }
+    },
   });
 
   // token过期的处理
