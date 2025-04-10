@@ -1,8 +1,8 @@
 <!--
  * @Author: Loong wentloop@gmail.com
- * @Date: 2025-04-07 11:48:04
+ * @Date: 2025-04-09 20:51:36
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-10 13:46:08
+ * @LastEditTime: 2025-04-10 14:06:34
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,6 +41,9 @@ CommonTable 是一个功能丰富的表格组件，提供了高度可定制的�
 | enableBatchActions | Boolean | true | 否 | 是否启用批量操作功能 |
 | useColumnActions | Boolean | true | 否 | 是否使用操作列中的按钮作为批量操作 |
 | params | Object | {} | 否 | 附加参数，会传递给requestApi |
+| childTables | ChildTableProps | {} | 否 | 展开子表配置 |
+| onSelectionChange | Function | null | 否 | 选中行变化事件 |
+| pageButtons | ActionButtonProps[] | [] | 否 | 页面按钮列表 |
 
 ## 列定义（ColumnDefinition）
 
@@ -146,131 +149,16 @@ interface ActionButtonProps {
 
 ## 使用示例
 
-```vue
-<script lang="ts" setup>
-import type { CommonTableProps } from '#/components/CommonTable/types';
-
-import { ref } from 'vue';
-
-import CommonTable from '#/components/CommonTable/index.vue';
-
-const tableProps = ref<CommonTableProps>({
-  // 基础配置(必填) CommonTableParams
-  params: {
-    pageID: 'myCompanyEmployeeTellNoPage', // 页面ID
-    showAddButton: false, // 是否显示新增按钮
-  },
-  // 表格列配置(必填) ColumnDefinition[]
-  columns: [
-    {
-      title: '操作',
-      dataIndex: 'operation',
-      visible: true,
-      type: 'operation',
-      defaultActions: ['view'],
-      actionColumnProps: {
-        width: 200,
-        fixed: 'right',
-        align: 'center',
-      },
-      actions: [
-        {
-          text: '修改密码',
-          type: 'link',
-          danger: true,
-          visible: true,
-          batchable: false,
-          runMode: 'modal',
-          schema: [
-            {
-              fieldName: 'tellerNo',
-              displayName: '操作账号',
-              useType: 'input',
-              value: '',
-            },
-            {
-              fieldName: 'oldPinCiperUnderOriKey',
-              displayName: '旧密码',
-              useType: 'passwordEncBypk',
-              value: '',
-              valueConstraint: 'notnull',
-              isPrimaryKey: false,
-            },
-            {
-              fieldName: 'cipherText',
-              displayName: '新密码',
-              useType: 'passwordEncBypk',
-              value: '',
-              valueConstraint: 'notnull',
-              isPrimaryKey: false,
-            },
-          ],
-          params: (record) => ({
-            pageID: 'myCompanyEmployeeTellNoPage',
-            pageButtonID: 'modifyLoginAccountPassword',
-            ...record,
-          }),
-          disabled: (record) => record && false,
-          successMsg: '示例成功提示',
-          errorMsg: '示例失败提示',
-          confirm: 'auto',
-          autoRefresh: true,
-        },
-      ],
-    },
-  ],
-  // 页面按钮列表（可选）ActionButtonProps[]
-  pageButtons: [],
-  // 表格数据（可选）TableRecord[]
-  tableData: [],
-  // 是否展示搜索表单（可选）
-  showSearch: true,
-  // 是否自动刷新（可选）
-  autoRefresh: false,
-  // 是否展示复选框列（可选）
-  showCheckbox: true,
-  // 行唯一标识（可选）
-  rowKey: 'id',
-  // 最小选中数量（可选）
-  minSelected: 1,
-  // 是否启用批量操作（可选）
-  enableBatchActions: true,
-  // 批量操作按钮（可选）
-  batchActions: [], // ActionButtonProps[]
-  // 使用操作列中的按钮作为批量操作按钮（可选）
-  useColumnActions: true,
-  // 自定义请求方法（可选）
-  // requestApi: customRequestFunction,
-  // 展开子表（可选）
-  // childTables: {}, // ChildTableProps
-
-  // 事件处理
-  // 选中行变化事件（可选）
-  onSelectionChange: (records, keys) => {
-    console.warn('选中的记录:', records);
-    console.warn('选中的键值:', keys);
-  },
-});
-
-const tableRef = ref<null | {
-  refresh: () => void;
-}>(null);
-
-// 刷新表格方法示例
-// function refreshTable() {
-//   tableRef.value?.refresh();
-// }
-</script>
-
-<template>
-  <CommonTable ref="tableRef" v-bind="tableProps" />
-</template>
-```
+[基础示例文件](./Examples/basic.vue)
 
 ## 注意事项 - 确保为表格行提供唯一的rowKey属性，默认为'id' -
 
-使用动态表单需要同时引入DynamicForm组件 - 自定义请求方法(requestApi)必须返回包含list和total的对象 - 列定义中的dataIndex必须与返回数据中的字段名保持一致 ## 最佳实践 - 为提高性能，合理使用fixed属性固定列 - 仅对需要搜索的字段设置search: true - 使用formatter简化数据展示逻辑 - 为复杂的内容展示使用render函数 - 在处理大量数据时建议开启分页和懒加载
+使用动态表单需要同时引入DynamicForm组件
 
-```
-
-```
+- 自定义请求方法(requestApi)必须返回包含list和total的对象
+- 列定义中的dataIndex必须与返回数据中的字段名保持一致 ## 最佳实践
+- 为提高性能，合理使用fixed属性固定列
+- 仅对需要搜索的字段设置search: true
+- 使用formatter简化数据展示逻辑
+- 为复杂的内容展示使用render函数
+- 在处理大量数据时建议开启分页和懒加载
