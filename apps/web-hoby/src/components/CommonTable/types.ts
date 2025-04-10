@@ -52,6 +52,7 @@ export interface CustomSchemaList {
     | 'enum'
     | 'form'
     | 'input'
+    | 'oldPassword'
     | 'passwordEncBypk'
     | 'query'
     | 'queryArea'

@@ -12,7 +12,7 @@ import { onMounted, ref } from 'vue';
 import { InputPassword } from 'ant-design-vue';
 
 import { getPKApi } from '#/api';
-import { encryption } from '#/composables';
+// import { encryption } from '#/composables';
 
 const modelValue = defineModel<string>({
   default: () => '',
@@ -24,36 +24,10 @@ onMounted(async () => {
 });
 const showModelValue = ref('');
 const handChange = async () => {
-  const encryptedPassword = encryption(pkKey.value, showModelValue.value);
-  modelValue.value = processCipherText(encryptedPassword);
+  // const encryptedPassword = encryption(pkKey.value, showModelValue.value);
+  modelValue.value = showModelValue.value;
+  // modelValue.value = processCipherText(encryptedPassword);
 };
-
-function decodeBase64(base64String: string): Uint8Array {
-  const binaryString = atob(base64String);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    // eslint-disable-next-line unicorn/prefer-code-point
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-}
-
-function byte2hex(bytes: Uint8Array): string {
-  let hexStr = '';
-  for (const byte of bytes) {
-    // eslint-disable-next-line unicorn/number-literal-case
-    const hex = (byte & 0xff).toString(16);
-    // Pad with leading zero if needed
-    hexStr += hex.length === 1 ? `0${hex}` : hex;
-  }
-  return hexStr;
-}
-
-// 主函数 - 等同于 Java 的调用
-function processCipherText(cipherText: string): string {
-  const decodedBytes = decodeBase64(cipherText);
-  return byte2hex(decodedBytes).toUpperCase();
-}
 </script>
 
 <template>

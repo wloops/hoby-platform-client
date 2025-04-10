@@ -5,7 +5,6 @@ import { markRaw, ref } from 'vue';
 import { useUserStore } from '@vben/stores';
 
 import { getAreaApi } from '#/api';
-import passwordEncBypk from '#/components/DynamicForm/modules/passwordEncBypk.vue';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { parseQueryString } from '#/components/DynamicForm/modules/utils';
 import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
@@ -120,7 +119,7 @@ export function useSetFieldList() {
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';
       const fieldType = item.useType ?? getFieldType(item.value);
-
+      if (fieldType) formItem.componentProps.fieldType = fieldType;
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
         // case 'boolean': {
@@ -192,9 +191,14 @@ export function useSetFieldList() {
 
           break;
         }
+        case 'oldPassword': {
+          formItem.component = 'InputPassword';
+          // formItem.component = markRaw(passwordEncBypk);
+          break;
+        }
         case 'passwordEncBypk': {
-          // formItem.component = 'InputPassword';
-          formItem.component = markRaw(passwordEncBypk);
+          formItem.component = 'InputPassword';
+          // formItem.component = markRaw(passwordEncBypk);
           break;
         }
         case 'query': {
@@ -319,15 +323,21 @@ export function useSetFieldList() {
 
   return {
     convertToFormSchema,
+    addConfirmPasswordFields,
   };
 }
 
 function getFieldType(value: string) {
   let fieldType = '';
+  // 默认
+  if (value.includes('::')) {
+    fieldType = value.split('::')[0] ?? '';
+  }
+  // 特殊处理类型
   if (value) {
-    if (value.startsWith('date::') || value.includes('^F^d^')) {
+    if (value.includes('^F^d^')) {
       fieldType = 'date';
-    } else if (value.startsWith('datetime::') || value.includes('^F^dt^')) {
+    } else if (value.includes('^F^dt^')) {
       fieldType = 'datetime';
     } else if (value.includes('^F^t^')) {
       fieldType = 'time'; // 时间类型，如果没有特定的类型则使用字符串
@@ -342,19 +352,54 @@ function getFieldType(value: string) {
       // if (enumMatch && enumMatch[1]) {
       //   (field as any).enumName = enumMatch[1].trim(); // 去除可能的空格;
       // }
-    } else if (value.startsWith('multirow::')) {
-      fieldType = 'input';
-    } else if (value.startsWith('query::')) {
-      fieldType = 'query';
-    } else if (value.startsWith('form::')) {
-      fieldType = 'form';
-    } else if (value.startsWith('readOnly::')) {
-      fieldType = 'readOnly';
-    } else if (value.startsWith('queryArea::')) {
-      fieldType = 'queryArea';
     }
   }
   return fieldType;
+}
+
+interface FieldItem {
+  fieldName: string;
+  displayName: string;
+  useType: string;
+  value: string;
+  [key: string]: any; // 其他可能的属性
+}
+
+function addConfirmPasswordFields(fields: FieldItem[]): FieldItem[] {
+  const result: FieldItem[] = [];
+
+  for (const field of fields) {
+    result.push(field);
+
+    // 检查是否需要添加确认密码
+    if (
+      field.useType === 'passwordEncBypk' ||
+      (field.value && field.value.includes('passwordEncBypk::'))
+    ) {
+      const confirmField: FieldItem = {
+        fieldName: `${field.fieldName}_confirm`,
+        displayName: `确认${field.displayName}`,
+        useType: 'passwordEncBypk',
+        value: '',
+        valueConstraint: 'confirmPassword',
+      };
+
+      // 复制其他属性（如 valueConstraint）
+      for (const key in field) {
+        if (
+          key !== 'fieldName' &&
+          key !== 'displayName' &&
+          !Object.prototype.hasOwnProperty.call(confirmField, key)
+        ) {
+          confirmField[key] = field[key];
+        }
+      }
+
+      result.push(confirmField);
+    }
+  }
+
+  return result;
 }
 
 export default useSetFieldList;

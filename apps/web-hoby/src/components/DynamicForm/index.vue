@@ -16,7 +16,7 @@ import {
   mainServiceApi,
   mainUpdateRecrdApi,
 } from '#/api';
-import { useSetFieldList } from '#/composables';
+import { useSetFieldList, useSetFieldRealValue } from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
 import Form from './Form.vue';
@@ -273,10 +273,10 @@ const getSchema = async (
     pkFldList = res.pkFldList;
   }
 
-  const { convertToFormSchema } = useSetFieldList();
+  const { convertToFormSchema, addConfirmPasswordFields } = useSetFieldList();
   // 转换为表单结构
   const formSchema = convertToFormSchema(
-    originalFields,
+    addConfirmPasswordFields(originalFields),
     submitType.value === 'add' ? ({} as any) : record,
     pkFldList,
   );
@@ -291,12 +291,17 @@ const confirm = async () => {
     formAPi = modalApi;
   }
   const form = await formAPi.getData().getValues();
+  const { encryptionFormValues } = useSetFieldRealValue();
+  const formValues = await encryptionFormValues(
+    form,
+    formAPi.getData().getState().schema,
+  );
   formAPi
     .getData()
     .validate()
     .then(async (result: any) => {
       if (result.valid) {
-        const code = await submitApi(form);
+        const code = await submitApi(formValues);
         if (code) {
           message.success('操作成功');
           formAPi.close();
