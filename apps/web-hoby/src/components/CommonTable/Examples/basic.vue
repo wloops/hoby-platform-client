@@ -13,7 +13,7 @@ import CommonTable from '#/components/CommonTable/index.vue';
 const tableProps = ref<CommonTableProps>({
   // 基础配置(必填) CommonTableParams
   params: {
-    pageID: '示例页面ID', // 页面ID
+    pageID: 'myCompanyEmployeeTellNoPage', // 页面ID
     showAddButton: false, // 是否显示新增按钮
   },
   // 表格列配置(必填) ColumnDefinition[]
