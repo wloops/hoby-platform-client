@@ -5,6 +5,11 @@ import { ref } from 'vue';
 
 import CommonTable from '#/components/CommonTable/index.vue';
 
+/**
+ * @pageName 我的企业员工操作账号页面
+ * @pageID myCompanyEmployeeTellNoPage
+ * @remark
+ */
 const tableProps = ref<CommonTableProps>({
   // 基础配置(必填) CommonTableParams
   params: {
