@@ -473,6 +473,14 @@ defineExpose({ open });
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      :class="{
+                        'text-red-500':
+                          value.deleteStatus !== 'pending_delete' &&
+                          value.isNew !== 'true',
+                        'text-blue-500':
+                          value.deleteStatus === 'pending_delete',
+                        'text-gray-500': value.isNew === 'true',
+                      }"
                     >
                       <path
                         stroke-linecap="round"

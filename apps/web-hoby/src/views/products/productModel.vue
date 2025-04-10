@@ -6,6 +6,7 @@ import { message, Modal } from 'ant-design-vue';
 import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
+import addProductModel from './components/addProductModel.vue';
 import EditProductModel from './components/EditProductModel.vue';
 
 // 数据
@@ -249,6 +250,7 @@ onMounted(async () => {
 // const isEditModalOpen = ref(false);
 const currentEditingProduct = ref(null);
 const editProductModelRef = ref(null);
+const addProductModelRef = ref(null);
 
 // 打开编辑模态框
 const openEditModal = (product) => {
@@ -258,7 +260,10 @@ const openEditModal = (product) => {
   // isEditModalOpen.value = true;
   editProductModelRef.value.open(product);
 };
-
+// 打开新增产品型号模态框
+const openAddProductModel = () => {
+  addProductModelRef.value.open();
+};
 // 删除产品型号
 const deleteProductModel = (product, id) => {
   // console.log('当前产品', products.value, product, product.name);
@@ -393,7 +398,7 @@ const resetPage = () => {
       </div>
       <!-- 新增产品型号按钮 -->
       <div class="my-4 ml-auto flex-shrink-0 text-right">
-        <button class="btn-primary">
+        <button class="btn-primary" @click="openAddProductModel()">
           <svg
             class="mr-2 h-4 w-4"
             fill="none"
@@ -410,6 +415,8 @@ const resetPage = () => {
           新增产品型号
         </button>
       </div>
+      <!-- 新增产品型号模态框 -->
+      <addProductModel ref="addProductModelRef" @refresh="fetchProductsList" />
       <!-- 产品 -->
       <div class="mb-4 flex-grow overflow-y-auto pb-28">
         <!-- 产品列表 -->

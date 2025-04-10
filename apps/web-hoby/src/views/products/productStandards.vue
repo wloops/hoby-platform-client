@@ -347,10 +347,7 @@ const resetPage = () => {
         @refresh="fetchProducts"
       />
       <!-- 创建产品型号模态框 -->
-      <createProductModel
-        ref="createProductModelRef"
-        @refresh="handleRefresh"
-      />
+      <createProductModel ref="createProductModelRef" />
       <!-- 编辑产品规格模态框 -->
       <EditSpecificationModal ref="editSpecificationModalRef" />
 

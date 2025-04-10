@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineEmits, ref } from 'vue';
+import { computed, defineEmits, nextTick, ref } from 'vue';
 
 import { message, Modal, Select } from 'ant-design-vue';
 
@@ -10,23 +10,16 @@ const emit = defineEmits(['refresh']);
 const isOpen = ref(false);
 const productName = ref('');
 const srlID = ref('');
-// const newSpecTypeName = ref('');
 const selectedStockSpecs = ref([]);
 const selectedPriceSpecs = ref([]);
 
-// 规格列表数据结构
-// const specsList = ref([]);
-
-// const availableSpecCategories = ref([]); // 存储所有可选的规格类型
-const selectedNewSpecTypes = ref([]); // 存储新选择的规格类型
-
-// 获取所有可用的规格类型
-const availableSpecTypes = computed(() => {
-  return editedSpecsList.value.map((item) => item.specCate);
-});
+// 产品列表
+const productList = ref([]);
+// 规格数据
+// const specData = ref({});
 
 // 获取规格类型名称
-const getSpecTypeName = (type) => type;
+// const getSpecTypeName = (type) => type;
 
 // 处理规格变化
 const handleStockSpecChange = (value) => (selectedStockSpecs.value = value);
@@ -34,61 +27,202 @@ const handlePriceSpecChange = (value) => (selectedPriceSpecs.value = value);
 
 // 重置表单
 const resetForm = () => {
-  // productName.value = '';
+  productName.value = '';
   srlID.value = '';
-  // selectedStockSpecs.value = [];
-  // selectedPriceSpecs.value = [];
+  selectedStockSpecs.value = [];
+  selectedPriceSpecs.value = [];
   editedSpecsList.value = [];
-  selectedNewSpecTypes.value = [];
 };
 
 const editedSpecsList = ref([]);
-const productData = ref(null);
+// 添加搜索过滤方法
+const filterOption = (input, option) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
+
+// 添加加载状态
+const loadingProduct = ref(false);
+const loadingSpecs = ref(false);
+
 // 打开弹窗
-const open = async (product) => {
-  productData.value = product;
-  resetForm();
-  editedSpecsList.value = [];
+const open = async () => {
+  try {
+    loadingProduct.value = true;
+    resetForm();
+    editedSpecsList.value = [];
 
-  const list = await getSpecTypeNameList(product);
+    // 获取产品列表
+    const productParams = {
+      pageID: 'productStandards',
+      pageDataGrpID: 'queryProduct',
+    };
 
-  // 初始化规格数据 - 修正字段映射
-  editedSpecsList.value = (list.queryProductSpecCate || []).map((spec) => ({
-    specCate: spec.specCate,
-    productName: spec.productName,
-    queryProductSpecValue: (spec.queryProductSpecValue || []).map((value) => ({
-      specValue: value.specValue,
-      specCate: value.specCate,
-      isNew: 'false', // 标记为已有数据
-      deleteStatus: 'normal', // 初始状态
-    })),
-  }));
+    const { data: productData } = await useMainGetData(productParams);
 
-  productName.value = product.name;
-  selectedStockSpecs.value = list.specAttrCateListForWare
-    ? list.specAttrCateListForWare.split(',')
-    : [];
-  selectedPriceSpecs.value = list.specAttrCateListForPrice
-    ? list.specAttrCateListForPrice.split(',')
-    : [];
-  isOpen.value = true;
+    // 处理产品列表数据
+    if (!productData.value) {
+      throw new Error('产品数据获取失败');
+    }
+
+    const rawProductList = productData.value.queryProduct || productData.value;
+    if (!Array.isArray(rawProductList)) {
+      throw new TypeError('产品数据格式不正确');
+    }
+
+    productList.value = rawProductList
+      .filter((item) => item && item.productName)
+      .map((item) => ({
+        value: item.productName,
+        label: item.productName,
+      }));
+
+    isOpen.value = true;
+  } catch (error) {
+    message.error(`数据加载失败: ${error.message}`);
+    console.error('详细错误:', error);
+  } finally {
+    loadingProduct.value = false;
+  }
 };
 
-// 获取规格类型名称
-const getSpecTypeNameList = async (product) => {
-  const userInfo = window.sessionStorage.getItem('userInfo');
-  const userInfoObj = JSON.parse(userInfo);
-  const reqParams = {
-    pageID: '',
-    pageDataGrpID: 'factoryProductStandard',
-    companyName: userInfoObj.TELLERCOMPANY,
-    productName: product.name,
-    // srlID: product.model,
-  };
-  const { data } = await useMainGetData(reqParams);
+// 产品选择变化时加载规格数据
+const handleProductChange = async (selectedProductName) => {
+  try {
+    loadingSpecs.value = true;
+    editedSpecsList.value = [];
+    selectedStockSpecs.value = [];
+    selectedPriceSpecs.value = [];
 
-  return data.value;
+    console.warn('开始获取规格数据...', selectedProductName);
+
+    const userInfo = window.sessionStorage.getItem('userInfo');
+    const userInfoObj = JSON.parse(userInfo);
+    const specParams = {
+      pageID: '',
+      pageDataGrpID: 'factoryProductStandard',
+      companyName: userInfoObj.TELLERCOMPANY,
+      productName: selectedProductName,
+    };
+
+    console.warn('请求参数:', specParams);
+
+    const { data: specDataRes } = await useMainGetData(specParams);
+    console.warn('返回的规格数据:', specDataRes.value);
+
+    if (!specDataRes.value) {
+      throw new Error('规格数据获取失败');
+    }
+
+    // 更灵活的数据提取方式
+    const responseData = await specDataRes.value;
+    console.warn(
+      '完整响应数据:',
+      specDataRes.value,
+      JSON.stringify(responseData),
+    );
+    let selectedProductSpecs = null;
+
+    // 尝试不同的数据提取方式
+    if (responseData.queryProduct && Array.isArray(responseData.queryProduct)) {
+      selectedProductSpecs = responseData.queryProduct[0];
+    } else if (Array.isArray(responseData)) {
+      selectedProductSpecs = responseData[0];
+    } else if (responseData.factoryProductStandard) {
+      selectedProductSpecs = responseData.factoryProductStandard;
+    } else {
+      selectedProductSpecs = responseData;
+    }
+
+    console.warn(
+      '提取的产品规格数据:',
+      selectedProductSpecs,
+      selectedProductSpecs.specAttrCateListForPrice
+        ? selectedProductSpecs.specAttrCateListForPrice
+            .split(',')
+            .filter(Boolean)
+        : [],
+    );
+
+    if (!selectedProductSpecs) {
+      console.error('未找到该产品的规格数据');
+      message.error('未找到该产品的规格数据');
+      return;
+    }
+
+    // 设置库存和价格规格
+    selectedStockSpecs.value = selectedProductSpecs.specAttrCateListForWare
+      ? selectedProductSpecs.specAttrCateListForWare.split(',')
+      : [];
+    selectedPriceSpecs.value = selectedProductSpecs.specAttrCateListForPrice
+      ? selectedProductSpecs.specAttrCateListForPrice.split(',')
+      : [];
+    console.warn('库存规格:', selectedStockSpecs.value);
+    console.warn('价格规格:', selectedPriceSpecs.value);
+
+    // 规格数据初始化
+    let specsData = [];
+
+    // 获取规格数据
+    if (selectedProductSpecs?.queryProductSpecCate) {
+      specsData = selectedProductSpecs.queryProductSpecCate;
+    } else if (selectedProductSpecs?.specs) {
+      specsData = selectedProductSpecs.specs;
+    } else if (selectedProductSpecs?.specCategories) {
+      specsData = selectedProductSpecs.specCategories;
+    } else if (selectedProductSpecs?.productSpecs) {
+      specsData = selectedProductSpecs.productSpecs;
+    }
+
+    console.warn('原始规格数据:', specsData);
+
+    // 如果没有获取到规格数据，但存在库存/价格规格，则创建空规格
+    if (
+      specsData.length === 0 &&
+      (selectedStockSpecs.value.length > 0 ||
+        selectedPriceSpecs.value.length > 0)
+    ) {
+      const allSpecTypes = [
+        ...new Set([...selectedPriceSpecs.value, ...selectedStockSpecs.value]),
+      ];
+
+      specsData = allSpecTypes.map((specCate) => ({
+        specCate,
+        queryProductSpecValue: [],
+      }));
+    }
+
+    // 处理规格数据
+    editedSpecsList.value = specsData.map((spec) => ({
+      specCate: spec.specCate || spec.name || spec.type,
+      productName: selectedProductName,
+      queryProductSpecValue: (
+        spec.queryProductSpecValue ||
+        spec.values ||
+        []
+      ).map((value) => ({
+        specValue: value.specValue || value.value,
+        specCate: value.specCate || spec.specCate || spec.name,
+        isNew: 'false',
+        deleteStatus: 'normal',
+      })),
+    }));
+
+    console.warn('处理后的规格列表:', editedSpecsList.value);
+
+    await nextTick();
+    console.warn('UI已更新');
+  } catch (error) {
+    console.error('处理产品变更时出错:', error);
+    message.error(`加载产品规格失败: ${error.message}`);
+  } finally {
+    loadingSpecs.value = false;
+  }
 };
+
+// 获取所有可用的规格类型
+const availableSpecTypes = computed(() => {
+  return editedSpecsList.value.map((item) => item.specCate) || [];
+});
 
 // 关闭弹窗
 const closeModal = () => {
@@ -105,7 +239,7 @@ const addSpecValue = (specCate) => {
       specItem.queryProductSpecValue = [];
     }
     specItem.queryProductSpecValue.push({
-      productName: productData.value.name,
+      productName: productName.value,
       srlID: srlID.value,
       specValue: '',
       specCate,
@@ -143,66 +277,6 @@ const removeSpecValue = (specCate, index) => {
   }
 };
 
-// 添加新规格类型
-// const addNewSpecType = () => {
-//   if (selectedNewSpecTypes.value.length === 0) {
-//     message.warning('请至少选择一个规格类型');
-//     return;
-//   }
-
-//   selectedNewSpecTypes.value.forEach((specCate) => {
-//     // 检查是否已存在
-//     const alreadyExists = editedSpecsList.value.some(
-//       (spec) => spec.specCate === specCate,
-//     );
-
-//     if (!alreadyExists) {
-//       // 添加到 editedSpecsList
-//       editedSpecsList.value.push({
-//         productName: productData.value.name,
-//         srlID: productData.value.model,
-//         specCate,
-//         productModelSpecValue: [
-//           {
-//             productName: productData.value.name,
-//             srlID: productData.value.model,
-//             specValue: '',
-//             specCate,
-//             isNew: 'true',
-//             name: '', // 用于 v-model 绑定
-//           },
-//         ],
-//       });
-//     }
-//   });
-
-//   selectedNewSpecTypes.value = [];
-//   fetchAvailableSpecCategories();
-// };
-
-// 删除规格类型
-// const removeSpecType = (index) => {
-//   const specType = editedSpecsList.value[index].specCate;
-
-//   Modal.confirm({
-//     title: '确认删除',
-//     content: `确定要删除 "${specType}" 规格类型吗？此操作无法撤销。`,
-//     okText: '确认删除',
-//     cancelText: '取消',
-//     onOk: () => {
-//       // 从已选的规格中移除
-//       selectedStockSpecs.value = selectedStockSpecs.value.filter(
-//         (spec) => spec !== specType,
-//       );
-//       selectedPriceSpecs.value = selectedPriceSpecs.value.filter(
-//         (spec) => spec !== specType,
-//       );
-
-//       editedSpecsList.value.splice(index, 1);
-//     },
-//   });
-// };
-
 // 保存更改
 const saveChanges = () => {
   // 验证产品型号
@@ -210,6 +284,15 @@ const saveChanges = () => {
     Modal.error({
       title: '新增失败',
       content: '请输入产品型号',
+    });
+    return;
+  }
+
+  // 验证产品名称
+  if (!productName.value.trim()) {
+    Modal.error({
+      title: '新增失败',
+      content: '请选择产品名称',
     });
     return;
   }
@@ -239,17 +322,6 @@ const saveChanges = () => {
     return;
   }
 
-  // 检查是否选择了库存和价格规格
-  // if (
-  //   selectedStockSpecs.value.length === 0 ||
-  //   selectedPriceSpecs.value.length === 0
-  // ) {
-  //   Modal.error({
-  //     title: '保存失败',
-  //     content: '请选择决定库存和价格的规格',
-  //   });
-  //   return;
-  // }
   Modal.confirm({
     title: '确认新增',
     content: '确定要新增此产品型号吗？',
@@ -261,7 +333,8 @@ const saveChanges = () => {
         const payload = {
           productModel: [
             {
-              companyName: productData.value.company,
+              companyName: JSON.parse(window.sessionStorage.getItem('userInfo'))
+                .TELLERCOMPANY,
               productName: productName.value,
               srlID: srlID.value,
               specAttrCateListForWare: selectedStockSpecs.value.join(','),
@@ -283,18 +356,14 @@ const saveChanges = () => {
           ],
         };
 
-        // 区分新增和修改操作
-        const isEdit = !!productData.value.model;
-        const serviceID = isEdit ? 2 : 1; // 1-新增 2-修改
-
         const params = {
           bllID: 'hobyFactoryPrdModelPreview',
-          serviceID,
+          serviceID: 1, // 1-新增
           fileDate: JSON.stringify(payload),
         };
 
         await mainSendFileDataApi(params);
-        message.success(isEdit ? '修改成功' : '新增产品型号成功');
+        message.success('新增产品型号成功');
         closeModal();
         emit('refresh');
       } catch (error) {
@@ -324,7 +393,7 @@ defineExpose({ open });
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="flex items-center justify-between">
             <h3 class="flex items-center text-lg font-medium text-gray-800">
-              创建产品型号
+              新增产品型号
             </h3>
             <button
               class="text-gray-400 hover:text-gray-500"
@@ -352,12 +421,17 @@ defineExpose({ open });
             <div class="grid grid-cols-1 gap-4">
               <div class="flex items-center gap-2">
                 <h4 class="flex-1 text-sm font-medium text-gray-900">产品：</h4>
-                <input
-                  v-model="productName"
-                  type="text"
-                  disabled
-                  class="opshadow-sm flex-1 cursor-not-allowed rounded-md border border-gray-300 bg-gray-100 px-1.5 py-2"
-                  placeholder="请输入产品名称"
+                <Select
+                  v-model:value="productName"
+                  style="width: 100%"
+                  placeholder="请选择产品名称"
+                  :options="productList"
+                  @change="handleProductChange"
+                  :loading="loadingProduct"
+                  class="flex-1"
+                  show-search
+                  option-filter-prop="label"
+                  :filter-option="filterOption"
                 />
               </div>
               <div class="flex items-center gap-2">
@@ -380,25 +454,17 @@ defineExpose({ open });
                   v-model:value="selectedStockSpecs"
                   mode="multiple"
                   style="width: 300px"
-                  placeholder=""
+                  placeholder="请选择SKU规格"
+                  class="flex-1"
                   @change="handleStockSpecChange"
-                  class="flex-1 rounded-md border border-gray-300 bg-gray-100 shadow-sm"
-                  disabled
-                >
-                  <SelectOption
-                    v-for="type in availableSpecTypes"
-                    :key="type"
-                    :value="type"
-                  >
-                    {{ getSpecTypeName(type) }}
-                  </SelectOption>
-                </Select>
-                <!-- <p
-                  v-if="availableSpecTypes.length === 0"
-                  class="py-1.5 text-sm text-gray-500"
-                >
-                  暂无规格类型，请先添加
-                </p> -->
+                  :options="
+                    availableSpecTypes.map((type) => ({
+                      value: type,
+                      label: type,
+                    }))
+                  "
+                  :disabled="!productName || loadingSpecs"
+                />
               </div>
 
               <!-- 价格规格清单 -->
@@ -410,72 +476,28 @@ defineExpose({ open });
                   v-model:value="selectedPriceSpecs"
                   mode="multiple"
                   style="width: 300px"
-                  placeholder=""
+                  placeholder="请选择价格规格"
+                  class="flex-1"
                   @change="handlePriceSpecChange"
-                  class="flex-1 rounded-md border border-gray-300 bg-gray-100 shadow-sm"
-                  disabled
-                >
-                  <SelectOption
-                    v-for="type in availableSpecTypes"
-                    :key="type"
-                    :value="type"
-                  >
-                    {{ getSpecTypeName(type) }}
-                  </SelectOption>
-                </Select>
-                <!-- <p
-                  v-if="availableSpecTypes.length === 0"
-                  class="py-1.5 text-sm text-gray-500"
-                >
-                  暂无规格类型，请先添加
-                </p> -->
+                  :options="
+                    availableSpecTypes.map((type) => ({
+                      value: type,
+                      label: type,
+                    }))
+                  "
+                  :disabled="!productName || loadingSpecs"
+                />
               </div>
             </div>
           </div>
         </div>
         <!-- 可滚动的规格内容区域 -->
         <div class="flex-grow overflow-y-auto bg-white px-6 py-5">
-          <!-- 2. 添加新规格类型 -->
-          <!-- <div class="mb-6 rounded-lg border bg-gray-50 p-4">
-            <div class="flex items-center gap-3">
-              <h4 class="whitespace-nowrap text-sm font-medium text-gray-900">
-                添加新规格类型：
-              </h4>
-              <Select
-                v-model:value="selectedNewSpecTypes"
-                mode="multiple"
-                style="width: 100%"
-                placeholder="请选择要添加的规格类型"
-                :options="
-                  availableSpecCategories.map((item) => ({
-                    value: item.specCate,
-                    label: item.specCate,
-                  }))
-                "
-              >
-                <SelectOption
-                  v-for="item in availableSpecCategories"
-                  :key="item.specCate"
-                  :value="item.specCate"
-                >
-                  {{ item.specCate }}
-                </SelectOption>
-              </Select>
-              <button
-                class="inline-flex items-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:bg-blue-50"
-                @click="addNewSpecType"
-                :disabled="selectedNewSpecTypes.length === 0"
-                :class="{
-                  'cursor-not-allowed opacity-50':
-                    selectedNewSpecTypes.length === 0,
-                }"
-              >
-                添加规格类型
-              </button>
-            </div>
-          </div> -->
+          <div v-if="loadingSpecs" class="flex justify-center p-4">
+            <span>加载规格数据中...</span>
+          </div>
 
-          <!-- 3. 规格类型列表 -->
+          <!-- 规格类型列表 -->
           <div class="space-y-8">
             <div
               v-for="(spec, index) in editedSpecsList"
@@ -493,12 +515,6 @@ defineExpose({ open });
                   >
                     添加{{ spec.specCate }}
                   </button>
-                  <!-- <button
-                    class="text-sm font-medium text-red-600 hover:text-red-700"
-                    @click="removeSpecType(item.specCate, index)"
-                  >
-                    删除规格
-                  </button> -->
                 </div>
               </div>
 
@@ -570,27 +586,8 @@ defineExpose({ open });
               </div>
             </div>
           </div>
-
-          <!-- 无规格时的提示 -->
-          <!-- <div
-            v-else
-            class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-8 text-center"
-          >
-            <svg
-              class="h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">暂无规格类型</h3>
-            <p class="mt-1 text-sm text-gray-500">请在上方添加规格类型</p>
+          <!-- <div v-else-if="!loadingSpecs" class="flex flex-col items-center p-4">
+            <span class="text-gray-500">暂无规格数据</span>
           </div> -->
         </div>
 
