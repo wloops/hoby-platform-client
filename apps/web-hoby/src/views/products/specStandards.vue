@@ -6,6 +6,7 @@ import { message, Modal } from 'ant-design-vue';
 import { mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
+import addSpecStandard from './components/addSpecStandard.vue';
 import EditSpecStandard from './components/EditSpecStandard.vue';
 // 模拟规格标准数据
 // const specs = ref([
@@ -140,6 +141,7 @@ const deleteSpec = (id) => {
 // const isEditModalOpen = ref(false);
 const currentEditingProduct = ref(null);
 const EditSpecStandardRef = ref(null);
+const addSpecStandardRef = ref(null);
 
 // 打开编辑模态框
 const openEditModal = (spec) => {
@@ -148,6 +150,10 @@ const openEditModal = (spec) => {
   currentEditingProduct.value = spec;
   // isEditModalOpen.value = true;
   EditSpecStandardRef.value.open(spec);
+};
+// 打开新增产品模态框
+const openAddSpecStandard = () => {
+  addSpecStandardRef.value.open();
 };
 
 const specCateQuery = ref(''); // 搜索关键词
@@ -242,7 +248,7 @@ const resetPage = () => {
         <!-- <h1 class="text-xl font-semibold text-gray-800 md:text-2xl">
           规格标准管理
         </h1> -->
-        <button class="btn-primary">
+        <button class="btn-primary" @click="openAddSpecStandard">
           <svg
             class="mr-2 h-4 w-4"
             fill="none"
@@ -259,6 +265,9 @@ const resetPage = () => {
           新增规格标准
         </button>
       </div>
+
+      <!-- 新增产品模态框 -->
+      <addSpecStandard ref="addSpecStandardRef" @refresh="fetchSpecs" />
 
       <!-- 规格标准列表 -->
       <div class="mb-4 flex-grow overflow-y-auto pb-28">
