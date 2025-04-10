@@ -47,7 +47,7 @@ const tableProps = ref<CommonTableProps>({
             {
               fieldName: 'oldPinCiperUnderOriKey',
               displayName: '旧密码',
-              useType: 'passwordEncBypk',
+              useType: 'oldPassword',
               value: '',
               valueConstraint: 'notnull',
               isPrimaryKey: false,

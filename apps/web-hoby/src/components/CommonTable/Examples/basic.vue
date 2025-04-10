@@ -64,15 +64,14 @@ const tableProps = ref<CommonTableProps>({
   minSelected: 1,
   // 是否启用批量操作（可选）
   enableBatchActions: true,
-  // 批量操作按钮（可选）
-  batchActions: [], // ActionButtonProps[]
+  // 批量操作按钮（可选）ActionButtonProps[]
+  batchActions: [],
   // 使用操作列中的按钮作为批量操作按钮（可选）
   useColumnActions: true,
   // 自定义请求方法（可选）
   // requestApi: customRequestFunction,
-  // 展开子表（可选）
-  // childTables: {}, // ChildTableProps
-
+  // 展开子表（可选）ChildTableProps
+  // childTables: {},
   // 事件处理
   // 选中行变化事件（可选）
   onSelectionChange: (records, keys) => {
