@@ -382,10 +382,7 @@ const formOptions: VbenFormProps = {
 const handleSelectionChange = ({ records }: { records: TableRecord[] }) => {
   selectedRecords.value = records;
   selectedRowKeys.value = records.map((item) => item[props.rowKey] || '');
-  emit('selectionChange', {
-    records,
-    keys: selectedRowKeys.value,
-  });
+  emit('selectionChange', records, selectedRowKeys.value);
 };
 
 // 默认的加载子表数据方法
@@ -422,7 +419,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
         highlight: true,
         checkStrictly: true,
         showHeader: true,
-        trigger: 'row',
+        trigger: 'cell',
         range: true,
         reserve: true,
       }
@@ -481,13 +478,14 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   keepSource: false, // 保持原始值的状态，被某些功能所依赖，比如编辑状态、还原数据等（开启后影响性能，具体取决于数据量）
   rowConfig: {
     keyField: props.rowKey, // 设置行数据唯一标识的字段名
-    isCurrent: true,
+    // isCurrent: true,
     isHover: true,
   },
   pagerConfig: {},
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
+        selectedRecords.value = [];
         // 将searchForm中的字段转换为;连接的字符串
         const searchFormString = Object.entries(formValues)
           .map(([key, value]) => `${key}=${value ?? ''}`)
@@ -844,7 +842,7 @@ const handleAddClick = () => {
       <!-- 选中记录 -->
       <template #toolbar-actions>
         <div class="flex items-center gap-1">
-          <div class="batch-action-info" v-if="selectedRecords.length > 0">
+          <div class="batch-action-info">
             <Button type="text" @click="clearSelection">
               <div class="stems-center flex items-center justify-center gap-1">
                 <span class="icon-[mdi--arrow-u-left-top] text-lg"></span>

@@ -2,11 +2,13 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-10 10:25:30
+ * @LastEditTime: 2025-04-10 11:08:30
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
+import type { PropType } from 'vue';
+
 import type {
   ActionButtonProps,
   ChildTableProps,
@@ -78,7 +80,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  // 参数
+  // 基础配置
   params: {
     type: Object,
     default: () => {},
@@ -87,10 +89,17 @@ const props = defineProps({
     type: Array as () => ActionButtonProps[],
     default: () => [],
   },
-  // 展开子表
+  // 展开子表参数
   childTables: {
     type: Object as () => ChildTableProps,
     default: () => ({}),
+  },
+  // 选中行变化事件
+  onSelectionChange: {
+    type: Function as PropType<
+      (records: TableRecord[], keys: string[]) => void
+    >,
+    default: () => {},
   },
 });
 
@@ -171,6 +180,7 @@ const refresh = () => {
       :enable-batch-actions="enableBatchActions"
       :use-column-actions="useColumnActions"
       @open-dynamic-form="openDynamicForm"
+      @selection-change="onSelectionChange"
     />
     <DynamicForm
       ref="dynamicFormRef"

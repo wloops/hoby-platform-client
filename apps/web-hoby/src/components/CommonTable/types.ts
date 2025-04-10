@@ -224,16 +224,42 @@ export interface ChildTableProps {
   // 子表数据集ID
   pageDataGrpID?: string;
 }
+export interface CommonTableParams {
+  pageID: string;
+  showAddButton: boolean;
+  [key: string]: any;
+}
 
 // CommonTable 组件属性
 export interface CommonTableProps {
+  // 基础配置
+  params: CommonTableParams;
+  // 表格列配置
   columns: ColumnDefinition[];
+  // 页面按钮
+  pageButtons?: ActionButtonProps[];
+  // 表格数据
   tableData?: TableRecord[];
+  // 是否自动刷新
   autoRefresh?: boolean;
+  // 是否展示搜索表单
   showSearch?: boolean;
+  // 自定义请求方法
   requestApi?: RequestFunction;
+  // 是否显示复选框列
   showCheckbox?: boolean;
+  // 行唯一标识
   rowKey?: string;
+  // 批量操作按钮
   batchActions?: ActionButtonProps[];
+  // 最小选中数量
   minSelected?: number;
+  // 是否启用批量操作
+  enableBatchActions?: boolean;
+  // 使用操作列中的按钮作为批量操作按钮
+  useColumnActions?: boolean;
+  // 展开子表参数
+  childTables?: ChildTableProps;
+  // 选中行变化事件
+  onSelectionChange?: (records: TableRecord[], keys: string[]) => void;
 }
