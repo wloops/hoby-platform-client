@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue';
-
 import type {
   ActionButtonProps,
   ButtonType,
+  ChildTableProps,
   ColumnDefinition,
   TableRecord,
   VxeButtonType,
@@ -33,17 +32,6 @@ import { useSetSchema } from '#/composables/table/useSetSchema';
 import BatchAction from './components/BatchAction.vue';
 import ChildTable from './components/ChildTable.vue';
 import PageButtonsGroup from './components/PageButtons.vue';
-
-// 定义子表相关的类型
-interface ChildTableParams {
-  childTableColumns: any[];
-  loadChildTableData?: (row: TableRecord) => Promise<any[]>;
-  childTableParams?:
-    | ((row: TableRecord) => Record<string, any>)
-    | Record<string, any>;
-  childTableDataTransform?: (data: any) => any[];
-  pageID?: string;
-}
 
 // 定义组件接收的属性
 const props = defineProps({
@@ -108,17 +96,13 @@ const props = defineProps({
   },
   // 参数
   params: {
-    type: Object as PropType<ChildTableParams & Record<string, any>>,
-    default: () => ({
-      // 子表列配置
-      childTableColumns: [],
-      // 子表数据加载方法
-      loadChildTableData: null,
-      // 子表数据参数映射
-      childTableParams: (_record: any) => {},
-      // 子表数据转换方法
-      childTableDataTransform: (data: any): any[] => data,
-    }),
+    type: Object as () => Record<string, any>,
+    default: () => ({}),
+  },
+  // 展开子表
+  childTables: {
+    type: Object as () => ChildTableProps,
+    default: () => ({}),
   },
 });
 
@@ -409,20 +393,21 @@ const defaultLoadChildTableData = async (row: TableRecord): Promise<any[]> => {
   try {
     // 获取请求参数
     const params =
-      typeof props.params.childTableParams === 'function'
-        ? props.params.childTableParams(row)
+      typeof props.childTables.childTableParams === 'function'
+        ? props.childTables.childTableParams(row)
         : {
-            INTERPAGEID: props.params?.pageID || '',
+            INTERPAGEID: props.childTables?.pageID || '',
             INTERFORMDATA: JSON.stringify({ parentId: row[props.rowKey] }),
           };
-
+    params.pageID = props.childTables?.pageID || '';
+    params.pageDataGrpID = props.childTables?.pageDataGrpID || '';
     // 调用API获取数据
     const { data } = await useMainGetData(params);
     const records = data.value || [];
 
     // 转换数据
     const transform =
-      props.params.childTableDataTransform || ((data: any) => data);
+      props.childTables.childTableDataTransform || ((data: any) => data);
     return transform(records);
   } catch (error) {
     console.error('加载子表数据失败:', error);
@@ -446,8 +431,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
       },
   // 只在配置了子表时才启用展开功能
   expandConfig:
-    props.params?.childTableColumns?.length > 0 ||
-    props.params?.loadChildTableData
+    props.childTables?.childTableColumns?.length > 0 ||
+    props.childTables?.loadChildTableData
       ? {
           trigger: 'row',
           showIcon: true,
@@ -457,8 +442,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           iconClose: 'icon-[mdi--chevron-right]',
           loadMethod: async ({ row }) => {
             // 如果有自定义的加载子表数据方法，则使用自定义方法
-            if (props.params?.loadChildTableData) {
-              const data = await props.params.loadChildTableData(row);
+            if (props.childTables?.loadChildTableData) {
+              const data = await props.childTables.loadChildTableData(row);
               row.childTableData = data;
               return;
             }
@@ -606,8 +591,8 @@ if (
   props.columns.length > 0 &&
   !props.columns.some((col) => col.type === 'expand') &&
   // 只有在配置了子表时才添加展开列
-  (props.params?.childTableColumns?.length > 0 ||
-    props.params?.loadChildTableData)
+  (props.childTables?.childTableColumns?.length > 0 ||
+    props.childTables?.loadChildTableData)
 ) {
   // 添加展开列（在复选框列之后）
   const expandColumn = {
@@ -786,13 +771,13 @@ const handleAddClick = () => {
       <template #expand="{ row }">
         <ChildTable
           :row="row"
-          :columns="props.params?.childTableColumns || []"
-          :page-i-d="props.params?.pageID"
-          :page-data-grp-i-d="props.params?.pageDataGrpID"
+          :columns="props.childTables?.childTableColumns || []"
+          :page-i-d="props.childTables?.pageID"
+          :page-data-grp-i-d="props.childTables?.pageDataGrpID"
           :custom-params="{
-            ...(props.params?.childTableParams &&
-            typeof props.params.childTableParams === 'function'
-              ? props.params.childTableParams(row)
+            ...(props.childTables?.childTableParams &&
+            typeof props.childTables.childTableParams === 'function'
+              ? props.childTables.childTableParams(row)
               : {}),
           }"
         />

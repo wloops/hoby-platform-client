@@ -2,7 +2,7 @@
  * @Author: AI Assistant
  * @Date: 2025-04-08 18:00:00
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-09 10:27:31
+ * @LastEditTime: 2025-04-10 10:40:37
  * @Description: 子表组件，用于在展开行时显示
 -->
 <script lang="ts" setup>
@@ -10,7 +10,7 @@ import type { TableRecord } from '../types';
 
 import type { VxeGridListeners, VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useMainGetData } from '#/composables';
@@ -71,7 +71,12 @@ const [Grid, gridApi] = useVbenVxeGrid({ gridOptions, gridEvents });
 const loadData = async () => {
   gridApi.setLoading(true);
   error.value = null;
-
+  if (props.row.childTableData) {
+    tableData.value = props.row.childTableData;
+    gridApi.setGridOptions({ data: tableData.value });
+    gridApi.setLoading(false);
+    return;
+  }
   try {
     const params = {
       pageID: props.pageID,
@@ -90,16 +95,17 @@ const loadData = async () => {
   }
 };
 
-// 当父行数据或页面ID变化时重新加载数据
-watch(
-  () => [props.row, props.pageID, props.pageDataGrpID],
-  () => {
-    if (props.pageID) {
-      loadData();
-    }
-  },
-  { immediate: true },
-);
+// // 当父行数据或页面ID变化时重新加载数据
+// watch(
+//   () => [props.row, props.pageID, props.pageDataGrpID],
+//   () => {
+//     if (props.pageID) {
+//       loadData();
+//     }
+//   },
+//   { immediate: true },
+// );
+loadData();
 
 // 暴露刷新方法
 defineExpose({

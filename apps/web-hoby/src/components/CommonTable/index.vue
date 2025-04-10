@@ -2,13 +2,14 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-09 16:35:32
+ * @LastEditTime: 2025-04-10 10:25:30
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
 import type {
   ActionButtonProps,
+  ChildTableProps,
   ColumnDefinition,
   CustomSchemaList,
   TableRecord,
@@ -86,6 +87,11 @@ const props = defineProps({
     type: Array as () => ActionButtonProps[],
     default: () => [],
   },
+  // 展开子表
+  childTables: {
+    type: Object as () => ChildTableProps,
+    default: () => ({}),
+  },
 });
 
 const loading = ref(true);
@@ -151,10 +157,8 @@ const refresh = () => {
       v-if="!loading"
       ref="tableRef"
       :columns="sendColumns"
-      :params="{
-        ...params,
-        childTableColumns: [],
-      }"
+      :params="params"
+      :child-tables="childTables"
       :page-buttons="pageButtons"
       :table-data="tableData"
       :auto-refresh="autoRefresh"

@@ -207,6 +207,24 @@ export type RequestFunction = (
   formValues: any,
 ) => Promise<RequestResult>;
 
+// 展开子表配置
+export interface ChildTableProps {
+  // 子表列配置
+  childTableColumns: any[];
+  // 子表数据加载方法
+  loadChildTableData?: (row: TableRecord) => Promise<any[]>;
+  // 子表数据参数映射
+  childTableParams?:
+    | ((row: TableRecord) => Record<string, any>)
+    | Record<string, any>;
+  // 子表数据转换方法
+  childTableDataTransform?: (data: any) => any[];
+  // 子表页面ID
+  pageID?: string;
+  // 子表数据集ID
+  pageDataGrpID?: string;
+}
+
 // CommonTable 组件属性
 export interface CommonTableProps {
   columns: ColumnDefinition[];
