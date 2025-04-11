@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-11 17:44:48
+ * @LastEditTime: 2025-04-11 18:24:33
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -144,13 +144,19 @@ const openDynamicForm = (params: {
 };
 
 const sendColumns = ref<ColumnDefinition[]>([]);
+const fieldSort = ref({
+  displayFldList: '',
+  queryPanelFldList: '',
+});
 const { getViewSchema } = useSetSchema();
 onMounted(async () => {
-  sendColumns.value =
-    props.columns.length > 1
-      ? props.columns
-      : await getViewSchema(props.columns, props.params.pageID);
-  // 处理枚举值
+  const { columns, displayFldList, queryPanelFldList } = await getViewSchema(
+    props.columns,
+    props.params.pageID,
+  );
+  sendColumns.value = props.columns.length > 1 ? props.columns : columns;
+  fieldSort.value.displayFldList = displayFldList;
+  fieldSort.value.queryPanelFldList = queryPanelFldList;
   loading.value = false;
 });
 
@@ -170,6 +176,7 @@ const refresh = () => {
       ref="tableRef"
       :columns="sendColumns"
       :params="params"
+      :field-sort="fieldSort"
       :child-tables="childTables"
       :page-buttons="pageButtons"
       :table-data="tableData"

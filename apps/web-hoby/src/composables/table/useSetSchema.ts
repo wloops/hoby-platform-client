@@ -35,6 +35,7 @@ export function useSetSchema() {
    */
   const generateSchema = (
     columnConfigs: ColumnDefinition[],
+    queryPanelFldList: string,
   ): VxeSchemaItem[] => {
     const schema = columnConfigs
       .filter((config) => config.searchable === true)
@@ -88,6 +89,16 @@ export function useSetSchema() {
         }
         return schemaItem;
       });
+    // 将 queryPanelFldList 转换为数组
+    const queryPanelFields = queryPanelFldList
+      ? queryPanelFldList.split(',')
+      : [];
+    // 将 schema 中的 fieldName 转换为 queryPanelFields 中的顺序
+    schema.sort(
+      (a, b) =>
+        queryPanelFields.indexOf(a.fieldName) -
+        queryPanelFields.indexOf(b.fieldName),
+    );
     return schema;
   };
 
@@ -98,8 +109,9 @@ export function useSetSchema() {
    */
   const generateColumns = (
     columnConfigs: ColumnDefinition[],
+    displayFldList: string,
   ): VxeGridPropTypes.Columns => {
-    return columnConfigs
+    const columns = columnConfigs
       .filter((config) => config.visible)
       .map((config) => {
         const { getEnumColor } = useEnums(); // 避免顶层调用,改为在函数内部调用;
@@ -187,6 +199,13 @@ export function useSetSchema() {
 
         return column;
       });
+    // 将 displayFldList 转换为数组
+    const displayFields = displayFldList ? displayFldList.split(',') : [];
+    // 将 columns 中的 field 转换为 displayFields 中的顺序
+    columns.sort(
+      (a, b) => displayFields.indexOf(a.field) - displayFields.indexOf(b.field),
+    );
+    return columns;
   };
 
   /**
@@ -219,13 +238,21 @@ export function useSetSchema() {
   const getViewSchema = async (
     operationColumn: ColumnDefinition[],
     pageID: string,
-  ): Promise<ColumnDefinition[]> => {
+  ): Promise<{
+    columns: ColumnDefinition[];
+    displayFldList: string;
+    queryPanelFldList: string;
+  }> => {
     const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
     const { rs, fieldList, displayFldList, pkFldList, queryPanelFldList } =
       await mainGetViewFieldConfigApi({ pageID });
 
     if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
-      return operationColumn || [];
+      return {
+        columns: operationColumn || [],
+        displayFldList: '',
+        queryPanelFldList: '',
+      };
     }
 
     // 将字符串转换为数组
@@ -308,7 +335,7 @@ export function useSetSchema() {
       columns.push(...operationColumn);
     }
 
-    return columns;
+    return { columns, displayFldList, queryPanelFldList };
   };
 
   return {

@@ -99,6 +99,17 @@ const props = defineProps({
     type: Object as () => Record<string, any>,
     default: () => ({}),
   },
+  // 字段排序
+  fieldSort: {
+    type: Object as () => {
+      displayFldList: string;
+      queryPanelFldList: string;
+    },
+    default: () => ({
+      displayFldList: '',
+      queryPanelFldList: '',
+    }),
+  },
   // 展开子表
   childTables: {
     type: Object as () => ChildTableProps,
@@ -378,7 +389,10 @@ const formOptions: VbenFormProps = {
   // 默认展开
   collapsed: true,
   // fieldMappingTime: [['date', ['start', 'end']]],
-  schema: props.columns.length > 0 ? generateSchema(props.columns) : [],
+  schema:
+    props.columns.length > 0
+      ? generateSchema(props.columns, props.fieldSort.queryPanelFldList)
+      : [],
 
   // 控制表单是否显示折叠按钮
   showCollapseButton: true,
@@ -462,7 +476,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
       : undefined,
   columns:
     props.columns.length > 0
-      ? generateColumns(props.columns)
+      ? generateColumns(props.columns, props.fieldSort.displayFldList)
       : [
           { align: 'left', type: 'checkbox', width: 50 },
           { field: 'orderNo', title: '进货订单号' },
