@@ -341,8 +341,7 @@ const submitCommonButton = async (record: Record<string, any>) => {
       return code === '1';
     } else {
       const data = {
-        pageID: pageParams.value.pageID, // 页面ID
-        pageButtonID: pageParams.value.pageButtonID, // 按钮ID
+        ...pageParams.value,
         ...record,
       };
       const { rs: code } = await mainServiceApi(data);
