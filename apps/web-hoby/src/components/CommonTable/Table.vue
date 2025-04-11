@@ -250,6 +250,15 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
       else if (action.params && typeof action.params === 'object') {
         serviceParams = { ...action.params };
       }
+      // 如果同时配置了 fields 字段，则将记录中的这些字段值添加到 params 中
+      if (Array.isArray(action.fields) && action.fields.length > 0) {
+        // 传递了指定字段
+        action.fields.forEach((field) => {
+          if (row[field] !== undefined) {
+            serviceParams[field] = row[field];
+          }
+        });
+      }
 
       emit('openDynamicForm', {
         serviceParams,
