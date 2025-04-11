@@ -32,6 +32,46 @@ const routes: RouteRecordRaw[] = [
       },
       {
         meta: {
+          title: $t('page.my.fundAccount.voucherWaitPay'),
+          icon: 'mdi:account-cash',
+          authority: ['my'],
+        },
+        name: 'VoucherWaitPay',
+        path: '/my/fund/voucher-waitpay',
+        component: () => import('#/views/my/fund/voucher-waitpay.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.fundAccount.voucherWaitReceive'),
+          icon: 'mdi:account-cash',
+          authority: ['my'],
+        },
+        name: 'VoucherWaitReceive',
+        path: '/my/fund/voucher-waitrecv',
+        component: () => import('#/views/my/fund/voucher-waitrecv.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.fundAccount.voucherWaitConfirm'),
+          icon: 'mdi:account-cash',
+          authority: ['my'],
+        },
+        name: 'VoucherWaitConfirm',
+        path: '/my/fund/voucher-waitconfirm',
+        component: () => import('#/views/my/fund/voucher-waitconfirm.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.fundAccount.OpenBankAccount'),
+          icon: 'mdi:account-cash',
+          authority: ['my'],
+        },
+        name: 'OpenBankAccount',
+        path: '/my/fund/open-bankacc',
+        component: () => import('#/views/my/fund/open-bankacc.vue'),
+      },
+      {
+        meta: {
           title: $t('page.my.fundAccount.voucher.title'),
           icon: 'mdi:card-account-details',
           authority: ['my'],
@@ -243,13 +283,148 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         meta: {
-          title: $t('page.my.shopManagement.title'),
+          title: $t('page.my.shopManagement.priWareGoodsMng.title'),
           icon: 'mdi:office-building',
           authority: ['my'],
         },
-        name: 'MyShopMain',
-        path: '/my/shop/main',
-        component: () => import('#/views/my/shop/main.vue'),
+        name: 'MyPriWareGoodsMng',
+        path: '/warehouse/private/general-ledger',
+        children: [
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.priWareGoodsMng.myPriWareService',
+              ),
+              authority: ['my'],
+            },
+            name: 'MyPriWareService',
+            path: '/warehouse/private/general-ledger/open',
+            component: () =>
+              import('#/views/warehouse/private/general-ledger/open.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.priWareGoodsMng.priWareProductList',
+              ),
+              authority: ['my'],
+            },
+            name: 'PriWareProductList',
+            path: '/warehouse/private/general-ledger/products',
+            component: () =>
+              import('#/views/warehouse/private/general-ledger/products.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.priWareGoodsMng.priWareSrlIDList',
+              ),
+              authority: ['my'],
+            },
+            name: 'PriWareSrlIDList',
+            path: '/warehouse/private/general-ledger/model',
+            component: () =>
+              import('#/views/warehouse/private/general-ledger/model.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.priWareGoodsMng.priWareGoodsList',
+              ),
+              authority: ['my'],
+            },
+            name: 'PriWareGoodsList',
+            path: '/warehouse/private/general-ledger/sku',
+            component: () =>
+              import('#/views/warehouse/private/general-ledger/sku.vue'),
+          },
+        ],
+      },
+      {
+        meta: {
+          title: $t('page.my.shopManagement.priWareShopMng.title'),
+          icon: 'mdi:office-building',
+          authority: ['my'],
+        },
+        name: 'MyPriWareShopMng',
+        path: '/shop/private',
+        children: [
+          {
+            meta: {
+              title: $t('page.my.shopManagement.priWareShopMng.priWareShop'),
+              icon: 'solar:shop-minimalistic-bold',
+              authority: ['my'],
+            },
+            name: 'PriWareShop',
+            path: '/shop/private',
+            component: () => import('#/views/shop/private/shop.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.priWareShopMng.shopProductList',
+              ),
+              icon: 'solar:layers-bold-duotone',
+              authority: ['my'],
+            },
+            name: 'ShopProductList',
+            path: '/shop/private/products',
+            component: () => import('#/views/shop/private/products.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.shopManagement.priWareShopMng.shopSrlIDList'),
+              icon: 'solar:arrow-right-up-bold',
+              authority: ['my'],
+            },
+            name: 'ShopSrlIDList',
+            path: '/shop/private/model',
+            component: () => import('#/views/shop/private/model.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.shopManagement.priWareShopMng.shopGoodsList'),
+              icon: 'solar:palette-round-bold-duotone',
+              authority: ['my'],
+            },
+            name: 'ShopGoodsList',
+            path: '/shop/private/sku',
+            component: () => import('#/views/shop/private/sku.vue'),
+          },
+        ],
+      },
+      {
+        meta: {
+          title: $t('page.my.shopManagement.myWarehouseMng.title'),
+          icon: 'mdi:office-building',
+          authority: ['my'],
+        },
+        name: 'MyWarehouseMng',
+        path: '/warehouse/info',
+        children: [
+          {
+            meta: {
+              title: $t('page.my.shopManagement.myWarehouseMng.myWarehouse'),
+              authority: ['my'],
+              icon: 'solar:info-square-bold-duotone',
+            },
+            name: 'MyWarehouse',
+            path: '/warehouse/info/management',
+            component: () => import('#/views/warehouse/info/management.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.shopManagement.myWarehouseMng.defaultWarehouse',
+              ),
+              authority: ['my'],
+              icon: 'solar:home-smile-bold-duotone',
+            },
+            name: 'DefaultWarehouse',
+            path: '/warehouse/info/deficit',
+            component: () => import('#/views/warehouse/info/deficit.vue'),
+          },
+        ],
       },
     ],
   },

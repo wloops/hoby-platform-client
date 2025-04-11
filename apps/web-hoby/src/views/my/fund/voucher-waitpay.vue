@@ -6,14 +6,14 @@ import { ref } from 'vue';
 import CommonTable from '#/components/CommonTable/index.vue';
 
 /**
- * @pageName pageName=订单付款账期页面
- * @pageID pageID=orderPaymentPeriodPage
- * @remark 视图=订单付款账期界面（crpOperConf1AttrValue：1658）
+ * @pageName pageName=本机构待付款采购订单结算凭证页面
+ * @pageID pageID=mySettleVoucherWaitPayPage
+ * @remark 视图=HOBY本机构采购订单结算凭证-待付款界面（zcyPurchaseOrderSettleBill：9001）
  */
 const tableProps = ref<CommonTableProps>({
   // 基础配置(必填) CommonTableParams
   params: {
-    pageID: 'orderPaymentPeriodPage', // 页面ID
+    pageID: 'mySettleVoucherWaitPayPage', // 页面ID
     showAddButton: false, // 是否显示新增按钮
   },
   // 表格列配置(必填) ColumnDefinition[]
