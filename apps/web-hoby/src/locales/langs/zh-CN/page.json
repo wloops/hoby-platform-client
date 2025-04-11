@@ -152,30 +152,55 @@
     "home": "店铺首页"
   },
   "my": {
+    "creditManagement": {
+      "title": "信用管理",
+      "applyForGuarantee": "申请入驻保函",
+      "applyForRenewalGuarantee": "申请复用履约保函",
+      "myGuaranteeOrder": "我的保函订单",
+      "guaranteeAccount": "我的保函账户"
+    },
+    "fundAccount": {
+      "title": "资金管理",
+      "settlement": "结算账户",
+      "voucher": {
+        "title": "结算凭证",
+        "orderSettlement": "订单结算凭证",
+        "paymentSettlement": "付款结算凭证",
+        "receiptSettlement": "收款结算凭证"
+      },
+      "config": {
+        "title": "结算配置",
+        "salesShare": "销售分成规则",
+        "prepaidPercentage": "订单预付百分比",
+        "paymentPeriod": "订单付款账期",
+        "defaultPayment": "缺省支付账户"
+      }
+    },
+    "productManagement": {
+      "title": "商品管理",
+      "productStandard": "产品标准",
+      "productModel": "产品型号",
+      "specStandards": "规格标准",
+      "productCatalog": "商品目录"
+    },
+    "shopManagement": {
+      "title": "店铺管理"
+    },
+    "salesOrder": {
+      "title": "销售订单"
+    },
+    "purchaseOrder": {
+      "title": "采购订单"
+    },
+    "relationManagement": {
+      "title": "关系管理"
+    },
     "basicInfo": {
       "title": "基本信息",
       "companyInfo": "企业信息",
       "companyAddress": "单位地址",
       "employees": "企业员工",
       "operationAccounts": "操作账号"
-    },
-    "fundAccount": {
-      "title": "资金账户",
-      "settlement": "结算账户",
-      "credit": "信用账户",
-      "voucher": {
-        "title": "结算凭证",
-        "orderSettlement": "订单结算凭证",
-        "paymentSettlement": "付款结算凭证",
-        "receiptSettlement": "收款结算凭证"
-      }
-    },
-    "config": {
-      "title": "结算配置",
-      "salesShare": "销售分成规则",
-      "prepaidPercentage": "订单预付百分比",
-      "paymentPeriod": "订单付款账期",
-      "defaultPayment": "缺省支付账户"
     }
   }
 }
