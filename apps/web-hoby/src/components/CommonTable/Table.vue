@@ -250,8 +250,9 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
       else if (action.params && typeof action.params === 'object') {
         serviceParams = { ...action.params };
       }
+
       emit('openDynamicForm', {
-        ...serviceParams,
+        serviceParams,
         buttonTitle: action.label || action.text,
         mode: action.runMode || 'drawer',
         record: row,
