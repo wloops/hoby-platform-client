@@ -33,12 +33,11 @@ const tableProps = ref<CommonTableProps>({
           type: 'link',
           danger: false,
           visible: true, // 控制按钮是否显示
-          runMode: 'default', // default: 默认, modal: 弹窗
+          runMode: 'modal', // default: 默认, modal: 弹窗
           params: (record) => ({
-            pageID: 'mySKU',
+            pageID: 'inputTerminalPriceAndDistributorPrice',
             pageButtonID: 'updateSalePrice',
             ...record,
-            SKUID: record.objectID,
           }),
           disabled: (record) => record && false, // 控制按钮是否禁用
           successMsg: '更新售价成功',
