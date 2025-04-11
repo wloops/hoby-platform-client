@@ -8,7 +8,7 @@ import { useMainGetData } from '#/composables';
 
 const emit = defineEmits(['refresh']);
 const isOpen = ref(false);
-const productName = ref('');
+const productName = ref(null);
 const srlID = ref('');
 const selectedStockSpecs = ref([]);
 const selectedPriceSpecs = ref([]);
@@ -27,7 +27,7 @@ const handlePriceSpecChange = (value) => (selectedPriceSpecs.value = value);
 
 // 重置表单
 const resetForm = () => {
-  productName.value = '';
+  productName.value = null;
   srlID.value = '';
   selectedStockSpecs.value = [];
   selectedPriceSpecs.value = [];
@@ -419,7 +419,7 @@ defineExpose({ open });
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="space-y-4">
             <div class="grid grid-cols-1 gap-4">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center">
                 <h4 class="flex-1 text-sm font-medium text-gray-900">产品：</h4>
                 <Select
                   v-model:value="productName"
@@ -428,7 +428,7 @@ defineExpose({ open });
                   :options="productList"
                   @change="handleProductChange"
                   :loading="loadingProduct"
-                  class="flex-1"
+                  class="product-select flex-1"
                   show-search
                   option-filter-prop="label"
                   :filter-option="filterOption"
@@ -454,8 +454,8 @@ defineExpose({ open });
                   v-model:value="selectedStockSpecs"
                   mode="multiple"
                   style="width: 300px"
-                  placeholder="请选择SKU规格"
-                  class="flex-1"
+                  placeholder=""
+                  class="flex-1 rounded-md border border-gray-300 bg-gray-100 shadow-sm"
                   @change="handleStockSpecChange"
                   :options="
                     availableSpecTypes.map((type) => ({
@@ -463,7 +463,7 @@ defineExpose({ open });
                       label: type,
                     }))
                   "
-                  :disabled="!productName || loadingSpecs"
+                  disabled
                 />
               </div>
 
@@ -476,8 +476,8 @@ defineExpose({ open });
                   v-model:value="selectedPriceSpecs"
                   mode="multiple"
                   style="width: 300px"
-                  placeholder="请选择价格规格"
-                  class="flex-1"
+                  placeholder=""
+                  class="flex-1 rounded-md border border-gray-300 bg-gray-100"
                   @change="handlePriceSpecChange"
                   :options="
                     availableSpecTypes.map((type) => ({
@@ -485,7 +485,7 @@ defineExpose({ open });
                       label: type,
                     }))
                   "
-                  :disabled="!productName || loadingSpecs"
+                  disabled
                 />
               </div>
             </div>
@@ -622,5 +622,23 @@ defineExpose({ open });
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+:deep(
+  .product-select.ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector
+) {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
+}
+
+:deep(
+  .product-select.ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector
+    .ant-select-selection-search-input
+) {
+  height: 40px;
 }
 </style>
