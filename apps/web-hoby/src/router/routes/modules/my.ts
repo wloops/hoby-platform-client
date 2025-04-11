@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-11 14:10:27
+ * @LastEditTime: 2025-04-11 14:56:07
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\seller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -13,63 +13,12 @@ import { $t } from '#/locales';
 const routes: RouteRecordRaw[] = [
   {
     meta: {
-      title: $t('page.my.creditManagement.title'),
-      icon: 'solar:card-2-outline',
-      authority: ['my'],
-    },
-    name: 'MyCreditManagement',
-    path: '/my',
-    children: [
-      {
-        meta: {
-          title: $t('page.my.creditManagement.applyForGuarantee'),
-          icon: 'solar:medal-ribbon-star-linear',
-          authority: ['my'],
-        },
-        name: 'MyApplyForGuarantee',
-        path: '/my/credit/apply-for-guarantee',
-        component: () => import('#/views/my/credit/apply-for-guarantee.vue'),
-      },
-      {
-        meta: {
-          title: $t('page.my.creditManagement.applyForRenewalGuarantee'),
-          icon: 'solar:medal-ribbons-star-linear',
-          authority: ['my'],
-        },
-        name: 'MyRenewalGuarantee',
-        path: '/my/credit/renewal-guarantee',
-        component: () => import('#/views/my/credit/renewal-guarantee.vue'),
-      },
-      {
-        meta: {
-          title: $t('page.my.creditManagement.myGuaranteeOrder'),
-          icon: 'solar:clipboard-linear',
-          authority: ['my'],
-        },
-        name: 'MyGuaranteeOrder',
-        path: '/my/credit/guarantee-order',
-        component: () => import('#/views/my/credit/guarantee-order.vue'),
-      },
-      {
-        meta: {
-          title: $t('page.my.creditManagement.guaranteeAccount'),
-          icon: 'mdi:account-cog',
-          authority: ['my'],
-        },
-        name: 'MyGuaranteeAccount',
-        path: '/my/credit/guarantee-account',
-        component: () => import('#/views/my/credit/guarantee-account.vue'),
-      },
-    ],
-  },
-  {
-    meta: {
       title: $t('page.my.fundAccount.title'),
       icon: 'solar:money-bag-outline',
       authority: ['my'],
     },
     name: 'MyFundAccount',
-    path: '/my/fund',
+    path: '/my',
     children: [
       {
         meta: {
@@ -178,6 +127,57 @@ const routes: RouteRecordRaw[] = [
               import('#/views/my/fund/config/default-payment.vue'),
           },
         ],
+      },
+    ],
+  },
+  {
+    meta: {
+      title: $t('page.my.creditManagement.title'),
+      icon: 'solar:card-2-outline',
+      authority: ['my'],
+    },
+    name: 'MyCreditManagement',
+    path: '/my/credit',
+    children: [
+      {
+        meta: {
+          title: $t('page.my.creditManagement.applyForGuarantee'),
+          icon: 'solar:medal-ribbon-star-linear',
+          authority: ['my'],
+        },
+        name: 'MyApplyForGuarantee',
+        path: '/my/credit/apply-for-guarantee',
+        component: () => import('#/views/my/credit/apply-for-guarantee.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.creditManagement.applyForRenewalGuarantee'),
+          icon: 'solar:medal-ribbons-star-linear',
+          authority: ['my'],
+        },
+        name: 'MyRenewalGuarantee',
+        path: '/my/credit/renewal-guarantee',
+        component: () => import('#/views/my/credit/renewal-guarantee.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.creditManagement.myGuaranteeOrder'),
+          icon: 'solar:clipboard-linear',
+          authority: ['my'],
+        },
+        name: 'MyGuaranteeOrder',
+        path: '/my/credit/guarantee-order',
+        component: () => import('#/views/my/credit/guarantee-order.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.creditManagement.guaranteeAccount'),
+          icon: 'mdi:account-cog',
+          authority: ['my'],
+        },
+        name: 'MyGuaranteeAccount',
+        path: '/my/credit/guarantee-account',
+        component: () => import('#/views/my/credit/guarantee-account.vue'),
       },
     ],
   },
