@@ -27,6 +27,7 @@ import {
   mainGetViewSearchDataApi,
 } from '#/api';
 import { useEnums, useMainGetData, useServiceCall } from '#/composables';
+import { useSetFieldRealValue } from '#/composables/form/useSetFieldRealValue';
 import { useSetSchema } from '#/composables/table/useSetSchema';
 
 import BatchAction from './components/BatchAction.vue';
@@ -188,7 +189,8 @@ async function executeServiceAction(
 
     // 如果配置了自定义 params 函数，则调用它来获取参数
     if (typeof action.params === 'function') {
-      serviceParams = action.params(record);
+      const { getActionUserMap } = useSetFieldRealValue();
+      serviceParams = action.params(record, getActionUserMap());
     }
     // 如果配置了静态 params 对象，则使用它
     else if (action.params && typeof action.params === 'object') {
@@ -255,7 +257,8 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
 
       // 如果配置了自定义 params 函数，则调用它来获取参数
       if (typeof action.params === 'function') {
-        serviceParams = action.params(row);
+        const { getActionUserMap } = useSetFieldRealValue();
+        serviceParams = action.params(row, getActionUserMap());
       }
       // 如果配置了静态 params 对象，则使用它
       else if (action.params && typeof action.params === 'object') {

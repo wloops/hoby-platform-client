@@ -1,3 +1,5 @@
+import type { ActionUserMap } from '#/composables/form/useSetFieldRealValue';
+
 // 定义字段类型枚举
 /**
  * @CHECKBOX 复选框
@@ -101,8 +103,8 @@ export interface ActionButtonProps {
   schema?: CustomSchemaList[];
   // 新增 API 相关属性
   api?: (params: any) => Promise<any>; // API 调用函数
-  params?: ((record: any) => any) | Record<string, any>; // 单条记录参数
-  batchParams?: (records: any[]) => any; // 批量操作参数
+  params?: ((record: any, user?: ActionUserMap) => any) | Record<string, any>; // 单条记录参数
+  batchParams?: (records: any[], user?: ActionUserMap) => any; // 批量操作参数
   fields?: string[]; // 要从记录中提取的字段
   successMsg?: string; // 成功提示消息
   errorMsg?: string; // 错误提示消息
