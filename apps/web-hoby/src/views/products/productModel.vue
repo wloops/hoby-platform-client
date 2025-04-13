@@ -144,6 +144,8 @@ async function fetchProductsList() {
       company: item.companyName,
       name: item.productName,
       model: item.srlID,
+      distributorPrice: item.distributorPrice,
+      terminalPrice: item.terminalPrice,
       logo: '',
       description: '',
       prices: [],
