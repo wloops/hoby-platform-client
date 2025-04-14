@@ -5,6 +5,7 @@ import type {
   ChildTableProps,
   ColumnDefinition,
   TableRecord,
+  TabOption,
   VxeButtonType,
 } from './types';
 
@@ -26,6 +27,7 @@ import {
   mainGetViewDataApi,
   mainGetViewSearchDataApi,
 } from '#/api';
+import CommonTabs from '#/components/Tabs/index.vue';
 import { useEnums, useMainGetData, useServiceCall } from '#/composables';
 import { useSetFieldRealValue } from '#/composables/form/useSetFieldRealValue';
 import { useSetSchema } from '#/composables/table/useSetSchema';
@@ -33,7 +35,6 @@ import { useSetSchema } from '#/composables/table/useSetSchema';
 import BatchAction from './components/BatchAction.vue';
 import ChildTable from './components/ChildTable.vue';
 import PageButtonsGroup from './components/PageButtons.vue';
-
 // 定义组件接收的属性
 const props = defineProps({
   // 表格列配置
@@ -116,6 +117,11 @@ const props = defineProps({
     type: Object as () => ChildTableProps,
     default: () => ({}),
   },
+  // 标签页
+  tabs: {
+    type: Array as () => TabOption[],
+    default: () => [],
+  },
 });
 
 // 定义事件
@@ -124,8 +130,13 @@ const emit = defineEmits([
   'batchAction',
   'refresh',
   'openDynamicForm',
+  'tabChange',
 ]);
 const { getEnumLabel, getEnumColor } = useEnums();
+
+const handleTabChange = (value: string) => {
+  emit('tabChange', value);
+};
 
 // 查找操作列
 const actionColumn = computed(() => {
@@ -869,6 +880,11 @@ const handleAddClick = () => {
       <!-- 选中记录 -->
       <template #toolbar-actions>
         <div class="flex items-center gap-1">
+          <CommonTabs
+            v-if="tabs.length > 0"
+            :tabs="tabs"
+            @change="handleTabChange"
+          />
           <div class="batch-action-info">
             <Button type="text" @click="clearSelection">
               <div class="stems-center flex items-center justify-center gap-1">

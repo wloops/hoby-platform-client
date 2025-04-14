@@ -230,6 +230,13 @@ export interface ChildTableProps {
 export interface CommonTableParams {
   pageID: string;
   showAddButton: boolean;
+  isTabs?: boolean; // 是否为多标签页
+  [key: string]: any;
+}
+
+export interface TabOption {
+  label: string;
+  value: string;
   [key: string]: any;
 }
 

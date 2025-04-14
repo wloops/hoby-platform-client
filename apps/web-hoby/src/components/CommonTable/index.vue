@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-11 18:24:33
+ * @LastEditTime: 2025-04-14 14:58:48
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,7 +20,7 @@ import type {
 import { onMounted, ref } from 'vue';
 
 import DynamicForm from '#/components/DynamicForm/index.vue';
-import { useSetSchema } from '#/composables';
+import { useSetSchema, useTabs } from '#/composables';
 
 import Table from './Table.vue';
 // 定义组件接收的属性
@@ -148,11 +148,23 @@ const fieldSort = ref({
   displayFldList: '',
   queryPanelFldList: '',
 });
+
+const pageParams = ref<any>(props.params);
+
 const { getViewSchema } = useSetSchema();
+const { getTabsList } = useTabs();
 onMounted(async () => {
+  // 判断是否为多标签页
+  if (props.params?.isTabs) {
+    // 获取tabs列表和默认tab
+    const { tabs, defaultTab } = await getTabsList(props.params.pageID);
+    pageParams.value.pageID = defaultTab?.pageID;
+    pageParams.value.tabs = tabs;
+  }
+  // 获取视图配置
   const { columns, displayFldList, queryPanelFldList } = await getViewSchema(
     props.columns,
-    props.params.pageID,
+    pageParams.value.pageID,
   );
   sendColumns.value = props.columns.length > 1 ? props.columns : columns;
   fieldSort.value.displayFldList = displayFldList;
@@ -167,6 +179,11 @@ const tableRef = ref<null | {
 const refresh = () => {
   tableRef.value?.refresh();
 };
+
+const handleTabChange = (value: string) => {
+  pageParams.value.pageID = value;
+  tableRef.value?.refresh();
+};
 </script>
 
 <template>
@@ -175,8 +192,9 @@ const refresh = () => {
       v-if="!loading"
       ref="tableRef"
       :columns="sendColumns"
-      :params="params"
+      :params="pageParams"
       :field-sort="fieldSort"
+      :tabs="pageParams.tabs"
       :child-tables="childTables"
       :page-buttons="pageButtons"
       :table-data="tableData"
@@ -191,6 +209,7 @@ const refresh = () => {
       :use-column-actions="useColumnActions"
       @open-dynamic-form="openDynamicForm"
       @selection-change="onSelectionChange"
+      @tab-change="handleTabChange"
     />
     <DynamicForm
       ref="dynamicFormRef"
