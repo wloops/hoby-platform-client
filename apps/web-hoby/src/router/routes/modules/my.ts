@@ -248,7 +248,7 @@ const routes: RouteRecordRaw[] = [
         },
         name: 'MyProductModel',
         path: '/my/product/model',
-        component: () => import('#/views/my/product/model.vue'),
+        component: () => import('#/views/products/productModel.vue'),
       },
       {
         meta: {
@@ -258,7 +258,7 @@ const routes: RouteRecordRaw[] = [
         },
         name: 'MySpecStandards',
         path: '/my/product/spec-standards',
-        component: () => import('#/views/my/product/spec-standards.vue'),
+        component: () => import('#/views/products/specStandards.vue'),
       },
       {
         meta: {
@@ -268,7 +268,7 @@ const routes: RouteRecordRaw[] = [
         },
         name: 'MyProductCatalog',
         path: '/my/product/catalog',
-        component: () => import('#/views/my/product/catalog.vue'),
+        component: () => import('#/views/products/mySKU.vue'),
       },
     ],
   },
