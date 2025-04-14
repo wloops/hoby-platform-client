@@ -443,13 +443,88 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         meta: {
-          title: $t('page.my.salesOrder.title'),
+          title: $t('page.my.salesOrder.inputSaleOrder.title'),
           icon: 'solar:clipboard-linear',
           authority: ['my'],
         },
-        name: 'MyOrderMain',
-        path: '/my/sales-order/main',
-        component: () => import('#/views/my/sales-order/main.vue'),
+        name: 'InputSaleOrder',
+        path: '/my/sales-order/input',
+        component: () => import('#/views/my/sales-order/input/main.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.salesOrder.saleOrderManage.title'),
+          icon: 'mdi:file-document-arrow-right-outline',
+          authority: ['my'],
+        },
+        name: 'SaleOrderManage',
+        path: '/my/sales-order/manage',
+        children: [
+          {
+            meta: {
+              title: $t(
+                'page.my.salesOrder.saleOrderManage.orderWaitDistribution',
+              ),
+              icon: 'mdi:truck-alert-outline',
+              authority: ['my'],
+            },
+            name: 'saleOrderWaitDistribution',
+            path: '/my/sales-order/manage/pendingShipment',
+            component: () => import('#/views/shop/order/pendingShipment.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.salesOrder.saleOrderManage.orderDelivering'),
+              icon: 'mdi:truck-cargo-container',
+              authority: ['my'],
+            },
+            name: 'saleOrderDelivering',
+            path: '/my/sales-order/manage/deliveryInProgress',
+            component: () =>
+              import('#/views/shop/order/deliveryInProgress.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.salesOrder.saleOrderManage.orderWaitSignFor'),
+              icon: 'mdi:timer-edit-outline',
+              authority: ['my'],
+            },
+            name: 'saleOrderWaitSignFor',
+            path: '/my/sales-order/manage/toBeSignedFor',
+            component: () => import('#/views/shop/order/toBeSignedFor.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.salesOrder.saleOrderManage.orderCompleted'),
+              icon: 'mdi:check-decagram-outline',
+              authority: ['my'],
+            },
+            name: 'saleOrderCompleted',
+            path: '/my/sales-order/manage/completed',
+            component: () => import('#/views/shop/order/completed.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.salesOrder.saleOrderManage.allSaleOrder'),
+              icon: 'mdi:order-bool-ascending',
+              authority: ['my'],
+            },
+            name: 'AllSaleOrder',
+            path: '/my/sales-order/manage/all',
+            component: () => import('#/views/shop/order/all.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.salesOrder.saleOrderManage.logisticsOrder'),
+              icon: 'mdi:car-traction-control',
+              authority: ['my'],
+            },
+            name: 'LogisticsOrder',
+            path: '/my/sales-order/manage/logistics',
+            component: () =>
+              import('#/views/my/sales-order/manage/logistics.vue'),
+          },
+        ],
       },
     ],
   },
@@ -464,13 +539,191 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         meta: {
-          title: $t('page.my.purchaseOrder.title'),
-          icon: 'solar:clipboard-check-broken',
+          title: $t('page.my.purchaseOrder.shopPurchaseMng.title'),
+          icon: 'mdi:office-building',
           authority: ['my'],
         },
-        name: 'MyOrderMain',
-        path: '/my/purchase-order/main',
-        component: () => import('#/views/my/purchase-order/main.vue'),
+        name: 'ShopPurchaseMng',
+        path: '/my/purchase-order/purchase',
+        children: [
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.wareShopSrlIDForSale',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'WareShopSrlIDForSale',
+            path: '/my/purchase-order/purchase/ware-srlid',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/ware-srlid.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.wareShopGoodsForSale',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'WareShopGoodsForSale',
+            path: '/my/purchase-order/purchase/ware-goods',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/ware-goods.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.shopSrlIDForSale',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'ShopSrlIDForSale',
+            path: '/my/purchase-order/purchase/shop-srlid',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/shop-srlid.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.shopGoodsForSale',
+              ),
+              icon: 'mdi:view-module-outline',
+              authority: ['my'],
+            },
+            name: 'ShopGoodsForSale',
+            path: '/my/purchase-order/purchase/shop-goods',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/shop-goods.vue'),
+          },
+          {
+            meta: {
+              title: $t('page.my.purchaseOrder.shopPurchaseMng.myShoppingCart'),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'MyShoppingCart',
+            path: '/my/purchase-order/purchase/cart',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/cart.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.shoppingCartGoods',
+              ),
+              icon: 'mdi:view-module-outline',
+              authority: ['my'],
+            },
+            name: 'ShoppingCartGoods',
+            path: '/my/purchase-order/purchase/cart-goods',
+            component: () =>
+              import('#/views/my/purchase-order/purchase/cart-goods.vue'),
+          },
+        ],
+      },
+      {
+        meta: {
+          title: $t('page.my.purchaseOrder.purchaseOrderMng.title'),
+          icon: 'mdi:office-building',
+          authority: ['my'],
+        },
+        name: 'PurchaseOrderMng',
+        path: '/my/purchase-order/order',
+        children: [
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitPay',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderWaitPay',
+            path: '/my/purchase-order/order/waitpay',
+            component: () =>
+              import('#/views/my/purchase-order/order/waitpay.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitSendOut',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderWaitSendOut',
+            path: '/my/purchase-order/order/waitsend',
+            component: () =>
+              import('#/views/my/purchase-order/order/waitsend.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitSign',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderWaitSign',
+            path: '/my/purchase-order/order/waitsign',
+            component: () =>
+              import('#/views/my/purchase-order/order/waitsign.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderSigned',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderSigned',
+            path: '/my/purchase-order/order/signed',
+            component: () =>
+              import('#/views/my/purchase-order/order/signed.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderInStock',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderInStock',
+            path: '/my/purchase-order/order/instock',
+            component: () =>
+              import('#/views/my/purchase-order/order/instock.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitStorage',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderWaitStorage',
+            path: '/my/purchase-order/order/waitstorage',
+            component: () =>
+              import('#/views/my/purchase-order/order/waitstorage.vue'),
+          },
+          {
+            meta: {
+              title: $t(
+                'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderAll',
+              ),
+              icon: 'mdi:animation-outline',
+              authority: ['my'],
+            },
+            name: 'PurchaseOrderAll',
+            path: '/my/purchase-order/order/all',
+            component: () => import('#/views/my/purchase-order/order/all.vue'),
+          },
+        ],
       },
     ],
   },

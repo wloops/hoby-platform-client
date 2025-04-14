@@ -210,10 +210,41 @@
       }
     },
     "salesOrder": {
-      "title": "销售订单"
+      "title": "销售订单",
+      "inputSaleOrder": {
+        "title": "录入销售订单"
+      },
+      "saleOrderManage": {
+        "title": "销售订单管理",
+        "orderWaitDistribution": "待配货",
+        "orderDelivering": "配送中",
+        "orderWaitSignFor": "待签收",
+        "orderCompleted": "已完成",
+        "allSaleOrder": "全部",
+        "logisticsOrder": "物流订单"
+      }
     },
     "purchaseOrder": {
-      "title": "采购订单"
+      "title": "采购订单",
+      "shopPurchaseMng": {
+        "title": "店铺采购管理",
+        "wareShopSrlIDForSale": "仓店一体店铺型号",
+        "wareShopGoodsForSale": "仓店一体店铺商品",
+        "shopSrlIDForSale": "在售的型号",
+        "shopGoodsForSale": "在售的商品",
+        "myShoppingCart": "我的购物车",
+        "shoppingCartGoods": "购物车商品"
+      },
+      "purchaseOrderMng": {
+        "title": "采购订单管理",
+        "purchaseOrderWaitPay": "待付款的订单",
+        "purchaseOrderWaitSendOut": "代发货的订单",
+        "purchaseOrderWaitSign": "待签收的订单",
+        "purchaseOrderSigned": "已签收的订单",
+        "purchaseOrderInStock": "已入库的订单",
+        "purchaseOrderWaitStorage": "待入库的订单",
+        "purchaseOrderAll": "所有采购订单"
+      }
     },
     "relationManagement": {
       "title": "关系管理"
