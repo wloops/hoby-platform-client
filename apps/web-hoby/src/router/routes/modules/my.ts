@@ -33,7 +33,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.fundAccount.voucherWaitPay'),
-          icon: 'mdi:account-cash',
+          icon: 'mdi:cash-multiple',
           authority: ['my'],
         },
         name: 'VoucherWaitPay',
@@ -43,7 +43,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.fundAccount.voucherWaitReceive'),
-          icon: 'mdi:account-cash',
+          icon: 'mdi:wallet',
           authority: ['my'],
         },
         name: 'VoucherWaitReceive',
@@ -53,7 +53,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.fundAccount.voucherWaitConfirm'),
-          icon: 'mdi:account-cash',
+          icon: 'mdi:camera-metering-partial',
           authority: ['my'],
         },
         name: 'VoucherWaitConfirm',
@@ -63,7 +63,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.fundAccount.OpenBankAccount'),
-          icon: 'mdi:account-cash',
+          icon: 'mdi:bank',
           authority: ['my'],
         },
         name: 'OpenBankAccount',
@@ -288,17 +288,18 @@ const routes: RouteRecordRaw[] = [
           authority: ['my'],
         },
         name: 'MyPriWareGoodsMng',
-        path: '/warehouse/private/general-ledger',
+        path: '/my/warehouse/private/general-ledger',
         children: [
           {
             meta: {
               title: $t(
                 'page.my.shopManagement.priWareGoodsMng.myPriWareService',
               ),
+              icon: 'mdi:arrange-send-to-back',
               authority: ['my'],
             },
             name: 'MyPriWareService',
-            path: '/warehouse/private/general-ledger/open',
+            path: '/my/warehouse/private/general-ledger/open',
             component: () =>
               import('#/views/warehouse/private/general-ledger/open.vue'),
           },
@@ -307,10 +308,11 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.shopManagement.priWareGoodsMng.priWareProductList',
               ),
+              icon: 'solar:box-minimalistic-outline',
               authority: ['my'],
             },
             name: 'PriWareProductList',
-            path: '/warehouse/private/general-ledger/products',
+            path: '/my/warehouse/private/general-ledger/products',
             component: () =>
               import('#/views/warehouse/private/general-ledger/products.vue'),
           },
@@ -319,10 +321,11 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.shopManagement.priWareGoodsMng.priWareSrlIDList',
               ),
+              icon: 'mdi:animation-outline',
               authority: ['my'],
             },
             name: 'PriWareSrlIDList',
-            path: '/warehouse/private/general-ledger/model',
+            path: '/my/warehouse/private/general-ledger/model',
             component: () =>
               import('#/views/warehouse/private/general-ledger/model.vue'),
           },
@@ -331,10 +334,11 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.shopManagement.priWareGoodsMng.priWareGoodsList',
               ),
+              icon: 'mdi:view-module-outline',
               authority: ['my'],
             },
             name: 'PriWareGoodsList',
-            path: '/warehouse/private/general-ledger/sku',
+            path: '/my/warehouse/private/general-ledger/sku',
             component: () =>
               import('#/views/warehouse/private/general-ledger/sku.vue'),
           },
@@ -347,7 +351,7 @@ const routes: RouteRecordRaw[] = [
           authority: ['my'],
         },
         name: 'MyPriWareShopMng',
-        path: '/shop/private',
+        path: '/my/shop/private',
         children: [
           {
             meta: {
@@ -356,7 +360,7 @@ const routes: RouteRecordRaw[] = [
               authority: ['my'],
             },
             name: 'PriWareShop',
-            path: '/shop/private',
+            path: '/my/shop/private',
             component: () => import('#/views/shop/private/shop.vue'),
           },
           {
@@ -364,31 +368,31 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.shopManagement.priWareShopMng.shopProductList',
               ),
-              icon: 'solar:layers-bold-duotone',
+              icon: 'solar:box-minimalistic-outline',
               authority: ['my'],
             },
             name: 'ShopProductList',
-            path: '/shop/private/products',
+            path: '/my/shop/private/products',
             component: () => import('#/views/shop/private/products.vue'),
           },
           {
             meta: {
               title: $t('page.my.shopManagement.priWareShopMng.shopSrlIDList'),
-              icon: 'solar:arrow-right-up-bold',
+              icon: 'mdi:animation-outline',
               authority: ['my'],
             },
             name: 'ShopSrlIDList',
-            path: '/shop/private/model',
+            path: '/my/shop/private/model',
             component: () => import('#/views/shop/private/model.vue'),
           },
           {
             meta: {
               title: $t('page.my.shopManagement.priWareShopMng.shopGoodsList'),
-              icon: 'solar:palette-round-bold-duotone',
+              icon: 'mdi:view-module-outline',
               authority: ['my'],
             },
             name: 'ShopGoodsList',
-            path: '/shop/private/sku',
+            path: '/my/shop/private/sku',
             component: () => import('#/views/shop/private/sku.vue'),
           },
         ],
@@ -396,20 +400,20 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.shopManagement.myWarehouseMng.title'),
-          icon: 'mdi:office-building',
+          icon: 'mdi:home-battery-outline',
           authority: ['my'],
         },
         name: 'MyWarehouseMng',
-        path: '/warehouse/info',
+        path: '/my/warehouse/info',
         children: [
           {
             meta: {
               title: $t('page.my.shopManagement.myWarehouseMng.myWarehouse'),
               authority: ['my'],
-              icon: 'solar:info-square-bold-duotone',
+              icon: 'mdi:warehouse',
             },
             name: 'MyWarehouse',
-            path: '/warehouse/info/management',
+            path: '/my/warehouse/info/management',
             component: () => import('#/views/warehouse/info/management.vue'),
           },
           {
@@ -421,7 +425,7 @@ const routes: RouteRecordRaw[] = [
               icon: 'solar:home-smile-bold-duotone',
             },
             name: 'DefaultWarehouse',
-            path: '/warehouse/info/deficit',
+            path: '/my/warehouse/info/deficit',
             component: () => import('#/views/warehouse/info/deficit.vue'),
           },
         ],
