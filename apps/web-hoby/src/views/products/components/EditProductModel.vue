@@ -244,8 +244,10 @@ const saveChanges = () => {
                   companyName: productData.value.company,
                   productName: productData.value.name,
                   srlID: productData.value.model,
-                  specAttrCateListForWare: '',
-                  specAttrCateListForPrice: '',
+                  specAttrCateListForWare: selectedStockSpecs.value.join(','),
+                  specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+                  distributorPrice: distributorPrice.value,
+                  terminalPrice: terminalPrice.value,
                   productModelSpecCate: toDeleteSpecs,
                 },
               ],
@@ -303,6 +305,8 @@ const saveChanges = () => {
                   srlID: productData.value.model,
                   specAttrCateListForWare: selectedStockSpecs.value.join(','),
                   specAttrCateListForPrice: selectedPriceSpecs.value.join(','),
+                  distributorPrice: distributorPrice.value,
+                  terminalPrice: terminalPrice.value,
                   productModelSpecCate: toSaveSpecs,
                 },
               ],
@@ -326,9 +330,13 @@ const editedSpecsList = ref([]);
 const productData = ref(null);
 const availableSpecCategories = ref([]); // 存储所有可选的规格类型
 const selectedNewSpecTypes = ref([]); // 存储新选择的规格类型
+const distributorPrice = ref(null);
+const terminalPrice = ref(null);
 // 打开模态框
 const open = async (product) => {
   productData.value = product;
+  console.warn(productData.value);
+
   editedSpecsList.value = [];
   let list = [];
   list = await getSpecTypeNameList(product);
@@ -339,6 +347,10 @@ const open = async (product) => {
       value.deleteStatus = 'normal'; // 初始化状态为normal
     });
   });
+
+  // console.warn(list);
+  distributorPrice.value = list.distributorPrice;
+  terminalPrice.value = list.terminalPrice;
   editedSpecsList.value = list.productModelSpecCate;
   selectedPriceSpecs.value = list.specAttrCateListForPrice
     ? list.specAttrCateListForPrice.split(',')
@@ -533,6 +545,31 @@ defineExpose({
                     {{ getSpecTypeName(type) }}
                   </SelectOption>
                 </Select>
+              </div>
+              <!-- 分销商价格和终端价格 -->
+              <div class="flex justify-between gap-20">
+                <div class="flex flex-1 items-center">
+                  <h4 class="flex-none text-sm font-medium text-gray-900">
+                    分销商价格：
+                  </h4>
+                  <input
+                    v-model="distributorPrice"
+                    type="text"
+                    class="flex-1 rounded-md border border-gray-300 px-1.5 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="请输入分销商价格"
+                  />
+                </div>
+                <div class="flex flex-1 items-center">
+                  <h4 class="flex-none text-sm font-medium text-gray-900">
+                    终端价格：
+                  </h4>
+                  <input
+                    v-model="terminalPrice"
+                    type="text"
+                    class="flex-1 rounded-md border border-gray-300 px-1.5 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="请输入终端价格"
+                  />
+                </div>
               </div>
             </div>
           </div>
