@@ -244,8 +244,14 @@ export function useSetSchema() {
     queryPanelFldList: string;
   }> => {
     const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
-    const { rs, fieldList, displayFldList, pkFldList, queryPanelFldList } =
-      await mainGetViewFieldConfigApi({ pageID });
+    const {
+      rs,
+      fieldList,
+      displayFldList,
+      pkFldList,
+      queryPanelFldList,
+      DBRecAccBtnGrp,
+    } = await mainGetViewFieldConfigApi({ pageID });
 
     if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
       return {
@@ -331,7 +337,19 @@ export function useSetSchema() {
     }
 
     // 添加操作列
-    if (operationColumn && operationColumn.length > 0) {
+    if (operationColumn && operationColumn.length > 0 && operationColumn[0]) {
+      // 添加按钮组
+      let btnGroup: string[] = [];
+      if (DBRecAccBtnGrp && DBRecAccBtnGrp.length > 0) {
+        // eslint-disable-next-line array-callback-return
+        btnGroup = DBRecAccBtnGrp.map((btn: any) => {
+          if (btn.serviceID === 1) return 'add';
+          if (btn.serviceID === 2) return 'edit';
+          if (btn.serviceID === 3) return 'delete';
+          if (btn.serviceID === 48) return 'view';
+        });
+        operationColumn[0].defaultActions = btnGroup;
+      }
       columns.push(...operationColumn);
     }
 
