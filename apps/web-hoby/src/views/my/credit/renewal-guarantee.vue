@@ -24,25 +24,28 @@ const tableProps = ref<CommonTableProps>({
       visible: true,
       type: 'operation',
       defaultActions: ['view'], // 默认显示的按钮 : view 查看, edit 编辑, delete 删除
-      width: 100,
+      width: 150,
       fixed: 'right',
       align: 'center',
       actions: [
         {
-          text: '示例按钮',
+          text: '申请保函',
           type: 'link',
-          danger: true,
-          visible: false, // 控制按钮是否显示
-          runMode: 'modal',
-          params: (record) => ({
-            pageID: '示例页面ID',
-            pageButtonID: '示例按钮ID',
+          danger: false,
+          visible: true, // 控制按钮是否显示
+          runMode: 'default',
+          params: (record, user) => ({
+            pageID: 'applySettlementGuaranteePage',
+            pageButtonID: 'applyGuarantee',
+            purchaseCompanyName: user?.TELLERCOMPANY,
+            tellerNo: user?.tellerNo,
             ...record,
           }),
+          fields: ['prdNo', 'actNo', 'saleCmpName', 'prdSrlID'],
           disabled: (record) => record && false, // 控制按钮是否禁用
-          successMsg: '示例成功提示',
-          errorMsg: '示例失败提示',
-          confirm: 'auto',
+          successMsg: '申请保函成功！',
+          errorMsg: '申请保函失败！',
+          confirm: '确认申请保函吗？',
           autoRefresh: true, // 默认为true，可省略
         },
       ],
@@ -63,7 +66,7 @@ const tableProps = ref<CommonTableProps>({
   // 最小选中数量（可选）
   minSelected: 1,
   // 是否启用批量操作（可选）
-  enableBatchActions: true,
+  enableBatchActions: false,
   // 批量操作按钮（可选）ActionButtonProps[]
   batchActions: [],
   // 使用操作列中的按钮作为批量操作按钮（可选）

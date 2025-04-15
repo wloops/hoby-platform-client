@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.purchaseOrder.shopPurchaseMng.title'),
-          icon: 'mdi:office-building',
+          icon: 'solar:shop-minimalistic-broken',
           authority: ['my'],
         },
         name: 'ShopPurchaseMng',
@@ -39,7 +39,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.shopPurchaseMng.wareShopGoodsForSale',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:view-module-outline',
               authority: ['my'],
             },
             name: 'WareShopGoodsForSale',
@@ -49,34 +49,8 @@ const routes: RouteRecordRaw[] = [
           },
           {
             meta: {
-              title: $t(
-                'page.my.purchaseOrder.shopPurchaseMng.shopSrlIDForSale',
-              ),
-              icon: 'mdi:animation-outline',
-              authority: ['my'],
-            },
-            name: 'ShopSrlIDForSale',
-            path: '/my/purchase-order/purchase/shop-srlid',
-            component: () =>
-              import('#/views/my/purchase-order/purchase/shop-srlid.vue'),
-          },
-          {
-            meta: {
-              title: $t(
-                'page.my.purchaseOrder.shopPurchaseMng.shopGoodsForSale',
-              ),
-              icon: 'mdi:view-module-outline',
-              authority: ['my'],
-            },
-            name: 'ShopGoodsForSale',
-            path: '/my/purchase-order/purchase/shop-goods',
-            component: () =>
-              import('#/views/my/purchase-order/purchase/shop-goods.vue'),
-          },
-          {
-            meta: {
               title: $t('page.my.purchaseOrder.shopPurchaseMng.myShoppingCart'),
-              icon: 'mdi:animation-outline',
+              icon: 'solar:cart-large-4-broken',
               authority: ['my'],
             },
             name: 'MyShoppingCart',
@@ -89,7 +63,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.shopPurchaseMng.shoppingCartGoods',
               ),
-              icon: 'mdi:view-module-outline',
+              icon: 'solar:cart-3-outline',
               authority: ['my'],
             },
             name: 'ShoppingCartGoods',
@@ -102,7 +76,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.purchaseOrder.purchaseOrderMng.title'),
-          icon: 'mdi:office-building',
+          icon: 'solar:diploma-verified-linear',
           authority: ['my'],
         },
         name: 'PurchaseOrderMng',
@@ -113,7 +87,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitPay',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:alpha-y-circle-outline',
               authority: ['my'],
             },
             name: 'PurchaseOrderWaitPay',
@@ -126,7 +100,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitSendOut',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:car-select',
               authority: ['my'],
             },
             name: 'PurchaseOrderWaitSendOut',
@@ -139,7 +113,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitSign',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:order-bool-descending-variant',
               authority: ['my'],
             },
             name: 'PurchaseOrderWaitSign',
@@ -152,7 +126,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderSigned',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:order-bool-ascending-variant',
               authority: ['my'],
             },
             name: 'PurchaseOrderSigned',
@@ -165,7 +139,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderInStock',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:sort-clock-ascending',
               authority: ['my'],
             },
             name: 'PurchaseOrderInStock',
@@ -178,7 +152,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderWaitStorage',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:sort-clock-ascending-outline',
               authority: ['my'],
             },
             name: 'PurchaseOrderWaitStorage',
@@ -191,7 +165,7 @@ const routes: RouteRecordRaw[] = [
               title: $t(
                 'page.my.purchaseOrder.purchaseOrderMng.purchaseOrderAll',
               ),
-              icon: 'mdi:animation-outline',
+              icon: 'mdi:alarm-panel-outline',
               authority: ['my'],
             },
             name: 'PurchaseOrderAll',

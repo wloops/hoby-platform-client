@@ -18,13 +18,13 @@ import salesOrder from './my/sales-order';
 import shop from './my/shop';
 
 const routes: RouteRecordRaw[] = [
-  ...fund,
-  ...credit,
   ...product,
   ...shop,
   ...salesOrder,
   ...purchaseOrder,
   ...relation,
+  ...fund,
+  ...credit,
   ...basic,
 ];
 

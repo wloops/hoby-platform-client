@@ -220,10 +220,8 @@
       "title": "采购订单",
       "shopPurchaseMng": {
         "title": "店铺采购管理",
-        "wareShopSrlIDForSale": "仓店一体店铺型号",
-        "wareShopGoodsForSale": "仓店一体店铺商品",
-        "shopSrlIDForSale": "在售的型号",
-        "shopGoodsForSale": "在售的商品",
+        "wareShopSrlIDForSale": "在售的型号",
+        "wareShopGoodsForSale": "在售的商品",
         "myShoppingCart": "我的购物车",
         "shoppingCartGoods": "购物车商品"
       },
@@ -239,7 +237,71 @@
       }
     },
     "relationManagement": {
-      "title": "关系管理"
+      "title": "关系管理",
+      "myCompanyCustomer": "我的机构客户",
+      "dealerSignedWithMe": {
+        "title": "我签的授权经销商",
+        "myAuthSaleBusiness": "我的授权经销业务",
+        "myAuthDealer": "我授权的经销商",
+        "myAuthProduct": "我授权经销的产品",
+        "myAuthModel": "我授权经销的型号",
+        "myAuthGoods": "我授权经销的商品"
+      },
+      "authFactoryForMeToSale": {
+        "title": "授权我经销的厂商",
+        "authFactoryForMe": "授权我经销的厂家",
+        "authProductCanSale": "授权我经销的产品",
+        "authModelCanSale": "授权我经销的型号",
+        "authGoodsCanSale": "授权我经销的商品"
+      },
+      "supplyAgreeISigned": {
+        "title": "我签约的供应协议",
+        "purchaserISigned": "我签的采购商",
+        "agreeProductISupply": "我供应的产品",
+        "agreeModelISupply": "我供应的型号",
+        "agreeGoodsISupply": "我供应的商品"
+      },
+      "purchaseAgreeISigned": {
+        "title": "我签约的采购协议",
+        "supplierISigned": "我签的供应商",
+        "agreeProductIPurchase": "我采购的产品",
+        "agreeModelIPurchase": "我采购的型号",
+        "agreeGoodsIPurchase": "我采购的商品"
+      },
+      "wareMertsAuthByMe": {
+        "title": "我授权的仓储仓商",
+        "wareMertListAuthByMe": "我授权的仓商清单",
+        "warehouseListAuthByMe": "我授权的仓库清单",
+        "iAuthGoodsManage": {
+          "title": "我授权的商品管理",
+          "authWareMertProduct": "授权给仓商的产品",
+          "authWareMertModel": "授权给仓商的型号",
+          "authWareMertGoods": "授权给仓商的商品"
+        },
+        "iAuthStockManage": {
+          "title": "我授权的库存管理",
+          "iAuthStockProduct": "我授权的仓库产品",
+          "iAuthStockModel": "我授权的仓库型号",
+          "iAuthStockGoods": "我授权的仓库商品"
+        }
+      },
+      "authFactoryForMe": {
+        "title": "授权我仓储的厂商",
+        "factoryListAuthForMe": "授权我的厂商清单",
+        "warehouseListAuthForMe": "授权我的仓库清单",
+        "goodsAuthForMeManage": {
+          "title": "授权我的商品管理",
+          "authMeStorageProduct": "授权我仓储的产品",
+          "authMeStorageModel": "授权我仓储的型号",
+          "authMeStorageGoods": "授权我仓储的商品"
+        },
+        "stockAuthForMeManage": {
+          "title": "授权我的库存管理",
+          "authMeWarehouseProduct": "授权我的库存产品",
+          "authMeWarehouseModel": "授权我的库存型号",
+          "authMeWarehouseGoods": "授权我的库存商品"
+        }
+      }
     },
     "basicInfo": {
       "title": "基本信息",

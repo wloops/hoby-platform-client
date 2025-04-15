@@ -6,14 +6,14 @@ import { ref } from 'vue';
 import CommonTable from '#/components/CommonTable/index.vue';
 
 /**
- * @pageName pageName=申请入驻保函页面
- * @pageID pageID=applySettlementGuaranteePage
- * @remark 视图=申请入驻保函界面（hobyActSalePlanPrdSKU：1640）
+ * @pageName 我授权的仓库商品页面
+ * @pageID iAuthStockGoodsPage
+ * @remark HOBY仓商仓储仓库SKU目录界面（hobyActSaleWarePrdSKU：1647）
  */
 const tableProps = ref<CommonTableProps>({
   // 基础配置(必填) CommonTableParams
   params: {
-    pageID: 'applySettlementGuaranteePage', // 页面ID
+    pageID: 'iAuthStockGoodsPage', // 页面ID
     showAddButton: false, // 是否显示新增按钮
   },
   // 表格列配置(必填) ColumnDefinition[]
@@ -24,28 +24,25 @@ const tableProps = ref<CommonTableProps>({
       visible: true,
       type: 'operation',
       defaultActions: ['view'], // 默认显示的按钮 : view 查看, edit 编辑, delete 删除
-      width: 150,
+      width: 100,
       fixed: 'right',
       align: 'center',
       actions: [
         {
-          text: '申请保函',
+          text: '示例按钮',
           type: 'link',
-          danger: false,
-          visible: true, // 控制按钮是否显示
-          runMode: 'default',
-          params: (record, user) => ({
-            pageID: 'applySettlementGuaranteePage',
-            pageButtonID: 'applyGuarantee',
-            purchaseCompanyName: user?.TELLERCOMPANY,
-            tellerNo: user?.tellerNo,
+          danger: true,
+          visible: false, // 控制按钮是否显示
+          runMode: 'modal',
+          params: (record) => ({
+            pageID: '示例页面ID',
+            pageButtonID: '示例按钮ID',
             ...record,
           }),
-          fields: ['prdNo', 'actNo', 'saleCmpName', 'prdSrlID'],
           disabled: (record) => record && false, // 控制按钮是否禁用
-          successMsg: '申请保函成功！',
-          errorMsg: '申请保函失败！',
-          confirm: '确认申请保函吗？',
+          successMsg: '示例成功提示',
+          errorMsg: '示例失败提示',
+          confirm: 'auto',
           autoRefresh: true, // 默认为true，可省略
         },
       ],
@@ -66,15 +63,16 @@ const tableProps = ref<CommonTableProps>({
   // 最小选中数量（可选）
   minSelected: 1,
   // 是否启用批量操作（可选）
-  enableBatchActions: false,
-  // 批量操作按钮（可选）ActionButtonProps[]
-  batchActions: [],
+  enableBatchActions: true,
+  // 批量操作按钮（可选）
+  batchActions: [], // ActionButtonProps[]
   // 使用操作列中的按钮作为批量操作按钮（可选）
   useColumnActions: true,
   // 自定义请求方法（可选）
   // requestApi: customRequestFunction,
-  // 展开子表（可选）ChildTableProps
-  // childTables: {},
+  // 展开子表（可选）
+  // childTables: {}, // ChildTableProps
+
   // 事件处理
   // 选中行变化事件（可选）
   onSelectionChange: (records, keys) => {

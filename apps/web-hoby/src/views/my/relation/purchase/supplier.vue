@@ -6,14 +6,14 @@ import { ref } from 'vue';
 import CommonTable from '#/components/CommonTable/index.vue';
 
 /**
- * @pageName 店铺在售的型号页面
- * @pageID shopSrlIDForSalePage
- * @remark 仓店一体店铺在售的产品型号界面（hobyActSaleWarePrdSrl：1646）
+ * @pageName 我签约的供应商页面
+ * @pageID supplierSignWithMePage
+ * @remark HOBY采购单位采购协议界面（zcyActSalePlan：1495）
  */
 const tableProps = ref<CommonTableProps>({
   // 基础配置(必填) CommonTableParams
   params: {
-    pageID: 'shopSrlIDForSalePage', // 页面ID
+    pageID: 'supplierSignWithMePage', // 页面ID
     showAddButton: false, // 是否显示新增按钮
   },
   // 表格列配置(必填) ColumnDefinition[]
@@ -64,14 +64,15 @@ const tableProps = ref<CommonTableProps>({
   minSelected: 1,
   // 是否启用批量操作（可选）
   enableBatchActions: true,
-  // 批量操作按钮（可选）ActionButtonProps[]
-  batchActions: [],
+  // 批量操作按钮（可选）
+  batchActions: [], // ActionButtonProps[]
   // 使用操作列中的按钮作为批量操作按钮（可选）
   useColumnActions: true,
   // 自定义请求方法（可选）
   // requestApi: customRequestFunction,
-  // 展开子表（可选）ChildTableProps
-  // childTables: {},
+  // 展开子表（可选）
+  // childTables: {}, // ChildTableProps
+
   // 事件处理
   // 选中行变化事件（可选）
   onSelectionChange: (records, keys) => {

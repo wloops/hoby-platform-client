@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.salesOrder.inputSaleOrder.title'),
-          icon: 'solar:clipboard-linear',
+          icon: 'mdi:pencil-minus-outline',
           authority: ['my'],
         },
         name: 'InputSaleOrder',
@@ -25,7 +25,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.salesOrder.salesOrderManagement'),
-          icon: 'solar:clipboard-linear',
+          icon: 'mdi:file-table-box-multiple-outline',
           authority: ['my'],
         },
         name: 'SalesOrderManagement',
