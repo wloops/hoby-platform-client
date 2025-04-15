@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-15 10:52:25
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-15 11:10:13
+ * @LastEditTime: 2025-04-15 11:59:38
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\my\relation.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: $t('page.my.basicInfo.title'),
       icon: 'mdi:information-outline',
-      authority: ['myBasic'],
+      authority: ['my'],
     },
     name: 'MyBasicInfo',
     path: '/my/basic',
@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.my.basicInfo.companyInfo'),
           icon: 'mdi:office-building',
-          authority: ['myBasic'],
+          authority: ['my'],
         },
         name: 'MyCompanyInfo',
         path: '/my/basic/company',
@@ -34,7 +34,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.my.basicInfo.companyAddress'),
           icon: 'mdi:map-marker',
-          authority: ['myBasic'],
+          authority: ['my'],
         },
         name: 'MyCompanyAddress',
         path: '/my/basic/address',
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.my.basicInfo.employees'),
           icon: 'mdi:account-group',
-          authority: ['myBasic'],
+          authority: ['my'],
         },
         name: 'MyEmployees',
         path: '/my/basic/employees',
@@ -54,7 +54,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: $t('page.my.basicInfo.operationAccounts'),
           icon: 'mdi:account-cog',
-          authority: ['myBasic'],
+          authority: ['my'],
         },
         name: 'MyOperationAccounts',
         path: '/my/basic/accounts',
