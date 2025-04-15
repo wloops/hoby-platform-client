@@ -214,15 +214,7 @@
       "inputSaleOrder": {
         "title": "录入销售订单"
       },
-      "saleOrderManage": {
-        "title": "销售订单管理",
-        "orderWaitDistribution": "待配货",
-        "orderDelivering": "配送中",
-        "orderWaitSignFor": "待签收",
-        "orderCompleted": "已完成",
-        "allSaleOrder": "全部",
-        "logisticsOrder": "物流订单"
-      }
+      "salesOrderManagement": "销售订单管理"
     },
     "purchaseOrder": {
       "title": "采购订单",

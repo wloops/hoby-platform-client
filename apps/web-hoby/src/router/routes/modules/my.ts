@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-09 21:44:11
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-11 14:56:07
+ * @LastEditTime: 2025-04-15 10:01:00
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\router\routes\modules\seller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -453,78 +453,13 @@ const routes: RouteRecordRaw[] = [
       },
       {
         meta: {
-          title: $t('page.my.salesOrder.saleOrderManage.title'),
-          icon: 'mdi:file-document-arrow-right-outline',
+          title: $t('page.my.salesOrder.salesOrderManagement'),
+          icon: 'solar:clipboard-linear',
           authority: ['my'],
         },
-        name: 'SaleOrderManage',
-        path: '/my/sales-order/manage',
-        children: [
-          {
-            meta: {
-              title: $t(
-                'page.my.salesOrder.saleOrderManage.orderWaitDistribution',
-              ),
-              icon: 'mdi:truck-alert-outline',
-              authority: ['my'],
-            },
-            name: 'saleOrderWaitDistribution',
-            path: '/my/sales-order/manage/pendingShipment',
-            component: () => import('#/views/shop/order/pendingShipment.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.salesOrder.saleOrderManage.orderDelivering'),
-              icon: 'mdi:truck-cargo-container',
-              authority: ['my'],
-            },
-            name: 'saleOrderDelivering',
-            path: '/my/sales-order/manage/deliveryInProgress',
-            component: () =>
-              import('#/views/shop/order/deliveryInProgress.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.salesOrder.saleOrderManage.orderWaitSignFor'),
-              icon: 'mdi:timer-edit-outline',
-              authority: ['my'],
-            },
-            name: 'saleOrderWaitSignFor',
-            path: '/my/sales-order/manage/toBeSignedFor',
-            component: () => import('#/views/shop/order/toBeSignedFor.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.salesOrder.saleOrderManage.orderCompleted'),
-              icon: 'mdi:check-decagram-outline',
-              authority: ['my'],
-            },
-            name: 'saleOrderCompleted',
-            path: '/my/sales-order/manage/completed',
-            component: () => import('#/views/shop/order/completed.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.salesOrder.saleOrderManage.allSaleOrder'),
-              icon: 'mdi:order-bool-ascending',
-              authority: ['my'],
-            },
-            name: 'AllSaleOrder',
-            path: '/my/sales-order/manage/all',
-            component: () => import('#/views/shop/order/all.vue'),
-          },
-          {
-            meta: {
-              title: $t('page.my.salesOrder.saleOrderManage.logisticsOrder'),
-              icon: 'mdi:car-traction-control',
-              authority: ['my'],
-            },
-            name: 'LogisticsOrder',
-            path: '/my/sales-order/manage/logistics',
-            component: () =>
-              import('#/views/my/sales-order/manage/logistics.vue'),
-          },
-        ],
+        name: 'SalesOrderManagement',
+        path: '/my/sales-order/management',
+        component: () => import('#/views/my/sales-order/management.vue'),
       },
     ],
   },
