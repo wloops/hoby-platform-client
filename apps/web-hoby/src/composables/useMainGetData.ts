@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 12:01:24
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-03-25 13:52:43
+ * @LastEditTime: 2025-04-15 18:34:59
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\useMainGetData.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -17,6 +17,7 @@ import { mainGetDataApi, mainGetDataApiCascade } from '#/api';
  */
 export const useMainGetData = async <T>(
   reqParams: Record<string, any> & { pageDataGrpID: string; pageID: string },
+  isFull?: boolean,
 ) => {
   const data = ref<null | T>(null); // 存储获取的数据
   const total = ref(0); // 存储总条数
@@ -59,7 +60,7 @@ export const useMainGetData = async <T>(
         if (code !== '1') {
           throw new Error(`API returned code: ${code}`);
         }
-        data.value = getCascadeData(response); // 设置数据
+        data.value = getCascadeData(response, isFull); // 设置数据
         total.value = 1;
       }
     } catch (error_) {
@@ -84,12 +85,12 @@ export const useMainGetData = async <T>(
   };
 };
 
-const getCascadeData = async (data: any) => {
+const getCascadeData = async (data: any, isFull?: boolean) => {
   // 获取data对象的key,只有一个且非 rs
   const keys = Object.keys(data).filter((key) => key !== 'rs');
   if (keys.length === 1) {
     const key = keys[0] as string;
-    const response = data[key][0];
+    const response = isFull ? data[key] : data[key][0];
     if (response) {
       return response;
     }
