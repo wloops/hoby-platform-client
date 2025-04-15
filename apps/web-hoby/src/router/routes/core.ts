@@ -38,7 +38,7 @@ const coreRoutes: RouteRecordRaw[] = [
     children: [],
   },
   {
-    component: () => import('#/views/_core/home/index.vue'),
+    component: () => import('#/views/_core/home/home.vue'),
     meta: {
       hideInBreadcrumb: true,
       title: 'Home',

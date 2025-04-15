@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-02-27 16:17:55
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-07 13:13:03
+ * @LastEditTime: 2025-04-15 23:44:39
  * @FilePath: \HOBY-platform\app\components\layout\Header.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,6 +13,8 @@ import { useRouter } from 'vue-router';
 import { UserDropdown } from '@vben/layouts';
 import { preferences } from '@vben/preferences';
 import { useAccessStore, useUserStore } from '@vben/stores';
+
+import { Button } from 'ant-design-vue';
 
 import { checkLoginApi } from '#/api';
 import hobyLogo from '#/assets/hoby_logo.png';
@@ -67,10 +69,15 @@ const checkLogin = async () => {
     isLoginExpired.value = false;
   } else {
     accessStore.setLoginExpired(false);
+    userStore.setUserInfo(null);
     isLoginExpired.value = true;
   }
 };
 checkLogin();
+
+defineExpose({
+  handleLogout,
+});
 </script>
 
 <template>
@@ -83,7 +90,13 @@ checkLogin();
 
       <!-- 右侧按钮 -->
       <div class="flex items-center space-x-3">
-        <div v-if="!isLoginExpired">
+        <div v-if="!isLoginExpired" class="flex items-center space-x-3">
+          <Button
+            @click="toUser"
+            class="flex items-center gap-2 bg-gray-100 px-4 py-1.5 text-sm text-gray-800 hover:bg-gray-200"
+          >
+            <span class="icon-[solar--window-frame-linear]"></span> 工作台
+          </Button>
           <UserDropdown
             :avatar="
               userStore.userInfo?.avatar ?? preferences.app.defaultAvatar
