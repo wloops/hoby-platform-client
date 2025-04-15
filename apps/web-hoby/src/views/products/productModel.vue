@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 
 import { message, Modal } from 'ant-design-vue';
 
-import { mainServiceApi } from '#/api';
+import { mainGetViewSearchDataApi, mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import addProductModel from './components/addProductModel.vue';
@@ -301,15 +301,81 @@ const deleteProductModel = (product, id) => {
   });
 };
 
-const productQuery = ref(''); // 搜索关键词
+// 搜索关键词
+const productQuery = ref('');
+const srlIDQuery = ref('');
+const loading = ref(false);
 // 搜索功能
-const search = () => {
-  // 根据 productQuery过滤数据
+const search = async () => {
+  loading.value = true;
+  try {
+    if (!productQuery.value.trim() && !srlIDQuery.value.trim()) {
+      message.warning('请输入搜索条件');
+      return;
+    }
+
+    // 构造queryConditions参数，格式为key1=value1;key2=value2;...
+    const queryConditions = [
+      productQuery.value.trim() && `productName=${productQuery.value.trim()}`,
+      srlIDQuery.value.trim() && `srlID=${srlIDQuery.value.trim()}`,
+    ]
+      .filter(Boolean)
+      .join(';');
+
+    // 如果有更多条件可以这样添加：
+    // const queryConditions = `specCate=${specCateQuery.value};status=1;otherField=value`;
+
+    // 构造搜索参数
+    const reqParams = {
+      INTERPAGEID: 'productModel', // 页面ID
+      INTERCURPAGENO: 1, // 当前页码
+      INTERRECNUMPERPAGE: pageSize.value, // 每页数量
+      queryConditions, // 搜索条件，格式为key=value;key2=value2
+    };
+
+    console.warn('搜索请求参数:', reqParams);
+
+    // 调用搜索API
+    const response = await mainGetViewSearchDataApi(reqParams);
+    console.warn('搜索响应数据:', response);
+
+    // 处理响应数据
+    if (response.rs === '1') {
+      products.value = response.records.map((item) => ({
+        id: item.objectID,
+        company: item.companyName || '',
+        name: item.productName || '',
+        model: item.srlID || '',
+        distributorPrice: item.distributorPrice || '',
+        terminalPrice: item.terminalPrice || '',
+        logo: '',
+        description: '',
+        prices: [],
+        specifications: [],
+        images: [],
+        objectID: item.objectID || '',
+        specAttrCateListForWare: item.specAttrCateListForWare || '',
+        specAttrCateListForPrice: item.specAttrCateListForPrice || '',
+      }));
+
+      currentPage.value = 1; // 重置到第一页
+      // message.success(`共有 ${response.records.length} 条数据符合条件`);
+    } else {
+      throw new Error(response.message || '搜索未返回有效数据');
+    }
+  } catch {
+    products.value = []; // 失败时显示空结果
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 重置功能
 const reset = () => {
   productQuery.value = '';
+  srlIDQuery.value = '';
+  fetchProductsList();
+  resetPage();
 };
 // 分页相关
 const currentPage = ref(1); // 当前页码

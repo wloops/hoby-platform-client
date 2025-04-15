@@ -3,7 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 
 import { message, Modal } from 'ant-design-vue';
 
-import { mainServiceApi } from '#/api';
+import { mainGetViewSearchDataApi, mainServiceApi } from '#/api';
 import { useMainGetData } from '#/composables';
 
 import addProductStandard from './components/addProductStandard.vue';
@@ -233,14 +233,65 @@ const deleteProduct = (product, id) => {
 };
 
 const productQuery = ref(''); // 搜索关键词
+const loading = ref(false);
 // 搜索功能
-const search = () => {
-  // 根据 productQuery过滤数据
+const search = async () => {
+  loading.value = true;
+  try {
+    if (!productQuery.value.trim()) {
+      message.warning('请输入搜索条件');
+      return;
+    }
+
+    // 构造queryConditions参数，格式为key1=value1;key2=value2;...
+    const queryConditions = `productName=${productQuery.value}`;
+
+    // 如果有更多条件可以这样添加：
+    // const queryConditions = `specCate=${specCateQuery.value};status=1;otherField=value`;
+
+    // 构造搜索参数
+    const reqParams = {
+      INTERPAGEID: 'productStandards', // 页面ID
+      INTERCURPAGENO: 1, // 当前页码
+      INTERRECNUMPERPAGE: pageSize.value, // 每页数量
+      queryConditions, // 搜索条件，格式为key=value;key2=value2
+    };
+
+    console.warn('搜索请求参数:', reqParams);
+
+    // 调用搜索API
+    const response = await mainGetViewSearchDataApi(reqParams);
+    console.warn('搜索响应数据:', response);
+
+    // 处理响应数据
+    if (response.rs === '1') {
+      products.value = response.records.map((item, index) => ({
+        id: `${111 + index}`,
+        company: item.companyName || '',
+        name: item.productName || '',
+        status: '上架',
+        specAttrCateListForPrice: item.specAttrCateListForPrice || '',
+        specAttrCateListForWare: item.specAttrCateListForWare || '',
+        specifications: {},
+      }));
+
+      currentPage.value = 1; // 重置到第一页
+      // message.success(`共有 ${response.records.length} 条数据符合条件`);
+    } else {
+      throw new Error(response.message || '搜索未返回有效数据');
+    }
+  } catch {
+    products.value = []; // 失败时显示空结果
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 重置功能
 const reset = () => {
   productQuery.value = '';
+  fetchProducts();
+  resetPage();
 };
 // 分页相关
 const currentPage = ref(1); // 当前页码
