@@ -201,7 +201,7 @@ const userQuickLinks = ref([
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header容器 -->
-    <div class="bg-white shadow-sm">
+    <div class="z-1000 sticky top-0 bg-white shadow-sm">
       <div class="container mx-auto px-0">
         <Header ref="headerRef" />
       </div>
@@ -212,7 +212,7 @@ const userQuickLinks = ref([
         <!-- 主内容区 -->
         <div class="flex-1">
           <!-- 搜索框区域 - 使用SearchBox组件 -->
-          <div class="mb-6">
+          <div class="top-50 sticky mb-6">
             <div class="rounded-md border border-gray-300 bg-white shadow-sm">
               <SearchBox />
             </div>
