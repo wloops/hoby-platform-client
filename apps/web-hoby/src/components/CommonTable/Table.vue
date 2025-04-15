@@ -773,7 +773,7 @@ if (props.columns.length > 0) {
 // 1. 首先添加一个计算属性决定是否显示新增按钮
 const showAddButton = computed(() => {
   // 检查是否在参数中指定了显示新增按钮
-  return props.params?.showAddButton !== false; // 默认显示，除非明确设置为false
+  return props.params?.showAddButton === true; // 默认不显示，除非明确设置为true
 });
 
 // 2. 处理新增按钮点击事件
