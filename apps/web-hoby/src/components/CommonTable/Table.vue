@@ -291,6 +291,7 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
         mode: action.runMode || 'drawer',
         record: row,
         schema: action.schema || [],
+        originParams: action.originParams || {},
       });
     } else {
       // 默认执行方式

@@ -114,6 +114,7 @@ export interface ActionButtonProps {
   // 添加批量操作相关属性
   batchable?: boolean; // 是否支持批量操作，默认为false
   batchConfirm?: string; // 批量操作确认提示文本
+  originParams?: Record<string, any>; // 原始参数
 }
 
 // 批量操作事件数据

@@ -250,6 +250,7 @@ const getSchema = async (
   pageID: string,
   record?: Record<string, any>,
   mySchema?: any,
+  originParams?: Record<string, any>,
 ) => {
   // console.log('drawerApi', drawerApi.getData().getValues());
   let pkFldList = '';
@@ -279,6 +280,7 @@ const getSchema = async (
     addConfirmPasswordFields(originalFields),
     submitType.value === 'add' ? ({} as any) : record,
     pkFldList,
+    originParams || {},
   );
   schema.value = formSchema;
 };
@@ -383,10 +385,11 @@ async function open(
   record?: Record<string, any>,
   type?: 'add' | 'default' | 'edit' | 'view',
   schema?: any,
+  originParams?: Record<string, any>,
 ) {
   pageParams.value = params;
   submitType.value = type || 'default';
-  await getSchema(params.pageID, record, schema);
+  await getSchema(params.pageID, record, schema, originParams);
   let formApi: any = drawerApi;
   switch (props.mode) {
     case 'auto': {

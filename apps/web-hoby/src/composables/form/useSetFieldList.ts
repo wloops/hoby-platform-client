@@ -7,7 +7,7 @@ import { useUserStore } from '@vben/stores';
 import { getAreaApi } from '#/api';
 import Transfer from '#/components/DynamicForm/modules/Transfer.vue';
 import { parseQueryString } from '#/components/DynamicForm/modules/utils';
-import { useApiSelectProps } from '#/composables/form/useApiSelectProps';
+import { useApiSelectProps, useMacroValue } from '#/composables';
 import { useFormStore } from '#/store';
 
 const recordRef = ref({});
@@ -25,6 +25,7 @@ export function useSetFieldList() {
     sourceData: any[],
     record: Record<string, any>,
     pkFldList: string,
+    originParams: Record<string, any>,
   ): VbenFormSchema[] => {
     if (!sourceData || !Array.isArray(sourceData)) {
       return [];
@@ -114,6 +115,25 @@ export function useSetFieldList() {
         if (record[item.fieldName]) {
           formItem.defaultValue = record[item.fieldName] || '';
         }
+      }
+
+      // 按钮定义的默认取值
+      const { getValueByMacro } = useMacroValue({
+        currentFormData: recordRef.value,
+        entryRecordData: record,
+      });
+      // 查找当前宏定义的值
+      const currentParams = originParams.interBtnReqVarValueGrp.find(
+        (field: any) => field.fieldName === item.fieldName,
+      );
+      if (currentParams) {
+        const macroValue = getValueByMacro(
+          currentParams.methodID,
+          currentParams.fieldName,
+          currentParams.methodVar,
+        );
+        formItem.defaultValue = macroValue;
+        formItem.componentProps.disabled = true;
       }
       // 处理默认值 end
 
@@ -288,10 +308,11 @@ export function useSetFieldList() {
         ...formItem.componentProps,
         disabled:
           formItem.componentProps.disabled ??
-          (item.value.includes('auto') ||
-            item.value.includes('this.') ||
-            item.value.includes('active.') ||
-            (!isAdd && pkFields.includes(item.fieldName))),
+          // (item.value.includes('auto') ||
+          //   item.value.includes('this.') ||
+          //   item.value.includes('active.') ||
+          //   (!isAdd && pkFields.includes(item.fieldName))),
+          (!isAdd && pkFields.includes(item.fieldName)),
         placeholder: item.value.includes('auto')
           ? ' '
           : `请输入${item.displayName}`,

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-15 13:34:02
+ * @LastEditTime: 2025-04-15 17:42:55
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -112,6 +112,7 @@ const dynamicFormRef = ref<null | {
     record: Record<string, any>,
     type?: 'add' | 'default' | 'edit' | 'view',
     schema?: CustomSchemaList[],
+    originParams?: Record<string, any>,
   ) => void;
 }>(null);
 const dynamicFormTitle = ref('');
@@ -119,6 +120,7 @@ const dynamicFormTitle = ref('');
 const openDynamicForm = (params: {
   buttonTitle: string;
   mode?: 'drawer' | 'modal';
+  originParams?: Record<string, any>;
   pageButtonID?: string;
   pageID?: string;
   record?: Record<string, any>;
@@ -139,6 +141,7 @@ const openDynamicForm = (params: {
     params.record || {},
     type,
     params.schema,
+    params.originParams || {},
   );
   dynamicFormTitle.value = params.buttonTitle || '';
 };

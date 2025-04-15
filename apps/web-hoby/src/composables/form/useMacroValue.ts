@@ -1,8 +1,10 @@
+import type { ActionUserMap } from '#/composables/form/useSetFieldRealValue';
+
 /*
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-15 13:48:49
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-15 16:02:15
+ * @LastEditTime: 2025-04-15 18:15:31
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\composables\form\useMacroValue.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,32 +13,18 @@ import { computed } from 'vue';
 
 import dayjs from 'dayjs';
 
-interface OperatorInfo {
-  name: string;
-  account: string;
-  companyName: string;
-  teamId: string;
-}
+import { useSetFieldRealValue } from '#/composables/form/useSetFieldRealValue';
 
 interface UseMacroValueOptions {
   currentFormData: Record<string, any>; // 改为必传参数
   entryRecordData: Record<string, any>; // 改为必传参数
-  operatorInfo?: Partial<OperatorInfo>;
 }
 
 export function useMacroValue(options: UseMacroValueOptions) {
-  const {
-    currentFormData,
-    entryRecordData,
-    operatorInfo: partialOperatorInfo = {},
-  } = options;
-
-  const operatorInfo = computed<OperatorInfo>(() => ({
-    name: '未知用户',
-    account: 'unknown',
-    companyName: '未知公司',
-    teamId: 'unknown-team',
-    ...partialOperatorInfo,
+  const { currentFormData, entryRecordData } = options;
+  const { getActionUserMap } = useSetFieldRealValue();
+  const operatorInfo = computed<ActionUserMap>(() => ({
+    ...getActionUserMap(),
   }));
 
   // 使用dayjs获取系统日期 YYYYMMDD
@@ -76,16 +64,16 @@ export function useMacroValue(options: UseMacroValueOptions) {
         return fixedValue;
       } // 取固定值
       case 10: {
-        return operatorInfo.value.name;
+        return operatorInfo.value.tellerName;
       } // 操作员姓名
       case 11: {
-        return operatorInfo.value.account;
+        return operatorInfo.value.tellerNo;
       } // 操作员账号
       case 12: {
-        return operatorInfo.value.companyName;
+        return operatorInfo.value.tellerCompanyName;
       } // 企业名称
       case 13: {
-        return operatorInfo.value.teamId;
+        return operatorInfo.value.memberID;
       } // 团队标识
       case 31: {
         return getSystemDate();
