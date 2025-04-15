@@ -1,10 +1,13 @@
 import type { VxeGridPropTypes } from 'vxe-table';
 
-import type { ColumnDefinition } from '#/components/CommonTable/types';
+import type {
+  ActionButtonProps,
+  ColumnDefinition,
+} from '#/components/CommonTable/types';
 
 import { mainGetViewFieldConfigApi } from '#/api';
 import { FieldType } from '#/components/CommonTable/types';
-import { useEnums } from '#/composables';
+import { useEnums, useSetButtons } from '#/composables';
 
 export interface VxeSchemaItem {
   component: string;
@@ -241,9 +244,11 @@ export function useSetSchema() {
   ): Promise<{
     columns: ColumnDefinition[];
     displayFldList: string;
+    pageButtons: ActionButtonProps[];
     queryPanelFldList: string;
   }> => {
     const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
+    const { setButtonParams } = useSetButtons();
     const {
       rs,
       fieldList,
@@ -251,12 +256,15 @@ export function useSetSchema() {
       pkFldList,
       queryPanelFldList,
       DBRecAccBtnGrp,
+      recBtnGrp,
+      formBtnGrp,
     } = await mainGetViewFieldConfigApi({ pageID });
 
     if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
       return {
         columns: operationColumn || [],
         displayFldList: '',
+        pageButtons: [],
         queryPanelFldList: '',
       };
     }
@@ -349,11 +357,23 @@ export function useSetSchema() {
           if (btn.serviceID === 48) return 'view';
         });
         operationColumn[0].defaultActions = btnGroup;
+      } else {
+        operationColumn[0].defaultActions = false;
+        operationColumn[0].visible = false;
+      }
+      if (recBtnGrp && recBtnGrp.length > 0) {
+        operationColumn[0].visible = true;
+        operationColumn[0].actions = setButtonParams(recBtnGrp);
       }
       columns.push(...operationColumn);
     }
 
-    return { columns, displayFldList, queryPanelFldList };
+    let pageButtons: ActionButtonProps[] = [];
+    if (formBtnGrp && formBtnGrp.length > 0) {
+      pageButtons = setButtonParams(formBtnGrp);
+    }
+
+    return { columns, displayFldList, queryPanelFldList, pageButtons };
   };
 
   return {
