@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-14 16:35:23
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-14 16:56:10
+ * @LastEditTime: 2025-04-16 15:57:39
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\views\_core\home\components\ProductCard.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -47,7 +47,7 @@ const getTagColor = (tag: string) => {
     </div>
     <div class="relative p-3">
       <div
-        class="mb-2 flex h-36 items-center justify-center overflow-hidden rounded-lg bg-gray-100"
+        class="mb-2 flex h-36 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-100"
       >
         <template v-if="product.image">
           <img
