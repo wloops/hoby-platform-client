@@ -88,6 +88,20 @@ const routes: RouteRecordRaw[] = [
       },
       {
         meta: {
+          title: $t('page.my.purchaseOrder.purchaseOrderManagement'),
+          icon: 'solar:diploma-verified-linear',
+          authority: ['my'],
+          pageParams: {
+            pageID: 'hobyMyPurchaseOrderPage',
+            isTabs: true,
+          },
+        },
+        name: 'hobyMyPurchaseOrderPage',
+        path: '/my/purchase-order/management',
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
+      },
+      {
+        meta: {
           title: $t('page.my.purchaseOrder.purchaseOrderMng.title'),
           icon: 'solar:diploma-verified-linear',
           authority: ['my'],

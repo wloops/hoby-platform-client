@@ -28,10 +28,13 @@ const routes: RouteRecordRaw[] = [
               ),
               icon: 'mdi:arrange-send-to-back',
               authority: ['my'],
+              pageParams: {
+                pageID: 'privateWareActivatedPage',
+              },
             },
             name: 'MyPriWareService',
             path: '/my/shop/ware-goods/open',
-            component: () => import('#/views/my/shop/ware-goods/open.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
@@ -40,10 +43,13 @@ const routes: RouteRecordRaw[] = [
               ),
               icon: 'solar:box-minimalistic-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'privateWareStoreProductPage',
+              },
             },
             name: 'PriWareProductList',
             path: '/my/shop/ware-goods/products',
-            component: () => import('#/views/my/shop/ware-goods/products.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
@@ -52,10 +58,13 @@ const routes: RouteRecordRaw[] = [
               ),
               icon: 'mdi:animation-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'privateWareStoreSrlIDPage',
+              },
             },
             name: 'PriWareSrlIDList',
             path: '/my/shop/ware-goods/model',
-            component: () => import('#/views/my/shop/ware-goods/model.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
@@ -64,10 +73,13 @@ const routes: RouteRecordRaw[] = [
               ),
               icon: 'mdi:view-module-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'privateWareStoreSKUPage',
+              },
             },
             name: 'PriWareGoodsList',
             path: '/my/shop/ware-goods/sku',
-            component: () => import('#/views/my/shop/ware-goods/sku.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
         ],
       },
@@ -85,10 +97,13 @@ const routes: RouteRecordRaw[] = [
               title: $t('page.my.shopManagement.priWareShopMng.priWareShop'),
               icon: 'solar:shop-minimalistic-bold',
               authority: ['my'],
+              pageParams: {
+                pageID: 'myPrivateWareShopPage',
+              },
             },
             name: 'PriWareShop',
             path: '/my/shop/ware-shop',
-            component: () => import('#/views/my/shop/ware-shop/shop.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
@@ -97,30 +112,39 @@ const routes: RouteRecordRaw[] = [
               ),
               icon: 'solar:box-minimalistic-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'myPrivateWareShopProductPage',
+              },
             },
             name: 'ShopProductList',
             path: '/my/shop/ware-shop/products',
-            component: () => import('#/views/my/shop/ware-shop/products.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
               title: $t('page.my.shopManagement.priWareShopMng.shopSrlIDList'),
               icon: 'mdi:animation-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'myPrivateWareShopSrlIDPage',
+              },
             },
             name: 'ShopSrlIDList',
             path: '/my/shop/ware-shop/model',
-            component: () => import('#/views/my/shop/ware-shop/model.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
               title: $t('page.my.shopManagement.priWareShopMng.shopGoodsList'),
               icon: 'mdi:view-module-outline',
               authority: ['my'],
+              pageParams: {
+                pageID: 'myPrivateWareShopSKUPage',
+              },
             },
             name: 'ShopGoodsList',
             path: '/my/shop/ware-shop/sku',
-            component: () => import('#/views/my/shop/ware-shop/sku.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
         ],
       },
@@ -138,11 +162,13 @@ const routes: RouteRecordRaw[] = [
               title: $t('page.my.shopManagement.myWarehouseMng.myWarehouse'),
               authority: ['my'],
               icon: 'mdi:warehouse',
+              pageParams: {
+                pageID: 'myWarehouseInformationPage',
+              },
             },
             name: 'MyWarehouse',
             path: '/my/shop/my-warehouse/management',
-            component: () =>
-              import('#/views/my/shop/my-warehouse/management.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
           {
             meta: {
@@ -151,10 +177,13 @@ const routes: RouteRecordRaw[] = [
               ),
               authority: ['my'],
               icon: 'solar:home-smile-bold-duotone',
+              pageParams: {
+                pageID: 'myDefaultWarehouseInformationPage',
+              },
             },
             name: 'DefaultWarehouse',
             path: '/my/shop/my-warehouse/deficit',
-            component: () => import('#/views/my/shop/my-warehouse/deficit.vue'),
+            component: () => import('#/views/_core/basic/BasicTablePage.vue'),
           },
         ],
       },

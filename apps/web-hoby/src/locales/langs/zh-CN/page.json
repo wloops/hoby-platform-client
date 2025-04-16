@@ -226,8 +226,9 @@
         "shoppingCartGoods": "购物车商品",
         "myShoppingCartGoods": "我的购物车"
       },
+      "purchaseOrderManagement": "采购订单管理",
       "purchaseOrderMng": {
-        "title": "采购订单管理",
+        "title": "采购订单查询",
         "purchaseOrderWaitPay": "待付款的订单",
         "purchaseOrderWaitSendOut": "代发货的订单",
         "purchaseOrderWaitSign": "待签收的订单",
