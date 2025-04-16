@@ -3,6 +3,7 @@ import type { VxeGridPropTypes } from 'vxe-table';
 import type {
   ActionButtonProps,
   ColumnDefinition,
+  CommonTableParams,
 } from '#/components/CommonTable/types';
 
 import { mainGetViewFieldConfigApi } from '#/api';
@@ -240,13 +241,14 @@ export function useSetSchema() {
    */
   const getViewSchema = async (
     operationColumn: ColumnDefinition[],
-    pageID: string,
+    pageParams: CommonTableParams,
   ): Promise<{
     columns: ColumnDefinition[];
     displayFldList: string;
     pageButtons: ActionButtonProps[];
     queryPanelFldList: string;
   }> => {
+    const pageID = pageParams.pageID;
     const { getEnumList } = useEnums(); // 避免顶层调用,改为在函数内部调用;
     const { setButtonParams } = useSetButtons();
     const {
@@ -343,7 +345,6 @@ export function useSetSchema() {
         column.options = await getEnumList(column.enumName);
       }
     }
-
     // 添加操作列
     if (operationColumn && operationColumn.length > 0 && operationColumn[0]) {
       // 添加按钮组
@@ -351,11 +352,22 @@ export function useSetSchema() {
       if (DBRecAccBtnGrp && DBRecAccBtnGrp.length > 0) {
         // eslint-disable-next-line array-callback-return
         btnGroup = DBRecAccBtnGrp.map((btn: any) => {
-          if (btn.serviceID === 1) return 'add';
+          if (btn.serviceID === 1) {
+            pageParams.showAddButton = true;
+            return null;
+          }
           if (btn.serviceID === 2) return 'edit';
           if (btn.serviceID === 3) return 'delete';
           if (btn.serviceID === 48) return 'view';
         });
+        if (
+          Array.isArray(btnGroup) &&
+          btnGroup.length === 1 &&
+          btnGroup[0] === null
+        ) {
+          operationColumn[0].visible = false;
+        }
+
         operationColumn[0].defaultActions = btnGroup;
       } else {
         operationColumn[0].defaultActions = false;

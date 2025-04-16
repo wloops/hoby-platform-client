@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-15 17:42:55
+ * @LastEditTime: 2025-04-16 15:36:24
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -167,7 +167,7 @@ onMounted(async () => {
   }
   // 获取视图配置
   const { columns, displayFldList, queryPanelFldList, pageButtons } =
-    await getViewSchema(props.columns, pageParams.value.pageID);
+    await getViewSchema(props.columns, pageParams.value);
   sendColumns.value = props.columns.length > 1 ? props.columns : columns;
   fieldSort.value.displayFldList = displayFldList;
   fieldSort.value.queryPanelFldList = queryPanelFldList;
