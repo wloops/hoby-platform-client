@@ -35,8 +35,8 @@ const tableProps = ref<CommonTableProps>({
           visible: true, // 控制按钮是否显示
           runMode: 'default',
           params: (record, user) => ({
-            pageID: 'applySettlementGuaranteePage',
-            pageButtonID: 'applyGuarantee',
+            pageID: 'applyPerformanceGuaranteePage',
+            pageButtonID: 'applyRenewalGuarantee',
             purchaseCompanyName: user?.TELLERCOMPANY,
             tellerNo: user?.tellerNo,
             ...record,

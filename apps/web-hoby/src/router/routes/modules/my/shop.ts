@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.shopManagement.priWareGoodsMng.title'),
-          icon: 'mdi:office-building',
+          icon: 'mdi:google-circles-extended',
           authority: ['my'],
         },
         name: 'MyPriWareGoodsMng',
@@ -74,7 +74,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.shopManagement.priWareShopMng.title'),
-          icon: 'mdi:office-building',
+          icon: 'mdi:google-drive',
           authority: ['my'],
         },
         name: 'MyPriWareShopMng',
