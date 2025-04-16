@@ -28,9 +28,14 @@ import {
   mainGetViewSearchDataApi,
 } from '#/api';
 import CommonTabs from '#/components/Tabs/index.vue';
-import { useEnums, useMainGetData, useServiceCall } from '#/composables';
-import { useSetFieldRealValue } from '#/composables/form/useSetFieldRealValue';
-import { useSetSchema } from '#/composables/table/useSetSchema';
+import {
+  useEnums,
+  useMainGetData,
+  useServiceCall,
+  useSetButtons,
+  useSetFieldRealValue,
+  useSetSchema,
+} from '#/composables';
 
 import BatchAction from './components/BatchAction.vue';
 import ChildTable from './components/ChildTable.vue';
@@ -227,6 +232,22 @@ async function executeServiceAction(
       //   }
       // });
     }
+    if (
+      action?.originParams?.interBtnReqVarValueGrp &&
+      action?.originParams.interBtnReqVarValueGrp.length > 0
+    ) {
+      const { setButtonSubmitParams } = useSetButtons();
+      const params = setButtonSubmitParams(
+        action.originParams.interBtnReqVarValueGrp,
+        {},
+        record,
+      );
+      serviceParams = {
+        pageID: action.originParams.pageID,
+        pageButtonID: action.originParams.pageButtonID,
+        ...params,
+      };
+    }
     // 如果配置了 api 方法，则调用它
     if (action.api) {
       const result = await action.api(serviceParams);
@@ -311,7 +332,7 @@ function handleActionClick(action: ActionButtonProps, row: TableRecord): void {
 
     // 根据confirm属性生成确认文本
     if (action.confirm === 'auto') {
-      confirmText = `确定要对该记录执行${action.label || action.text || ''}操作吗？`;
+      confirmText = `确定${action.label || action.text || ''}吗？`;
     } else if (typeof action.confirm === 'string') {
       confirmText = action.confirm;
     } else {

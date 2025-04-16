@@ -16,7 +16,11 @@ import {
   mainServiceApi,
   mainUpdateRecrdApi,
 } from '#/api';
-import { useSetFieldList, useSetFieldRealValue } from '#/composables';
+import {
+  useSetButtons,
+  useSetFieldList,
+  useSetFieldRealValue,
+} from '#/composables';
 
 import DrawerForm from './DrawerForm.vue';
 import Form from './Form.vue';
@@ -342,10 +346,30 @@ const submitCommonButton = async (record: Record<string, any>) => {
       const { rs: code } = await mainUpdateRecrdApi(data);
       return code === '1';
     } else {
-      const data = {
+      let data = {
         ...pageParams.value,
         ...record,
       };
+      if (buttonOriginParams.value) {
+        data.pageID = buttonOriginParams.value.pageID;
+        if (
+          buttonOriginParams.value.interBtnReqVarValueGrp &&
+          buttonOriginParams.value.interBtnReqVarValueGrp.length > 0
+        ) {
+          const { setButtonSubmitParams } = useSetButtons();
+          const params = setButtonSubmitParams(
+            buttonOriginParams.value.interBtnReqVarValueGrp,
+            record,
+            pageParams.value,
+          );
+          data = {
+            pageID: buttonOriginParams.value.pageID,
+            pageButtonID: buttonOriginParams.value.pageButtonID,
+            ...params,
+            ...record,
+          };
+        }
+      }
       const { rs: code } = await mainServiceApi(data);
       return code === '1';
     }
@@ -379,6 +403,7 @@ const pageParams = ref<pageParam>({
   pageID: '',
   pageButtonID: '',
 });
+const buttonOriginParams = ref<Record<string, any> | undefined>({});
 
 async function open(
   params: pageParam,
@@ -388,6 +413,7 @@ async function open(
   originParams?: Record<string, any>,
 ) {
   pageParams.value = params;
+  buttonOriginParams.value = originParams;
   submitType.value = type || 'default';
   await getSchema(params.pageID, record, schema, originParams);
   let formApi: any = drawerApi;
