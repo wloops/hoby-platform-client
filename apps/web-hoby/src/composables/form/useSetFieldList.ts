@@ -137,6 +137,10 @@ export function useSetFieldList() {
         formItem.defaultValue = macroValue;
         formItem.componentProps.disabled = true;
       }
+
+      if (item.value.includes('default::')) {
+        formItem.defaultValue = item.value.split('::')[1].split(',')[0];
+      }
       // 处理默认值 end
 
       // const fieldType = (item.value && item.value.split('::')[0]) || '';
