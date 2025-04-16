@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import { message, Modal } from 'ant-design-vue';
 
 import { mainGetViewSearchDataApi, mainServiceApi } from '#/api';
+import DynamicForm from '#/components/DynamicForm/index.vue';
 import { useMainGetData } from '#/composables';
 
 import addProductModel from './components/addProductModel.vue';
@@ -301,6 +302,39 @@ const deleteProductModel = (product, id) => {
   });
 };
 
+const dynamicFormRef = ref(null);
+// 创建SKU
+const createSKU = (product) => {
+  console.warn('创建SKU:', product);
+
+  dynamicFormRef.value?.open(
+    {
+      pageID: 'SelSaleRule',
+      pageButtonID: 'createSKUAndList',
+      companyName: product.company,
+      productName: product.name,
+      srlID: product.model,
+      objectID: product.objectID,
+    },
+    {
+      pageID: 'SelSaleRule', // 页面ID
+      pageButtonID: 'createSKUAndList', // 按钮ID
+      companyName: product.company,
+      productName: product.name,
+      srlID: product.model,
+      objectID: product.objectID,
+    },
+  );
+  // mainServiceApi(params)
+  //   .then((res) => {
+  //     console.warn(res);
+  //     message.success('创建SKU成功');
+  //   })
+  //   .catch((error) => {
+  //     message.error(`创建SKU失败：${error.message || '服务器错误'}`);
+  //   });
+};
+
 // 搜索关键词
 const productQuery = ref('');
 const srlIDQuery = ref('');
@@ -520,6 +554,22 @@ const resetPage = () => {
               </svg>
               删除
             </button>
+            <button class="btn-text-primary" @click="createSKU(product)">
+              <svg
+                class="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              创建SKU
+            </button>
             <button class="btn-text-primary" @click="openEditModal(product)">
               <svg
                 class="mr-1 h-4 w-4"
@@ -598,6 +648,12 @@ const resetPage = () => {
       </div>
       <!-- 编辑产品型号 -->
       <EditProductModel ref="editProductModelRef" />
+      <DynamicForm
+        ref="dynamicFormRef"
+        title="选择销售收入分成规则"
+        mode="modal"
+        @refresh="refresh"
+      />
     </div>
   </div>
 </template>
