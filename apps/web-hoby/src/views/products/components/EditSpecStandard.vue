@@ -412,7 +412,7 @@ defineExpose({
                     v-model="valueItem.specAttr"
                     class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     :placeholder="`请输入${valueItem.specValue}`"
-                    :readonly="valueItem.isNew === 'false'"
+                    :disabled="valueItem.isNew === 'false'"
                     :class="{
                       'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
                         valueItem.isNew === 'false',
