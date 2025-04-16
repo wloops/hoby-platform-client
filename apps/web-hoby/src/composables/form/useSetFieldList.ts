@@ -123,9 +123,11 @@ export function useSetFieldList() {
         entryRecordData: record,
       });
       // 查找当前宏定义的值
-      const currentParams = originParams.interBtnReqVarValueGrp.find(
-        (field: any) => field.fieldName === item.fieldName,
-      );
+      const currentParams = originParams.interBtnReqVarValueGrp
+        ? originParams.interBtnReqVarValueGrp.find(
+            (field: any) => field.fieldName === item.fieldName,
+          )
+        : null;
       if (currentParams) {
         const macroValue = getValueByMacro(
           currentParams.methodID,
