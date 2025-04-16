@@ -1,5 +1,11 @@
 import type { ActionUserMap } from '#/composables/form/useSetFieldRealValue';
 
+// 路由meta自定义属性
+export interface RouteMetaPageParams {
+  pageID: string;
+  isTabs?: boolean;
+}
+
 // 定义字段类型枚举
 /**
  * @CHECKBOX 复选框
