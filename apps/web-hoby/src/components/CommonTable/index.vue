@@ -154,7 +154,7 @@ const fieldSort = ref({
 
 const pageParams = ref<any>(props.params);
 const pageButtonsList = ref<ActionButtonProps[]>(props.pageButtons);
-const dBDefaultActionsList = ref<any[]>([]);
+const dBDefaultActions = ref<any[]>([]);
 
 const { getViewSchema } = useSetSchema();
 const { getTabsList } = useTabs();
@@ -178,8 +178,7 @@ onMounted(async () => {
   fieldSort.value.displayFldList = displayFldList;
   fieldSort.value.queryPanelFldList = queryPanelFldList;
   pageButtonsList.value = pageButtons;
-  dBDefaultActionsList.value = DBDefaultActions;
-
+  dBDefaultActions.value = DBDefaultActions;
   loading.value = false;
 });
 
@@ -208,7 +207,7 @@ const handleTabChange = (value: string) => {
       :tabs="pageParams.tabs"
       :child-tables="childTables"
       :page-buttons="pageButtonsList"
-      :d-b-default-actions="dBDefaultActionsList"
+      :d-b-default-actions="dBDefaultActions"
       :table-data="tableData"
       :auto-refresh="autoRefresh"
       :show-search="showSearch"
