@@ -376,6 +376,12 @@ defineExpose({
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">编辑产品规格</h3>
+            <div
+              class="flex flex-1 items-center justify-center text-lg font-medium text-gray-500"
+            >
+              <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+              {{ productData.name }}
+            </div>
             <button
               class="text-gray-400 hover:text-gray-500"
               @click="closeModal"
@@ -396,14 +402,14 @@ defineExpose({
             </button>
           </div>
         </div>
-        <div
+        <!-- <div
           class="flex-shrink-0 border-b border-yellow-500 bg-white px-6 py-4"
         >
           <h3 class="flex items-center text-lg font-medium text-gray-800">
             <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
             {{ productData.name }}
           </h3>
-        </div>
+        </div> -->
         <!-- 固定的规格选择区域 -->
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="space-y-4">

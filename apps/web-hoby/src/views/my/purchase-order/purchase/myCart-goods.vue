@@ -141,23 +141,19 @@ const handleQuantityChange = (value, storeIndex, productIndex) => {
     prdNum: value,
   };
 
-  mainServiceApi(params)
-    .then((res) => {
-      if (res.rs === '1') {
-        // 确保数量至少为1
-        const quantity = Math.max(1, value);
-        // 更新本地数据
-        product.quantity = quantity;
-        product.totalAmtAfterDiscount = product.price * quantity; // 更新折后总价
-        updateTotals(storeIndex);
-        message.success('修改数量成功');
-      } else {
-        message.error(res.msg || '修改数量失败');
-      }
-    })
-    .catch((error) => {
-      message.error(`修改数量失败：${error.message || '服务器错误'}`);
-    });
+  mainServiceApi(params).then((res) => {
+    if (res.rs === '1') {
+      // 确保数量至少为1
+      const quantity = Math.max(1, value);
+      // 更新本地数据
+      product.quantity = quantity;
+      product.totalAmtAfterDiscount = product.price * quantity; // 更新折后总价
+      updateTotals(storeIndex);
+      // message.success('修改数量成功');
+    } else {
+      // message.error(res.msg || '修改数量失败');
+    }
+  });
 };
 
 // 移除商品
@@ -357,9 +353,9 @@ const generateOrderMainServiceApi = async (store) => {
 const generateStoreOrder = async (storeIndex, store) => {
   const result = await generateOrderMainServiceApi(store);
   if (result) {
-    message.success(`已为 ${store.name} 生成采购订单`);
+    message.success(`已为 ${store.name} 生成订单`);
   } else {
-    message.error(`生成采购订单失败`);
+    message.error(`生成订单失败`);
   }
 };
 
@@ -584,7 +580,7 @@ onMounted(() => {
                 class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
                 @click="generateStoreOrder(storeIndex, store)"
               >
-                生成采购订单
+                生成订单
               </Button>
               <Button
                 type="text"

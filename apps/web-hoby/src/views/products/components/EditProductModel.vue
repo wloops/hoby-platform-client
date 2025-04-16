@@ -32,7 +32,7 @@ const selectedStockSpecs = ref([]);
 const selectedPriceSpecs = ref([]);
 
 // 默认显示的tab
-const activeTab = ref('specifications');
+const activeTab = ref('information');
 
 // 获取所有可用的规格类型
 const availableSpecTypes = computed(() => {
@@ -201,7 +201,7 @@ const saveChanges = () => {
 
   Modal.confirm({
     title: '确认保存',
-    content: '确定要保存当前规格信息吗？',
+    content: '确定要保存当前产品型号信息吗？',
     okText: '确定',
     cancelText: '取消',
     async onOk() {
@@ -313,9 +313,9 @@ const saveChanges = () => {
             }),
           };
           await mainSendFileDataApi(saveParams);
-          message.success('规格信息保存成功');
+          message.success('产品型号信息保存成功');
         } else {
-          message.warning('没有需要保存的规格数据');
+          message.warning('没有需要保存的产品型号数据');
         }
 
         // isOpen.value = false;
@@ -403,6 +403,7 @@ const getSpecTypeNameList = async (product) => {
 // 关闭模态框
 const closeModal = () => {
   isOpen.value = false;
+  activeTab.value = 'information';
 };
 
 defineExpose({
@@ -430,6 +431,12 @@ defineExpose({
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">编辑产品型号</h3>
+            <div
+              class="flex flex-1 items-center justify-center text-lg font-medium text-gray-500"
+            >
+              <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+              {{ productData.name }}&nbsp;—&nbsp;{{ productData.model }}
+            </div>
             <button
               class="text-gray-400 hover:text-gray-500"
               @click="closeModal"
@@ -451,16 +458,34 @@ defineExpose({
           </div>
         </div>
         <!-- 编辑的产品型号 -->
-        <div
+        <!-- <div
           class="flex-shrink-0 border-b border-yellow-500 bg-white px-6 py-4"
         >
           <h3 class="flex items-center text-lg font-medium text-gray-800">
             <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
             {{ productData.name }}&nbsp;—&nbsp;{{ productData.model }}
           </h3>
-        </div>
+        </div> -->
         <!-- 选项卡区域 -->
         <div class="tabs mt-2 flex flex-shrink-0 border-b-2 border-yellow-500">
+          <button
+            @click="activeTab = 'information'"
+            :class="{
+              'bg-yellow-500 text-white': activeTab === 'information',
+            }"
+            class="rounded-t-lg p-2 pl-4 pr-4"
+          >
+            产品信息
+          </button>
+          <button
+            @click="activeTab = 'specifications'"
+            :class="{
+              'bg-yellow-500 text-white': activeTab === 'specifications',
+            }"
+            class="rounded-t-lg p-2 pl-4 pr-4"
+          >
+            产品规格
+          </button>
           <button
             @click="activeTab = 'introduction'"
             :class="{
@@ -471,15 +496,6 @@ defineExpose({
             产品介绍
           </button>
           <button
-            @click="activeTab = 'specifications'"
-            :class="{
-              'bg-yellow-500 text-white': activeTab === 'specifications',
-            }"
-            class="rounded-t-lg p-2 pl-4 pr-4"
-          >
-            规格
-          </button>
-          <button
             @click="activeTab = 'images'"
             :class="{ 'bg-yellow-500 text-white': activeTab === 'images' }"
             class="rounded-t-lg p-2 pl-4 pr-4"
@@ -488,18 +504,13 @@ defineExpose({
           </button>
         </div>
 
-        <!-- 产品介绍选项卡 -->
-        <div v-if="activeTab === 'introduction'" class=""></div>
-
-        <!-- 产品规格选项卡 -->
+        <!-- 产品信息选项卡 -->
         <div
-          v-if="activeTab === 'specifications'"
+          v-if="activeTab === 'information'"
           class="flex flex-grow flex-col overflow-y-auto"
         >
-          <!-- 固定的规格选择区域 -->
-          <div
-            class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4"
-          >
+          <!-- 规格选择区域 -->
+          <div class="flex-shrink-0 border-gray-200 bg-white px-6 py-4">
             <div class="space-y-4">
               <!-- SKU规格选择 -->
               <div class="flex items-center justify-between">
@@ -573,10 +584,16 @@ defineExpose({
               </div>
             </div>
           </div>
+        </div>
 
+        <!-- 产品规格选项卡 -->
+        <div
+          v-if="activeTab === 'specifications'"
+          class="flex flex-grow flex-col overflow-y-auto"
+        >
           <!-- 可滚动的规格内容区域 -->
           <div class="flex-grow overflow-y-auto bg-white px-6 py-5">
-            <div class="space-y-8">
+            <div v-if="editedSpecsList.length > 0" class="space-y-8">
               <!-- 现有规格 -->
               <div
                 v-for="(item, index) in editedSpecsList"
@@ -672,6 +689,29 @@ defineExpose({
                 </div>
               </div>
             </div>
+            <!-- 无规格时的提示 -->
+            <div
+              v-else
+              class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-8 text-center"
+            >
+              <svg
+                class="h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">
+                暂无规格类型
+              </h3>
+              <p class="mt-1 text-sm text-gray-500">请在下方添加规格类型</p>
+            </div>
           </div>
 
           <!-- 添加新规格类型 - 固定在底部 -->
@@ -731,28 +771,41 @@ defineExpose({
               </button> -->
             </div>
           </div>
+        </div>
 
-          <!-- Footer -->
-          <div
-            class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse sm:px-6"
-          >
-            <button
-              class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3"
-              @click="saveChanges"
-            >
-              保存
-            </button>
-            <button
-              class="mt-3 inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0"
-              @click="closeModal"
-            >
-              取消
-            </button>
-          </div>
+        <!-- 产品介绍选项卡 -->
+        <div
+          v-if="activeTab === 'introduction'"
+          class="flex flex-grow flex-col overflow-y-auto"
+        >
+          暂无产品介绍
         </div>
 
         <!-- 产品图片选项卡 -->
-        <div v-if="activeTab === 'images'" class=""></div>
+        <div
+          v-if="activeTab === 'images'"
+          class="flex flex-grow flex-col overflow-y-auto"
+        >
+          暂无产品图片
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse sm:px-6"
+        >
+          <button
+            class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3"
+            @click="saveChanges"
+          >
+            保存
+          </button>
+          <button
+            class="mt-3 inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0"
+            @click="closeModal"
+          >
+            取消
+          </button>
+        </div>
       </div>
     </div>
   </div>
