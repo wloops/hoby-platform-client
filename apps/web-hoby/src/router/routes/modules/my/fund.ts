@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
       authority: ['my'],
     },
     name: 'MyFundAccount',
-    path: '/my',
+    path: '/my/fund',
     children: [
       {
         meta: {
