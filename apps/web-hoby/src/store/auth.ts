@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-03-12 10:52:42
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-09 17:48:06
+ * @LastEditTime: 2025-04-16 14:53:12
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\store\auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -161,7 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
     //   // 不做任何处理
     // }
     resetAllStores();
-    accessStore.setLoginExpired(true);
+    accessStore.setLoginExpired(false);
     userStore.setUserInfo(null);
     sessionStorage.removeItem('userInfo');
     sessionStorage.removeItem('accessToken');
