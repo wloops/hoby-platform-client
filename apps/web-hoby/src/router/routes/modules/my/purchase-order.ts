@@ -49,28 +49,41 @@ const routes: RouteRecordRaw[] = [
           },
           {
             meta: {
-              title: $t('page.my.purchaseOrder.shopPurchaseMng.myShoppingCart'),
+              title: $t(
+                'page.my.purchaseOrder.shopPurchaseMng.myShoppingCartGoods',
+              ),
               icon: 'solar:cart-large-4-broken',
               authority: ['my'],
             },
-            name: 'MyShoppingCart',
-            path: '/my/purchase-order/purchase/cart',
+            name: 'MyShoppingCartGoods',
+            path: '/my/purchase-order/purchase/myCart-goods',
             component: () =>
-              import('#/views/my/purchase-order/purchase/cart.vue'),
+              import('#/views/my/purchase-order/purchase/myCart-goods.vue'),
           },
-          {
-            meta: {
-              title: $t(
-                'page.my.purchaseOrder.shopPurchaseMng.shoppingCartGoods',
-              ),
-              icon: 'solar:cart-3-outline',
-              authority: ['my'],
-            },
-            name: 'ShoppingCartGoods',
-            path: '/my/purchase-order/purchase/cart-goods',
-            component: () =>
-              import('#/views/my/purchase-order/purchase/cart-goods.vue'),
-          },
+          // {
+          //   meta: {
+          //     title: $t('page.my.purchaseOrder.shopPurchaseMng.myShoppingCart'),
+          //     icon: 'solar:cart-large-4-broken',
+          //     authority: ['my'],
+          //   },
+          //   name: 'MyShoppingCart',
+          //   path: '/my/purchase-order/purchase/cart',
+          //   component: () =>
+          //     import('#/views/my/purchase-order/purchase/cart.vue'),
+          // },
+          // {
+          //   meta: {
+          //     title: $t(
+          //       'page.my.purchaseOrder.shopPurchaseMng.shoppingCartGoods',
+          //     ),
+          //     icon: 'solar:cart-3-outline',
+          //     authority: ['my'],
+          //   },
+          //   name: 'ShoppingCartGoods',
+          //   path: '/my/purchase-order/purchase/cart-goods',
+          //   component: () =>
+          //     import('#/views/my/purchase-order/purchase/cart-goods.vue'),
+          // },
         ],
       },
       {
