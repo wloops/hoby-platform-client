@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import type { BasicUserInfo } from '@vben/types';
+
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { preferences } from '@vben/preferences';
-import { useUserStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
 import {
   FireOutlined,
@@ -22,6 +24,7 @@ import Header from './layout/Header.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
+const accessStore = useAccessStore();
 
 // 切换登录状态（仅用于演示）
 const toggleLogin = () => {
@@ -183,19 +186,40 @@ const userQuickLinks = ref([
     icon: 'icon-[lucide--shopping-cart]',
     text: '我要进货',
     link: '/my/purchase-order/purchase/cart',
+    authority: ['my'],
   },
-  { icon: 'icon-[lucide--store]', text: '我的店铺', link: '/my/shop/private' },
+  {
+    icon: 'icon-[lucide--store]',
+    text: '我的店铺',
+    link: '/my/shop/private',
+    authority: ['my'],
+  },
   {
     icon: 'icon-[solar--clipboard-linear]',
     text: '我的订单',
     link: '/my/sales-order/management',
+    authority: ['my'],
   },
   {
     icon: 'icon-[lucide--blocks]',
     text: '我的产品',
     link: '/my/product/standard',
+    authority: ['my'],
   },
 ]);
+
+const goToMainPage = async (page: any) => {
+  accessStore.setIsAccessChecked(false);
+  const access: string[] = page.authority;
+  const userInfo = userStore.userInfo;
+  const addRolesUserInfo = {
+    ...userInfo,
+    roles: access,
+  };
+  await userStore.setUserInfo(addRolesUserInfo as BasicUserInfo);
+  // sessionStorage.setItem('userInfo', JSON.stringify(addRolesUserInfo));
+  await router.push(page.link);
+};
 </script>
 
 <template>
@@ -368,7 +392,7 @@ const userQuickLinks = ref([
                   v-for="link in userQuickLinks"
                   :key="link.text"
                   class="text-center hover:text-blue-500"
-                  @click="router.push(link.link)"
+                  @click="goToMainPage(link)"
                 >
                   <div class="mr-1 flex items-center justify-center">
                     <span :class="link.icon" class="mr-1"></span>
@@ -381,7 +405,7 @@ const userQuickLinks = ref([
                   v-for="link in guestQuickLinks"
                   :key="link.text"
                   class="text-center hover:text-blue-500"
-                  @click="router.push(link.link)"
+                  @click="goToMainPage(link)"
                 >
                   <div class="mr-1 flex items-center justify-center">
                     <span :class="link.icon" class="mr-1"></span>
