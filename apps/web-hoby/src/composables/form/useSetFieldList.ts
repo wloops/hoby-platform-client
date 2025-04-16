@@ -314,11 +314,11 @@ export function useSetFieldList() {
         ...formItem.componentProps,
         disabled:
           formItem.componentProps.disabled ??
-          // (item.value.includes('auto') ||
-          //   item.value.includes('this.') ||
-          //   item.value.includes('active.') ||
-          //   (!isAdd && pkFields.includes(item.fieldName))),
-          (!isAdd && pkFields.includes(item.fieldName)),
+          (item.value.includes('auto') ||
+            //   item.value.includes('this.') ||
+            //   item.value.includes('active.') ||
+            //   (!isAdd && pkFields.includes(item.fieldName))),
+            (!isAdd && pkFields.includes(item.fieldName))),
         placeholder: item.value.includes('auto')
           ? ' '
           : `请输入${item.displayName}`,

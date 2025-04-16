@@ -127,6 +127,10 @@ const props = defineProps({
     type: Array as () => TabOption[],
     default: () => [],
   },
+  dBDefaultActions: {
+    type: Array as () => any[],
+    default: () => [],
+  },
 });
 
 // 定义事件
@@ -698,9 +702,19 @@ function convertButtonType(type?: VxeButtonType): ButtonType | undefined {
 
   return map[type];
 }
+function getDBOriginParams(serviceID: number) {
+  if (props.dBDefaultActions.length > 0) {
+    const originParams: any = {};
+    props.dBDefaultActions.forEach((item) => {
+      if (item.serviceID === serviceID && item.DBRecAccBtnFldValueMethod) {
+        originParams.interBtnReqVarValueGrp = item.DBRecAccBtnFldValueMethod;
+      }
+    });
+  }
+}
 // 添加默认操作按钮配置
 const getDefaultActions = (pageID: string): ActionButtonProps[] => {
-  return [
+  const actions: ActionButtonProps[] = [
     {
       key: 'view',
       label: '查看',
@@ -713,6 +727,7 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
           mode: 'drawer',
           record: row,
           type: 'view',
+          originParams: getDBOriginParams(50),
         });
       },
     },
@@ -728,6 +743,23 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
           mode: 'drawer',
           record: row,
           type: 'edit',
+          originParams: getDBOriginParams(3),
+        });
+      },
+    },
+    {
+      key: 'edit',
+      label: '复制',
+      type: 'link',
+      batchable: false,
+      onClick: (row: TableRecord) => {
+        emit('openDynamicForm', {
+          buttonTitle: '复制',
+          pageID,
+          mode: 'drawer',
+          record: row,
+          type: 'edit',
+          originParams: getDBOriginParams(48),
         });
       },
     },
@@ -744,6 +776,8 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
       }),
     },
   ];
+
+  return actions;
 };
 
 // 处理操作列配置
@@ -808,11 +842,24 @@ const handleAddClick = () => {
     // 可以根据实际需求实现
     console.warn('添加新记录，页面ID:', props.params.pageID);
     // 这里可以实现默认的新增逻辑
+    let addOriginParams: any = {};
+    props.dBDefaultActions.forEach((item: any) => {
+      if (
+        item.serviceID === 1 &&
+        item.DBRecAccBtnFldValueMethod &&
+        item.DBRecAccBtnFldValueMethod.length > 0
+      ) {
+        addOriginParams = {
+          interBtnReqVarValueGrp: item.DBRecAccBtnFldValueMethod,
+        };
+      }
+    });
     // 打开对话框
     emit('openDynamicForm', {
       buttonTitle: '新增',
       pageID: props.params.pageID,
       type: 'add',
+      originParams: addOriginParams,
     });
   }
 };

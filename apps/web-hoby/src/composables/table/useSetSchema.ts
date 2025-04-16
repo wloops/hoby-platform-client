@@ -244,6 +244,7 @@ export function useSetSchema() {
     pageParams: CommonTableParams,
   ): Promise<{
     columns: ColumnDefinition[];
+    DBDefaultActions: any[];
     displayFldList: string;
     pageButtons: ActionButtonProps[];
     queryPanelFldList: string;
@@ -268,6 +269,7 @@ export function useSetSchema() {
         displayFldList: '',
         pageButtons: [],
         queryPanelFldList: '',
+        DBDefaultActions: [],
       };
     }
 
@@ -345,6 +347,7 @@ export function useSetSchema() {
         column.options = await getEnumList(column.enumName);
       }
     }
+    const DBDefaultActions: any = [];
     // 添加操作列
     if (operationColumn && operationColumn.length > 0 && operationColumn[0]) {
       // 添加按钮组
@@ -352,6 +355,7 @@ export function useSetSchema() {
       if (DBRecAccBtnGrp && DBRecAccBtnGrp.length > 0) {
         // eslint-disable-next-line array-callback-return
         btnGroup = DBRecAccBtnGrp.map((btn: any) => {
+          DBDefaultActions.push(btn);
           if (btn.serviceID === 1) {
             pageParams.showAddButton = true;
             return null;
@@ -373,6 +377,7 @@ export function useSetSchema() {
         operationColumn[0].defaultActions = false;
         operationColumn[0].visible = false;
       }
+
       if (recBtnGrp && recBtnGrp.length > 0) {
         operationColumn[0].visible = true;
         operationColumn[0].actions = setButtonParams(recBtnGrp);
@@ -385,7 +390,13 @@ export function useSetSchema() {
       pageButtons = setButtonParams(formBtnGrp);
     }
 
-    return { columns, displayFldList, queryPanelFldList, pageButtons };
+    return {
+      columns,
+      displayFldList,
+      queryPanelFldList,
+      pageButtons,
+      DBDefaultActions,
+    };
   };
 
   return {
