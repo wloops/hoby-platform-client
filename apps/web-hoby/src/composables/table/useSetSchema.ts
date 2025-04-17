@@ -138,7 +138,7 @@ export function useSetSchema() {
           config.actions &&
           config.actions.length > 0
         ) {
-          column.width = calculateOperationColumnWidth(config.actions as any);
+          column.minWidth = `${calculateOperationColumnWidth(config.actions as any)}px`;
           column.showOverflow = false;
         }
 
@@ -425,14 +425,15 @@ function calculateOperationColumnWidth(
   actions: Array<{ text: string }>,
 ): number {
   if (!actions || actions.length === 0) return 0;
-  const buttonMargin = 28; // 按钮间距
-  return (
+  const buttonMargin = 15; // 按钮间距
+  return Math.trunc(
     actions.reduce((total, action) => {
       return total + getButtonWidth(action) + buttonMargin;
-    }, 0) - buttonMargin
+    }, 0) - buttonMargin,
   ); // 最后一个按钮不需要右边距
 }
 function calculateTextWidth(text: string, font = '14px Arial'): number {
+  if (!text) return 0;
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
   if (!context) return 0;
