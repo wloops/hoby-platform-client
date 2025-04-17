@@ -157,7 +157,8 @@
       "applyForGuarantee": "申请入驻保函",
       "applyForRenewalGuarantee": "申请履约保函",
       "myGuaranteeOrder": "我的保函订单",
-      "guaranteeAccount": "我的保函账户"
+      "guaranteeAccount": "我的保函账户",
+      "defaultCreditAccount": "缺省信用账户"
     },
     "fundAccount": {
       "title": "资金管理",

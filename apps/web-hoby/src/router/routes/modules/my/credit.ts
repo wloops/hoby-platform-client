@@ -51,20 +51,39 @@ const routes: RouteRecordRaw[] = [
           title: $t('page.my.creditManagement.myGuaranteeOrder'),
           icon: 'solar:clipboard-linear',
           authority: ['my'],
+          pageParams: {
+            pageID: 'myGuaranteeOrder',
+          },
         },
         name: 'MyGuaranteeOrder',
         path: '/my/credit/guarantee-order',
-        component: () => import('#/views/my/credit/guarantee-order.vue'),
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
           title: $t('page.my.creditManagement.guaranteeAccount'),
-          icon: 'mdi:account-cog',
+          icon: 'mdi:currency-usd-circle-outline',
           authority: ['my'],
+          pageParams: {
+            pageID: 'myGuaranteeAccount',
+          },
         },
         name: 'MyGuaranteeAccount',
         path: '/my/credit/guarantee-account',
-        component: () => import('#/views/my/credit/guarantee-account.vue'),
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
+      },
+      {
+        meta: {
+          title: $t('page.my.creditManagement.defaultCreditAccount'),
+          icon: 'mdi:credit-card-marker-outline',
+          authority: ['my'],
+          pageParams: {
+            pageID: 'myDefaultCreditAccPage',
+          },
+        },
+        name: 'DefaultCreditAccount',
+        path: '/my/credit/credit-account',
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
     ],
   },
