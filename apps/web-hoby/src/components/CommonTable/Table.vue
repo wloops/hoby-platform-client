@@ -902,6 +902,7 @@ const handleAddClick = () => {
             :key="action.key || action.name || ''"
             :type="convertButtonType(action.type) || 'link'"
             :danger="action.danger"
+            size="small"
             :disabled="
               typeof action.disabled === 'function'
                 ? action.disabled(row)
@@ -952,6 +953,7 @@ const handleAddClick = () => {
           <CommonTabs
             v-if="tabs.length > 0"
             :tabs="tabs"
+            :default-tab="params.pageID"
             @change="handleTabChange"
           />
           <div class="batch-action-info">

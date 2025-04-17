@@ -190,15 +190,31 @@ const refresh = () => {
   tableRef.value?.refresh();
 };
 
-const handleTabChange = (value: string) => {
+const loadKey = ref(0);
+const handleTabChange = async (value: string) => {
+  // loading.value = true;
   pageParams.value.pageID = value;
-  tableRef.value?.refresh();
+  // 获取视图配置
+  const {
+    columns,
+    displayFldList,
+    queryPanelFldList,
+    pageButtons,
+    DBDefaultActions,
+  } = await getViewSchema(props.columns, pageParams.value);
+  sendColumns.value = props.columns.length > 1 ? props.columns : columns;
+  fieldSort.value.displayFldList = displayFldList;
+  fieldSort.value.queryPanelFldList = queryPanelFldList;
+  pageButtonsList.value = pageButtons;
+  dBDefaultActions.value = DBDefaultActions;
+  loadKey.value++;
 };
 </script>
 
 <template>
   <div>
     <Table
+      :key="loadKey"
       v-if="!loading"
       ref="tableRef"
       :columns="sendColumns"
