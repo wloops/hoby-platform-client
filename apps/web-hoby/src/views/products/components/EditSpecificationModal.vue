@@ -402,163 +402,157 @@ defineExpose({
             </button>
           </div>
         </div>
-        <!-- <div
-          class="flex-shrink-0 border-b border-yellow-500 bg-white px-6 py-4"
+        <!--  内容区域 -->
+        <div
+          class="flex-grow overflow-y-auto border-b border-gray-200 bg-white"
         >
-          <h3 class="flex items-center text-lg font-medium text-gray-800">
-            <span class="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
-            {{ productData.name }}
-          </h3>
-        </div> -->
-        <!-- 固定的规格选择区域 -->
-        <div class="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
-          <div class="space-y-4">
-            <!-- 库存规格选择 -->
-            <div class="flex items-center justify-between">
-              <h4 class="flex-1 text-sm font-medium text-gray-900">
-                决定库存的规格：
-              </h4>
-              <Select
-                v-model:value="selectedStockSpecs"
-                mode="multiple"
-                style="width: 300px"
-                placeholder="请选择库存规格"
-                @change="handleStockSpecChange"
-                class="flex-1"
-              >
-                <SelectOption
-                  v-for="type in availableSpecTypes"
-                  :key="type"
-                  :value="type"
-                >
-                  {{ getSpecTypeName(type) }}
-                </SelectOption>
-              </Select>
-            </div>
-
-            <!-- 价格规格选择 -->
-            <div class="flex items-center justify-between">
-              <h4 class="flex-1 text-sm font-medium text-gray-900">
-                决定价格的规格：
-              </h4>
-              <Select
-                v-model:value="selectedPriceSpecs"
-                mode="multiple"
-                style="width: 300px"
-                placeholder="请选择价格规格"
-                @change="handlePriceSpecChange"
-                class="flex-1"
-              >
-                <SelectOption
-                  v-for="type in availableSpecTypes"
-                  :key="type"
-                  :value="type"
-                >
-                  {{ getSpecTypeName(type) }}
-                </SelectOption>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 可滚动的规格内容区域 -->
-        <div class="flex-grow overflow-y-auto bg-white px-6 py-5">
-          <div class="space-y-8">
-            <!-- 现有规格 -->
-            <div
-              v-for="(item, index) in editedSpecsList"
-              :key="index"
-              class="spec-section rounded-md border bg-white p-2 shadow-sm"
-            >
-              <div class="mb-4 flex items-center justify-between">
-                <h4 class="text-base font-medium text-gray-900">
-                  规格：{{ item.specCate }}
+          <!-- 产品信息区域 -->
+          <div class="border-b border-gray-200 bg-white px-6 py-4">
+            <div class="grid grid-cols-2 gap-4">
+              <!-- 第一行 -->
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
+                  决定库存的规格：
                 </h4>
-                <div class="flex items-center gap-2">
-                  <button
-                    class="text-sm font-medium text-blue-600 hover:text-blue-700"
-                    @click="addSpecValue(item.specCate)"
-                  >
-                    添加{{ item.specCate }}
-                  </button>
-                  <button
-                    class="text-sm font-medium text-red-600 hover:text-red-700"
-                    @click="removeSpecType(item.specCate, index)"
-                  >
-                    删除规格
-                  </button>
-                </div>
-              </div>
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                <div
-                  v-for="(value, index) in item.queryProductSpecValue"
-                  :key="index"
-                  class="flex items-center gap-2 rounded-md bg-white p-2 transition-colors hover:bg-gray-50"
+                <Select
+                  v-model:value="selectedStockSpecs"
+                  mode="multiple"
+                  placeholder="请选择库存规格"
+                  @change="handleStockSpecChange"
+                  class="h-8 flex-1"
                 >
-                  <input
-                    type="text"
-                    v-model="value.specValue"
-                    class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    :placeholder="`请输入${item.specCate}`"
-                    :disabled="value.isNew === 'false'"
-                    :class="{
-                      'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
-                        value.isNew === 'false',
-                      'bg-white': value.isNew === 'true',
-                      'text-gray-400 line-through':
-                        value.deleteStatus === 'pending_delete',
-                    }"
-                  />
-                  <button
-                    class="flex-shrink-0 text-red-500 hover:text-red-700"
-                    @click="removeSpecValue(item.specCate, index)"
+                  <SelectOption
+                    v-for="type in availableSpecTypes"
+                    :key="type"
+                    :value="type"
                   >
-                    <svg
-                      class="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      :class="{
-                        'text-red-500':
-                          value.deleteStatus !== 'pending_delete' &&
-                          value.isNew !== 'true',
-                        'text-blue-500':
-                          value.deleteStatus === 'pending_delete',
-                        'text-gray-500': value.isNew === 'true',
-                      }"
+                    {{ getSpecTypeName(type) }}
+                  </SelectOption>
+                </Select>
+              </div>
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
+                  决定价格的规格：
+                </h4>
+                <Select
+                  v-model:value="selectedPriceSpecs"
+                  mode="multiple"
+                  placeholder="请选择价格规格"
+                  @change="handlePriceSpecChange"
+                  class="h-8 flex-1"
+                >
+                  <SelectOption
+                    v-for="type in availableSpecTypes"
+                    :key="type"
+                    :value="type"
+                  >
+                    {{ getSpecTypeName(type) }}
+                  </SelectOption>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 规格区域 -->
+          <div class="px-6 py-5">
+            <div class="space-y-8">
+              <!-- 现有规格 -->
+              <div
+                v-for="(item, index) in editedSpecsList"
+                :key="index"
+                class="spec-section rounded-md border bg-white p-2 shadow-sm"
+              >
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-base font-medium text-gray-900">
+                    规格：{{ item.specCate }}
+                  </h4>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      @click="addSpecValue(item.specCate)"
                     >
-                      <path
-                        v-if="
-                          value.deleteStatus !== 'pending_delete' &&
-                          value.isNew !== 'true'
-                        "
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                      <path
-                        v-if="value.deleteStatus === 'pending_delete'"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1"
-                        d="M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5L4 8l5.5-5.5l1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"
-                      />
-                      <path
-                        v-if="value.isNew === 'true'"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
+                      添加{{ item.specCate }}
+                    </button>
+                    <button
+                      class="text-sm font-medium text-red-600 hover:text-red-700"
+                      @click="removeSpecType(item.specCate, index)"
+                    >
+                      删除规格
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3"
+                >
+                  <div
+                    v-for="(value, index) in item.queryProductSpecValue"
+                    :key="index"
+                    class="flex items-center gap-2 rounded-md bg-white p-2 transition-colors hover:bg-gray-50"
+                  >
+                    <input
+                      type="text"
+                      v-model="value.specValue"
+                      class="min-w-0 flex-1 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      :placeholder="`请输入${item.specCate}`"
+                      :disabled="value.isNew === 'false'"
+                      :class="{
+                        'cursor-not-allowed bg-gray-100 focus:outline-none focus:ring-0':
+                          value.isNew === 'false',
+                        'bg-white': value.isNew === 'true',
+                        'text-gray-400 line-through':
+                          value.deleteStatus === 'pending_delete',
+                      }"
+                    />
+                    <button
+                      class="flex-shrink-0 text-red-500 hover:text-red-700"
+                      @click="removeSpecValue(item.specCate, index)"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        :class="{
+                          'text-red-500':
+                            value.deleteStatus !== 'pending_delete' &&
+                            value.isNew !== 'true',
+                          'text-blue-500':
+                            value.deleteStatus === 'pending_delete',
+                          'text-gray-500': value.isNew === 'true',
+                        }"
+                      >
+                        <path
+                          v-if="
+                            value.deleteStatus !== 'pending_delete' &&
+                            value.isNew !== 'true'
+                          "
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                        <path
+                          v-if="value.deleteStatus === 'pending_delete'"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1"
+                          d="M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5L4 8l5.5-5.5l1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"
+                        />
+                        <path
+                          v-if="value.isNew === 'true'"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <!-- 添加新规格类型 - 固定在底部 -->
         <div
           class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-6 py-4"

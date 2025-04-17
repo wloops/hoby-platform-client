@@ -361,7 +361,7 @@ defineExpose({ open });
             <div class="grid grid-cols-2 gap-4">
               <!-- 第一行 -->
               <div class="flex items-center gap-2">
-                <h4 class="w-24 text-sm font-medium text-gray-900">型号：</h4>
+                <h4 class="w-28 text-sm font-medium text-gray-900">型号：</h4>
                 <input
                   v-model="srlID"
                   type="text"
@@ -374,7 +374,7 @@ defineExpose({ open });
 
               <!-- 第二行 -->
               <div class="flex items-center gap-2">
-                <h4 class="w-30 text-sm font-medium text-gray-900">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   SKU规格清单：
                 </h4>
                 <Select
@@ -393,7 +393,7 @@ defineExpose({ open });
                 </Select>
               </div>
               <div class="flex items-center gap-2">
-                <h4 class="w-30 text-sm font-medium text-gray-900">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   价格规格清单：
                 </h4>
                 <Select
@@ -414,7 +414,7 @@ defineExpose({ open });
 
               <!-- 第三行 -->
               <div class="flex items-center gap-2">
-                <h4 class="w-24 text-sm font-medium text-gray-900">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   分销商价格：
                 </h4>
                 <input
@@ -425,7 +425,7 @@ defineExpose({ open });
                 />
               </div>
               <div class="flex items-center gap-2">
-                <h4 class="w-24 text-sm font-medium text-gray-900">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   终端价格：
                 </h4>
                 <input

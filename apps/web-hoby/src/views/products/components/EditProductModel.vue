@@ -507,23 +507,22 @@ defineExpose({
         <!-- 产品信息选项卡 -->
         <div
           v-if="activeTab === 'information'"
-          class="flex flex-grow flex-col overflow-y-auto"
+          class="flex-grow overflow-y-auto border-b border-gray-200 bg-white"
         >
-          <!-- 规格选择区域 -->
-          <div class="flex-shrink-0 border-gray-200 bg-white px-6 py-4">
-            <div class="space-y-4">
-              <!-- SKU规格选择 -->
-              <div class="flex items-center justify-between">
-                <h4 class="flex-1 text-sm font-medium text-gray-900">
+          <!-- 产品信息区域 -->
+          <div class="px-6 py-4">
+            <div class="grid grid-cols-2 gap-4">
+              <!-- 第一行 -->
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   SKU规格清单：
                 </h4>
                 <Select
                   v-model:value="selectedStockSpecs"
                   mode="multiple"
-                  style="width: 300px"
                   placeholder="请选择SKU规格"
                   @change="handleStockSpecChange"
-                  class="flex-1"
+                  class="h-8 flex-1"
                 >
                   <SelectOption
                     v-for="type in availableSpecTypes"
@@ -534,19 +533,16 @@ defineExpose({
                   </SelectOption>
                 </Select>
               </div>
-
-              <!-- 价格规格选择 -->
-              <div class="flex items-center justify-between">
-                <h4 class="flex-1 text-sm font-medium text-gray-900">
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
                   价格规格清单：
                 </h4>
                 <Select
                   v-model:value="selectedPriceSpecs"
                   mode="multiple"
-                  style="width: 300px"
                   placeholder="请选择价格规格"
                   @change="handlePriceSpecChange"
-                  class="flex-1"
+                  class="h-8 flex-1"
                 >
                   <SelectOption
                     v-for="type in availableSpecTypes"
@@ -557,30 +553,28 @@ defineExpose({
                   </SelectOption>
                 </Select>
               </div>
-              <!-- 分销商价格和终端价格 -->
-              <div class="flex justify-between gap-20">
-                <div class="flex flex-1 items-center">
-                  <h4 class="flex-none text-sm font-medium text-gray-900">
-                    分销商价格：
-                  </h4>
-                  <input
-                    v-model="distributorPrice"
-                    type="text"
-                    class="flex-1 rounded-md border border-gray-300 px-1.5 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="请输入分销商价格"
-                  />
-                </div>
-                <div class="flex flex-1 items-center">
-                  <h4 class="flex-none text-sm font-medium text-gray-900">
-                    终端价格：
-                  </h4>
-                  <input
-                    v-model="terminalPrice"
-                    type="text"
-                    class="flex-1 rounded-md border border-gray-300 px-1.5 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="请输入终端价格"
-                  />
-                </div>
+              <!-- 第二行 -->
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
+                  分销商价格：
+                </h4>
+                <input
+                  v-model="distributorPrice"
+                  type="text"
+                  class="h-8 flex-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="请输入分销商价格"
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <h4 class="w-28 text-sm font-medium text-gray-900">
+                  终端价格：
+                </h4>
+                <input
+                  v-model="terminalPrice"
+                  type="text"
+                  class="h-8 flex-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="请输入终端价格"
+                />
               </div>
             </div>
           </div>
