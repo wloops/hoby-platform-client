@@ -748,7 +748,7 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
       },
     },
     {
-      key: 'edit',
+      key: 'copy',
       label: '复制',
       type: 'link',
       batchable: false,
@@ -758,7 +758,7 @@ const getDefaultActions = (pageID: string): ActionButtonProps[] => {
           pageID,
           mode: 'drawer',
           record: row,
-          type: 'edit',
+          type: 'add',
           originParams: getDBOriginParams(48),
         });
       },

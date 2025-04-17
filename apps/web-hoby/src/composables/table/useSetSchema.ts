@@ -360,9 +360,10 @@ export function useSetSchema() {
             pageParams.showAddButton = true;
             return null;
           }
-          if (btn.serviceID === 2) return 'edit';
-          if (btn.serviceID === 3) return 'delete';
-          if (btn.serviceID === 48) return 'view';
+          if (btn.serviceID === 2) return 'delete';
+          if (btn.serviceID === 3) return 'edit';
+          if (btn.serviceID === 48) return 'copy';
+          if (btn.serviceID === 50) return 'view';
         });
         if (
           Array.isArray(btnGroup) &&
