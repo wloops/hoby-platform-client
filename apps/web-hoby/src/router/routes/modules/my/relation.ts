@@ -441,7 +441,6 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-
       {
         meta: {
           title: $t('page.my.relationManagement.authFactoryForMe.title'),
@@ -485,7 +484,7 @@ const routes: RouteRecordRaw[] = [
               icon: 'mdi:file-table-box-multiple-outline',
               authority: ['my'],
             },
-            name: 'IAuthGoodsManage',
+            name: 'GoodsAuthForMeManage',
             path: '/my/relation/authme-factory/goodsmng',
             children: [
               {
