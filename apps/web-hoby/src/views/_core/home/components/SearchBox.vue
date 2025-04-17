@@ -113,7 +113,7 @@ const searchResults = [
       <!-- 搜索下拉结果 -->
       <div
         v-if="showDropdown"
-        class="absolute left-0 right-0 top-full z-50 mt-1 rounded-md border border-gray-200 bg-white shadow-lg"
+        class="absolute left-0 right-0 top-full z-[1001] mt-1 rounded-md border border-gray-200 bg-white shadow-lg"
       >
         <!-- 热门搜索 -->
         <div class="border-b p-3">

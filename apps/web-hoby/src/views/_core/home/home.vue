@@ -47,32 +47,32 @@ const brands = ref([
   {
     id: 1,
     name: '得力文具',
-    logo: '/static/logos/deli.png',
+    logo: './static/logos/deli.png',
   },
   {
     id: 2,
     name: '三只松鼠',
-    logo: '/static/logos/3shu.png',
+    logo: './static/logos/3shu.png',
   },
   {
     id: 3,
     name: '晨光文具',
-    logo: '/static/logos/chengguang.png',
+    logo: './static/logos/chengguang.png',
   },
   {
     id: 4,
     name: '格力',
-    logo: '/static/logos/gree.png',
+    logo: './static/logos/gree.png',
   },
   {
     id: 5,
     name: '霍尼韦尔',
-    logo: '/static/logos/honeywell.jpg',
+    logo: './static/logos/honeywell.jpg',
   },
   {
     id: 6,
     name: '美的',
-    logo: '/static/logos/midea.png',
+    logo: './static/logos/midea.png',
   },
 ]);
 
@@ -80,43 +80,49 @@ const newProducts = ref([
   {
     id: 1,
     name: '晨光水性笔',
-    image: '/static/product/晨光水性笔.jpg',
+    image: './static/product/cg-sxb.jpg',
     tag: '热销',
   },
   {
     id: 2,
     name: '晨光长尾夹',
-    image: '/static/product/晨光长尾夹.jpg',
+    image: './static/product/cg-cwj.jpg',
     tag: '新品',
   },
   {
     id: 3,
     name: '得力档案盒',
-    image: '/static/product/得力档案盒.jpg',
+    image: './static/product/dl-dah.jpg',
     tag: '促销',
   },
   {
     id: 4,
     name: '格力电风扇',
-    image: '/static/product/格力电风扇.jpg',
+    image: './static/product/gl-dfs.jpg',
     tag: '限时',
   },
   {
     id: 5,
     name: '格力空调',
-    image: '/static/product/格力空调.jpg',
+    image: './static/product/gl-kt.jpg',
     tag: '热销',
   },
   {
     id: 6,
     name: '美的热水壶',
-    image: '/static/product/美的热水壶.jpg',
+    image: './static/product/md-rsh.jpg',
+    tag: '新品',
+  },
+  {
+    id: 6,
+    name: '得力文件袋',
+    image: './static/product/dl-wjd.jpg',
     tag: '新品',
   },
   {
     id: 7,
     name: '三只松鼠坚果礼盒',
-    image: '/static/product/三只松鼠坚果礼盒.jpg',
+    image: './static/product/szss.jpg',
     tag: '促销',
   },
 ]);
@@ -179,25 +185,25 @@ const userQuickLinks = ref([
   {
     icon: 'icon-[lucide--shopping-cart]',
     text: '我要进货',
-    link: '/my/purchase-order/purchase/cart',
+    link: '/my/purchase-order',
     authority: ['my'],
   },
   {
     icon: 'icon-[lucide--store]',
     text: '我的店铺',
-    link: '/my/shop/private',
+    link: '/my/shop',
     authority: ['my'],
   },
   {
     icon: 'icon-[solar--clipboard-linear]',
     text: '我的订单',
-    link: '/my/sales-order/management',
+    link: '/my/sales-order',
     authority: ['my'],
   },
   {
     icon: 'icon-[lucide--blocks]',
     text: '我的产品',
-    link: '/my/product/standard',
+    link: '/my',
     authority: ['my'],
   },
 ]);
@@ -230,13 +236,13 @@ const goToMainPage = async (page: any) => {
         <!-- 主内容区 -->
         <div class="flex-1">
           <!-- 搜索框区域 - 使用SearchBox组件 -->
-          <div class="top-50 sticky mb-6">
+          <div class="mb-6">
             <div class="rounded-md border border-gray-300 bg-white shadow-sm">
               <SearchBox />
             </div>
           </div>
           <!-- 品牌展示区 -->
-          <section class="mb-8 rounded-lg bg-white p-6 shadow-sm">
+          <section class="z-1 mb-8 rounded-lg bg-white p-6 shadow-sm">
             <div class="mb-5 flex items-center justify-between">
               <h2 class="flex items-center text-xl font-bold text-gray-800">
                 <span
