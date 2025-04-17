@@ -133,6 +133,14 @@ export function useSetSchema() {
         if (config.width) {
           column.width = config.width;
         }
+        if (
+          config.type === 'operation' &&
+          config.actions &&
+          config.actions.length > 0
+        ) {
+          column.width = calculateOperationColumnWidth(config.actions as any);
+          column.showOverflow = false;
+        }
 
         // 处理对齐方式
         if (config.align) {
@@ -407,29 +415,35 @@ export function useSetSchema() {
   };
 }
 
-// /**
-//  * 根据字段类型和内容计算合适的列宽度
-//  * @param fieldType - 字段类型
-//  * @param title - 列标题
-//  * @returns 计算后的列宽度
-//  */
-// const calculateColumnWidth = (fieldType: FieldType, title: string): number => {
-//   // 基础宽度：标题文字长度 * 每个字符的平均宽度(假设中文16px，英文8px)
-//   const baseTitleWidth = [...title].reduce((width, char) => {
-//     return width + (/[\u4E00-\u9FA5]/.test(char) ? 16 : 8);
-//   }, 0);
-//   // 根据不同字段类型设置最小宽度
-//   const minWidthMap: Record<string, number> = {
-//     [FieldType.STRING]: 120,
-//     [FieldType.NUMBER]: 100,
-//     [FieldType.SELECT]: 140,
-//     [FieldType.DATE]: 140,
-//     [FieldType.DATETIME]: 180,
-//     [FieldType.TIME]: 120,
-//     [FieldType.CHECKBOX]: 80,
-//     [FieldType.SWITCH]: 80,
-//   };
+/**
+ * 计算操作列总宽度
+ * @param actions - 列参数
+ * @returns 计算后的列宽度
+ */
+// 计算操作列总宽度
+function calculateOperationColumnWidth(
+  actions: Array<{ text: string }>,
+): number {
+  if (!actions || actions.length === 0) return 0;
+  const buttonMargin = 28; // 按钮间距
+  return (
+    actions.reduce((total, action) => {
+      return total + getButtonWidth(action) + buttonMargin;
+    }, 0) - buttonMargin
+  ); // 最后一个按钮不需要右边距
+}
+function calculateTextWidth(text: string, font = '14px Arial'): number {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) return 0;
+  context.font = font;
+  return context.measureText(text).width;
+}
 
-//   // 取标题宽度和最小宽度的最大值
-//   return Math.max(baseTitleWidth + 32, minWidthMap[fieldType] || 120);
-// };
+// 计算单个按钮宽度
+function getButtonWidth(action: { text: string }): number {
+  const textWidth = calculateTextWidth(action.text);
+  const horizontalPadding = 15; // 左右各 8px
+  const borderWidth = 2; // 左右边框各 1px
+  return textWidth + horizontalPadding + borderWidth;
+}

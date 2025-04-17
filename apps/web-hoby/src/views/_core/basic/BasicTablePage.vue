@@ -33,8 +33,8 @@ const tableProps = ref<CommonTableProps>({
       dataIndex: 'operation',
       visible: true,
       type: 'operation',
-      defaultActions: ['view'], // 默认显示的按钮 : view 查看, edit 编辑, delete 删除
-      width: 100,
+      defaultActions: false, // 默认显示的按钮 : view 查看, edit 编辑, delete 删除
+      // width: 100,
       fixed: 'right',
       align: 'center',
       actions: [
