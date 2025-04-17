@@ -1293,6 +1293,9 @@ importers:
       '@vben-core/typings':
         specifier: workspace:*
         version: link:../../base/typings
+      '@vben/hooks':
+        specifier: workspace:*
+        version: link:../../../effects/hooks
       '@vueuse/core':
         specifier: 'catalog:'
         version: 12.8.2(typescript@5.8.2)
