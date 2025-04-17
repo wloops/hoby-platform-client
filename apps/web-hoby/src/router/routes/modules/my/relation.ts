@@ -291,7 +291,7 @@ const routes: RouteRecordRaw[] = [
       {
         meta: {
           title: $t('page.my.relationManagement.wareMertsAuthByMe.title'),
-          icon: 'mdi:invoice-text-outline',
+          icon: 'mdi:account-multiple-check-outline',
           authority: ['my'],
         },
         name: 'WareMertsAuthByMe',
