@@ -17,10 +17,13 @@ const routes: RouteRecordRaw[] = [
           title: $t('page.my.fundAccount.settlement'),
           icon: 'mdi:account-cash',
           authority: ['my'],
+          pageParams: {
+            pageID: 'mySettlementAccountPage',
+          },
         },
         name: 'MySettlementAccount',
         path: '/my/fund/settlement',
-        component: () => import('#/views/my/fund/settlement.vue'),
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
@@ -57,10 +60,13 @@ const routes: RouteRecordRaw[] = [
           title: $t('page.my.fundAccount.OpenBankAccount'),
           icon: 'mdi:bank',
           authority: ['my'],
+          pageParams: {
+            pageID: 'memOpenOnlinePaymentServicesPage',
+          },
         },
         name: 'OpenBankAccount',
         path: '/my/fund/open-bankacc',
-        component: () => import('#/views/my/fund/open-bankacc.vue'),
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
