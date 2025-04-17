@@ -151,62 +151,93 @@ const services = ref([
 const announcements = ref([
   {
     id: 1,
-    title: '系统更新通知',
-    content: '我们将于本周六进行系统维护，届时部分功能可能暂时不可用。',
-    date: '2023-06-20',
-    important: true,
+    title: '成交信息',
+    important: false,
+    children: [
+      {
+        id: 1,
+        content: '今日钢材成交价突破5000元/吨，创年内新高',
+        date: '2023-06-15',
+      },
+      {
+        id: 2,
+        content: '7月水泥期货合约成交量达120万吨，环比增长15%',
+        date: '2023-06-18',
+      },
+    ],
   },
   {
     id: 2,
-    title: '新品上架通知',
-    content: '多款新品已经上架，现在下单享受首发优惠。',
-    date: '2023-06-18',
+    title: '供求信息',
     important: false,
+    children: [
+      {
+        id: 1,
+        content: '急购HRB400E螺纹钢1000吨，有意者请联系',
+        date: '2023-06-12',
+      },
+      {
+        id: 2,
+        content: '长期供应优质动力煤，热值5500大卡以上',
+        date: '2023-06-19',
+      },
+      {
+        id: 3,
+        content: '求购二手挖掘机3台，要求使用年限不超过3年',
+        date: '2023-06-21',
+      },
+    ],
   },
   {
     id: 3,
-    title: '供应商招募计划',
-    content: '我们正在寻找更多优质供应商，加入我们的B2B生态系统。',
-    date: '2023-06-15',
-    important: true,
+    title: '官方公告',
+    important: false,
+    children: [
+      {
+        id: 1,
+        content: '平台将于本周六凌晨2:00-4:00进行系统升级维护',
+        date: '2023-06-20',
+      },
+    ],
   },
-]);
-
-// 未登录时的快速导航
-const guestQuickLinks = ref([
-  { icon: 'icon-[lucide--user]', text: '注册账号', link: '/auth/register' },
-  { icon: 'icon-[lucide--store]', text: '入驻商城', link: '/auth/login' },
-  { icon: 'icon-[lucide--blocks]', text: '产品浏览', link: '/products' },
-  { icon: 'icon-[lucide--circle-help]', text: '帮助中心', link: '/help' },
 ]);
 
 // 已登录用户的快速导航
 const userQuickLinks = ref([
   {
-    icon: 'icon-[lucide--shopping-cart]',
-    text: '我要进货',
-    link: '/my/purchase-order',
-    authority: ['my'],
-  },
-  {
-    icon: 'icon-[lucide--store]',
-    text: '我的店铺',
+    icon: 'icon-[solar--shop-2-line-duotone]',
+    text: '管理店铺',
     link: '/my/shop',
     authority: ['my'],
   },
   {
     icon: 'icon-[solar--clipboard-linear]',
-    text: '我的订单',
-    link: '/my/sales-order',
+    text: '管理订单',
+    link: '/my/sales-order/management',
     authority: ['my'],
   },
   {
-    icon: 'icon-[lucide--blocks]',
-    text: '我的产品',
-    link: '/my',
+    icon: 'icon-[solar--archive-broken]',
+    text: '管理商品',
+    link: '/my/product/standard',
+    authority: ['my'],
+  },
+  {
+    icon: 'icon-[solar--medal-ribbon-star-linear]',
+    text: '申请保函',
+    link: '/my/credit',
     authority: ['my'],
   },
 ]);
+
+// 未登录时的快速导航
+// const guestQuickLinks = ref([
+//   { icon: 'icon-[lucide--user]', text: '注册账号', link: '/auth/register' },
+//   { icon: 'icon-[lucide--store]', text: '入驻商城', link: '/auth/login' },
+//   { icon: 'icon-[lucide--blocks]', text: '产品浏览', link: '/products' },
+//   { icon: 'icon-[lucide--circle-help]', text: '帮助中心', link: '/help' },
+// ]);
+const guestQuickLinks = ref(userQuickLinks.value);
 
 const goToMainPage = async (page: any) => {
   accessStore.setIsAccessChecked(false);
@@ -382,9 +413,7 @@ const goToMainPage = async (page: any) => {
               </div>
             </template>
 
-            <Divider class="my-3">
-              {{ userStore.userInfo ? '快捷导航' : '快速通道' }}
-            </Divider>
+            <Divider class="my-3">快速工作台</Divider>
 
             <div class="grid grid-cols-2 gap-3">
               <template v-if="userStore.userInfo">
@@ -429,11 +458,12 @@ const goToMainPage = async (page: any) => {
                 v-for="item in announcements"
                 :key="item.id"
                 class="cursor-pointer transition-all hover:shadow"
-                :class="[item.important ? 'border-l-4 border-l-red-500' : '']"
                 size="small"
               >
                 <template #title>
-                  <div class="flex items-center text-base font-medium">
+                  <div
+                    class="flex items-center text-base font-medium text-blue-500"
+                  >
                     <span
                       v-if="item.important"
                       class="mr-2 inline-block rounded border border-red-500 px-1 py-0.5 text-xs text-red-500"
@@ -442,10 +472,17 @@ const goToMainPage = async (page: any) => {
                     {{ item.title }}
                   </div>
                 </template>
-                <div class="text-sm text-gray-600">{{ item.content }}</div>
-                <div class="mt-2 flex items-center justify-between">
-                  <span class="text-xs text-gray-400">{{ item.date }}</span>
-                  <Button type="link" size="small" class="p-0">查看详情</Button>
+                <div v-for="news in item.children" :key="news.id">
+                  <a target="_blank" class="text-sm text-gray-600">
+                    {{ news.content }}
+                  </a>
+                  <div class="mt-2 flex items-center justify-between">
+                    <span></span>
+                    <span class="text-xs text-gray-400">{{ news.date }}</span>
+                    <!-- <Button type="link" size="small" class="p-0">
+                      查看详情
+                    </Button> -->
+                  </div>
                 </div>
               </Card>
             </div>
