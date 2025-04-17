@@ -2,6 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 
 import { markRaw, ref } from 'vue';
 
+import { z } from '@vben/common-ui';
 import { useUserStore } from '@vben/stores';
 
 import { getAreaApi } from '#/api';
@@ -148,6 +149,23 @@ export function useSetFieldList() {
       if (fieldType) formItem.componentProps.fieldType = fieldType;
       // 根据字段类型和属性设置相应的组件类型
       switch (fieldType) {
+        case 'confirmPassword': {
+          formItem.component = 'InputPassword';
+          formItem.dependencies = {
+            rules(values) {
+              const password = values[item.value];
+              return z
+                .string({ required_error: '请输入确认密码' })
+                .min(1, { message: '请输入确认密码' })
+                .refine((value) => value === password, {
+                  message: '两次输入的密码不一致',
+                });
+            },
+            triggerFields: [item.value],
+          };
+
+          break;
+        }
         // case 'boolean': {
         //   formItem.component = 'Switch';
         //   break;
@@ -406,8 +424,8 @@ function addConfirmPasswordFields(fields: FieldItem[]): FieldItem[] {
       const confirmField: FieldItem = {
         fieldName: `${field.fieldName}_confirm`,
         displayName: `确认${field.displayName}`,
-        useType: 'passwordEncBypk',
-        value: '',
+        useType: 'confirmPassword',
+        value: field.fieldName,
         valueConstraint: 'confirmPassword',
       };
 
