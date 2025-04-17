@@ -20,6 +20,7 @@ import BrandCard from './components/BrandCard.vue';
 import ProductCard from './components/ProductCard.vue';
 import SearchBox from './components/SearchBox.vue';
 import ServiceCard from './components/ServiceCard.vue';
+import Footer from './layout/Footer.vue';
 import Header from './layout/Header.vue';
 
 const router = useRouter();
@@ -492,17 +493,7 @@ const goToMainPage = async (page: any) => {
           </div>
         </aside>
       </div>
-
-      <!-- 页脚 -->
-      <footer class="mt-10 border-t py-8 text-center text-gray-500">
-        <div class="mb-6 flex justify-center space-x-12">
-          <a href="#" class="transition-colors hover:text-blue-500">关于我们</a>
-          <a href="#" class="transition-colors hover:text-blue-500">帮助中心</a>
-          <a href="#" class="transition-colors hover:text-blue-500">联系客服</a>
-          <a href="#" class="transition-colors hover:text-blue-500">隐私政策</a>
-        </div>
-        <p>© 2023 B2B商城平台 版权所有</p>
-      </footer>
+      <Footer />
     </div>
   </div>
 </template>
