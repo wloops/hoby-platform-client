@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-18 10:30:39
+ * @LastEditTime: 2025-04-18 15:02:26
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -175,6 +175,10 @@ const childTablesParams = ref<ChildTableProps>(props.childTables);
 const { getViewSchema } = useSetSchema();
 const { getTabsList } = useTabs();
 onMounted(async () => {
+  await tablePageLoadFunc();
+});
+
+const tablePageLoadFunc = async (pageID?: string) => {
   // 判断是否为多标签页
   if (props.params?.isTabs) {
     // 获取tabs列表和默认tab
@@ -201,8 +205,14 @@ onMounted(async () => {
     ...childTablesParams.value,
     ...childTables,
   };
+  if (!props.params?.isTabs && props.params?.childTabs) {
+    const { tabs, defaultTab } = props.params?.childTabs as any;
+    pageParams.value.pageID = pageID ?? defaultTab?.pageID;
+    pageParams.value.tabs = tabs;
+  }
+
   loading.value = false;
-});
+};
 
 const tableRef = ref<null | {
   refresh: () => void;
@@ -216,26 +226,7 @@ const loadKey = ref(0);
 const handleTabChange = async (value: string) => {
   // loading.value = true;
   pageParams.value.pageID = value;
-  // 获取视图配置
-  const {
-    columns,
-    displayFldList,
-    queryPanelFldList,
-    pageButtons,
-    DBDefaultActions,
-    childTables,
-  } = await getViewSchema(props.columns, pageParams.value);
-  sendColumns.value = props.columns.length > 1 ? props.columns : columns;
-  fieldSort.value.displayFldList = displayFldList;
-  fieldSort.value.queryPanelFldList = queryPanelFldList;
-  pageButtonsList.value = pageButtons;
-  dBDefaultActions.value = DBDefaultActions;
-  // 子表
-  childTablesParams.value = {
-    ...childTablesParams.value,
-    ...childTables,
-  };
-
+  await tablePageLoadFunc(value);
   loadKey.value++;
 };
 </script>

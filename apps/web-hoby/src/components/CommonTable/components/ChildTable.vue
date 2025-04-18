@@ -2,7 +2,7 @@
  * @Author: AI Assistant
  * @Date: 2025-04-08 18:00:00
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-18 10:41:44
+ * @LastEditTime: 2025-04-18 14:27:00
  * @Description: 子表组件，用于在展开行时显示
 -->
 <script lang="ts" setup>
@@ -125,6 +125,11 @@ const tableProps = ref<CommonTableProps>({
   params: {
     pageID: props.pageID, // 页面ID
     showAddButton: false, // 是否显示新增按钮
+    // isTabs: true, // 是否显示标签页
+    childTabs: {
+      tabs: props.customParams.tabs,
+      defaultTab: props.customParams.defaultTab,
+    },
     childTableQueryParams: getPkValue(props.row, props.customParams.pkFields),
   },
   // 表格列配置(必填) ColumnDefinition[]
@@ -145,7 +150,7 @@ const tableProps = ref<CommonTableProps>({
   // 是否展示工具栏（可选)
   showToolbar: false,
   // 是否展示表格顶部（可选)
-  showTableTop: false,
+  showTableTop: true,
   // 行唯一标识（可选）
   rowKey: 'id',
   // 最小选中数量（可选）

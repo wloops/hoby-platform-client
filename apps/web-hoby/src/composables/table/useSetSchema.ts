@@ -404,13 +404,22 @@ export function useSetSchema() {
     let childTables = {};
     // 展开子表
     if (childPageNameList && childPageNameList.length > 0) {
-      // 处理子表
-      // 发送主键字段
+      // 处理子表列表成tabs
+      const tabs = childPageNameList.map(
+        (item: { pageAlais: string; pageID: string }) => ({
+          ...item,
+          label: item.pageAlais,
+          value: item.pageID,
+        }),
+      );
+      const defaultTab: { label: string; value: string } = tabs[0];
 
       childTables = {
         ...childPageNameList[0],
         childTableParams: {
           isCommonTable: true,
+          tabs,
+          defaultTab,
           pkFields,
         },
       };

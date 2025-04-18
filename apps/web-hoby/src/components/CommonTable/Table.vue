@@ -532,14 +532,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
   columns:
     props.columns.length > 0
       ? generateColumns(props.columns, props.fieldSort.displayFldList)
-      : [
-          { align: 'left', type: 'checkbox', width: 50 },
-          { field: 'orderNo', title: '进货订单号' },
-          { field: 'color', title: 'Color' },
-          { field: 'productName', title: 'Product Name' },
-          { field: 'price', title: 'Price' },
-          { field: 'releaseDate', formatter: 'formatDateTime', title: 'Date' },
-        ],
+      : [],
   columnConfig: {
     // width: 'auto',
     resizable: true, // 允许手动调整列宽
@@ -979,7 +972,7 @@ const handleAddClick = () => {
             :default-tab="params.pageID"
             @change="handleTabChange"
           />
-          <div class="batch-action-info">
+          <div class="batch-action-info" v-if="showCheckbox">
             <Button type="text" @click="clearSelection">
               <div class="stems-center flex items-center justify-center gap-1">
                 <span class="icon-[mdi--arrow-u-left-top] text-lg"></span>
