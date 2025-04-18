@@ -85,6 +85,9 @@ export function useSetFieldList() {
       if (item.value.includes('this.')) {
         const field = item.value.split('this.')[1].split(',')[0];
         formItem.defaultValue = record[field] || '';
+        // if (record[field]) {
+        formItem.componentProps.disabled = true;
+        // }
       }
       if (item.value.includes('active.')) {
         const userStore = useUserStore();
@@ -95,7 +98,9 @@ export function useSetFieldList() {
         };
         const field = item.value.split('active.')[1].split(',')[0];
 
-        formItem.defaultValue = actionMap[field] || '';
+        formItem.defaultValue =
+          userStore?.userInfo?.[field] ?? (actionMap[field] || '');
+        formItem.componentProps.disabled = true;
       }
       if (isAdd) {
         if (item.value.includes('auto') || item.visible) {
