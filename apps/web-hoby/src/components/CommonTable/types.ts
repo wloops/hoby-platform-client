@@ -251,6 +251,8 @@ export interface TabOption {
 export interface CommonTableProps {
   // 基础配置
   params: CommonTableParams;
+  // 表格高度
+  tableFixedHeight?: string;
   // 表格列配置
   columns: ColumnDefinition[];
   // 页面按钮
@@ -261,6 +263,10 @@ export interface CommonTableProps {
   autoRefresh?: boolean;
   // 是否展示搜索表单
   showSearch?: boolean;
+  // 是否展示工具栏
+  showToolbar?: boolean;
+  // 是否展示表格顶部
+  showTableTop?: boolean;
   // 自定义请求方法
   requestApi?: RequestFunction;
   // 是否显示复选框列

@@ -57,6 +57,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 表格固定高度
+  tableFixedHeight: {
+    type: String,
+    default: 'auto',
+  },
   // 是否展示搜索表单
   showSearch: {
     type: Boolean,
@@ -130,6 +135,16 @@ const props = defineProps({
   dBDefaultActions: {
     type: Array as () => any[],
     default: () => [],
+  },
+  // 是否显示工具栏
+  showToolbar: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否显示表格上方
+  showTableTop: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -535,7 +550,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
     trigger: 'click',
   },
   exportConfig: {},
-  height: 'auto',
+  height: props.tableFixedHeight ?? 'auto',
   autoResize: true,
   border: false,
   round: true,
@@ -550,8 +565,15 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
     ajax: {
       query: async ({ page }, formValues) => {
         selectedRecords.value = [];
+        let searchFormValues = {
+          ...formValues,
+        };
+        // 子表查询条件childTableQueryParams
+        if (props.params && props.params.childTableQueryParams) {
+          searchFormValues = props.params.childTableQueryParams;
+        }
         // 将searchForm中的字段转换为;连接的字符串
-        const searchFormString = Object.entries(formValues)
+        const searchFormString = Object.entries(searchFormValues)
           .map(([key, value]) => `${key}=${value ?? ''}`)
           .join(';');
         // 将分页信息和表单值合并
@@ -566,7 +588,7 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
 
         // 如果提供了pageID，使用mainGetViewDataApi获取数据
         if (props.params && props.params.pageID) {
-          const hasValue = Object.values(formValues).some(
+          const hasValue = Object.values(searchFormValues).some(
             (value) => value !== undefined,
           ); // 至少有一个字段有值
           try {
@@ -609,14 +631,16 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
       },
     },
   },
-  toolbarConfig: {
-    custom: true,
-    export: true,
-    refresh: true,
-    resizable: true,
-    search: true,
-    zoom: true,
-  },
+  toolbarConfig: props.showToolbar
+    ? {
+        custom: true,
+        export: true,
+        refresh: true,
+        resizable: true,
+        search: true,
+        zoom: true,
+      }
+    : {},
 };
 
 // 显示或隐藏搜索表单
@@ -648,13 +672,12 @@ if (
   });
 }
 
-// 确保始终添加展开列
+// 添加展开列
 if (
   props.columns.length > 0 &&
   !props.columns.some((col) => col.type === 'expand') &&
   // 只有在配置了子表时才添加展开列
-  (props.childTables?.childTableColumns?.length > 0 ||
-    props.childTables?.loadChildTableData)
+  (props.childTables?.pageID || props.childTables?.loadChildTableData)
 ) {
   // 添加展开列（在复选框列之后）
   const expandColumn = {
@@ -678,7 +701,7 @@ if (
 // 使用 VxeTableGridOptions 支持的方式创建 Grid
 const [Grid, gridApi] = useVbenVxeGrid({
   showSearchForm: formOptions?.schema && formOptions?.schema?.length > 0,
-  formOptions,
+  formOptions: props.showSearch ? formOptions : undefined,
   gridOptions,
   gridEvents: {
     checkboxChange: handleSelectionChange,
@@ -870,7 +893,7 @@ const handleAddClick = () => {
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page :auto-content-height="tableFixedHeight === 'auto' ? true : false">
     <Grid>
       <!-- 展开子表插槽 -->
       <template #expand="{ row }">
@@ -883,7 +906,7 @@ const handleAddClick = () => {
             ...(props.childTables?.childTableParams &&
             typeof props.childTables.childTableParams === 'function'
               ? props.childTables.childTableParams(row)
-              : {}),
+              : props.childTables?.childTableParams),
           }"
         />
       </template>
@@ -949,7 +972,7 @@ const handleAddClick = () => {
 
       <!-- 选中记录 -->
       <template #toolbar-actions>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1" v-if="showTableTop">
           <CommonTabs
             v-if="tabs.length > 0"
             :tabs="tabs"

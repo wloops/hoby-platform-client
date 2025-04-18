@@ -251,6 +251,7 @@ export function useSetSchema() {
     operationColumn: ColumnDefinition[],
     pageParams: CommonTableParams,
   ): Promise<{
+    childTables: Record<string, any>;
     columns: ColumnDefinition[];
     DBDefaultActions: any[];
     displayFldList: string;
@@ -269,6 +270,7 @@ export function useSetSchema() {
       DBRecAccBtnGrp,
       recBtnGrp,
       formBtnGrp,
+      childPageNameList,
     } = await mainGetViewFieldConfigApi({ pageID });
 
     if (rs !== '1' || !fieldList || !Array.isArray(fieldList)) {
@@ -278,6 +280,7 @@ export function useSetSchema() {
         pageButtons: [],
         queryPanelFldList: '',
         DBDefaultActions: [],
+        childTables: {},
       };
     }
 
@@ -398,6 +401,20 @@ export function useSetSchema() {
     if (formBtnGrp && formBtnGrp.length > 0) {
       pageButtons = setButtonParams(formBtnGrp);
     }
+    let childTables = {};
+    // 展开子表
+    if (childPageNameList && childPageNameList.length > 0) {
+      // 处理子表
+      // 发送主键字段
+
+      childTables = {
+        ...childPageNameList[0],
+        childTableParams: {
+          isCommonTable: true,
+          pkFields,
+        },
+      };
+    }
 
     return {
       columns,
@@ -405,6 +422,7 @@ export function useSetSchema() {
       queryPanelFldList,
       pageButtons,
       DBDefaultActions,
+      childTables,
     };
   };
 

@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-16 17:34:13
+ * @LastEditTime: 2025-04-18 10:30:39
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -40,8 +40,23 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 表格固定高度
+  tableFixedHeight: {
+    type: String,
+    default: 'auto',
+  },
   // 是否展示搜索表单
   showSearch: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否显示表格上方
+  showTableTop: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否显示工具栏
+  showToolbar: {
     type: Boolean,
     default: true,
   },
@@ -155,6 +170,7 @@ const fieldSort = ref({
 const pageParams = ref<any>(props.params);
 const pageButtonsList = ref<ActionButtonProps[]>(props.pageButtons);
 const dBDefaultActions = ref<any[]>([]);
+const childTablesParams = ref<ChildTableProps>(props.childTables);
 
 const { getViewSchema } = useSetSchema();
 const { getTabsList } = useTabs();
@@ -173,12 +189,18 @@ onMounted(async () => {
     queryPanelFldList,
     pageButtons,
     DBDefaultActions,
+    childTables,
   } = await getViewSchema(props.columns, pageParams.value);
   sendColumns.value = props.columns.length > 1 ? props.columns : columns;
   fieldSort.value.displayFldList = displayFldList;
   fieldSort.value.queryPanelFldList = queryPanelFldList;
   pageButtonsList.value = pageButtons;
   dBDefaultActions.value = DBDefaultActions;
+  // 子表
+  childTablesParams.value = {
+    ...childTablesParams.value,
+    ...childTables,
+  };
   loading.value = false;
 });
 
@@ -201,12 +223,19 @@ const handleTabChange = async (value: string) => {
     queryPanelFldList,
     pageButtons,
     DBDefaultActions,
+    childTables,
   } = await getViewSchema(props.columns, pageParams.value);
   sendColumns.value = props.columns.length > 1 ? props.columns : columns;
   fieldSort.value.displayFldList = displayFldList;
   fieldSort.value.queryPanelFldList = queryPanelFldList;
   pageButtonsList.value = pageButtons;
   dBDefaultActions.value = DBDefaultActions;
+  // 子表
+  childTablesParams.value = {
+    ...childTablesParams.value,
+    ...childTables,
+  };
+
   loadKey.value++;
 };
 </script>
@@ -217,16 +246,19 @@ const handleTabChange = async (value: string) => {
       :key="loadKey"
       v-if="!loading"
       ref="tableRef"
+      :table-fixed-height="tableFixedHeight"
       :columns="sendColumns"
       :params="pageParams"
       :field-sort="fieldSort"
       :tabs="pageParams.tabs"
-      :child-tables="childTables"
+      :child-tables="childTablesParams"
       :page-buttons="pageButtonsList"
       :d-b-default-actions="dBDefaultActions"
       :table-data="tableData"
       :auto-refresh="autoRefresh"
       :show-search="showSearch"
+      :show-table-top="showTableTop"
+      :show-toolbar="showToolbar"
       :request-api="requestApi"
       :show-checkbox="showCheckbox"
       :row-key="rowKey"
