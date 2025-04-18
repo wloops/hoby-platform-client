@@ -330,6 +330,12 @@ const submitApi = async (record: Record<string, any>) => {
 };
 
 const submitCommonButton = async (record: Record<string, any>) => {
+  // 表单值为空的默认传空字符串
+  for (const key in record) {
+    if (record[key] === undefined) {
+      record[key] = '';
+    }
+  }
   try {
     if (submitType.value === 'add') {
       const addData = {
