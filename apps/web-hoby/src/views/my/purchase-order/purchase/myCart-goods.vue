@@ -12,8 +12,10 @@ import {
 } from 'ant-design-vue';
 
 import { mainServiceApi } from '#/api';
+import DynamicForm from '#/components/DynamicForm/index.vue';
 import { useMainGetData } from '#/composables';
 
+const emit = defineEmits(['refresh']);
 // 购物车数据结构，改为店铺->商品的层级结构
 const storeData = ref([]);
 
@@ -330,35 +332,63 @@ const removeSelected = () => {
   });
 };
 
-const generateOrderMainServiceApi = async (store) => {
-  try {
-    const data = {
-      pageID: 'myCart-goods',
+// const generateOrderMainServiceApi = async (store) => {
+//   try {
+//     const data = {
+//       pageID: 'myCart-goods',
+//       pageButtonID: 'generatePurOrder',
+//       actNo: store.record.actNo,
+//       saleCmpName: store.record.saleCmpName,
+//       wareName: store.record.wareName,
+//       purchaseCompanyName: store.record.purchaseCompanyName,
+//       tellerNo: store.record.tellerNo,
+//     };
+//     const { rs: code } = await mainServiceApi(data);
+//     return code === '1';
+//   } catch (error) {
+//     console.error(error);
+//     return false;
+//   }
+// };
+const dynamicFormRef = ref(null);
+// 生成单个购物车的采购订单
+const generateStoreOrder = (store) => {
+  dynamicFormRef.value?.open(
+    {
+      pageID: 'selDeliverGoodsAddressPage',
       pageButtonID: 'generatePurOrder',
       actNo: store.record.actNo,
       saleCmpName: store.record.saleCmpName,
       wareName: store.record.wareName,
       purchaseCompanyName: store.record.purchaseCompanyName,
       tellerNo: store.record.tellerNo,
-    };
-    const { rs: code } = await mainServiceApi(data);
-    return code === '1';
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+    },
+    {
+      pageID: 'selDeliverGoodsAddressPage',
+      pageButtonID: 'generatePurOrder',
+      actNo: store.record.actNo,
+      saleCmpName: store.record.saleCmpName,
+      wareName: store.record.wareName,
+      purchaseCompanyName: store.record.purchaseCompanyName,
+      tellerNo: store.record.tellerNo,
+    },
+    {
+      onSuccess: (res) => {
+        if (res.rs === '1') {
+          message.success('生成订单成功');
+          // 刷新购物车列表
+          fetchStoreList();
+          emit('refresh');
+        } else {
+          message.error(res.msg || '生成订单失败');
+        }
+      },
+      onError: (error) => {
+        message.error(`生成订单失败: ${error.message || '服务器错误'}`);
+      },
+    },
+  );
 };
-
-// 生成单个购物车的采购订单
-const generateStoreOrder = async (storeIndex, store) => {
-  const result = await generateOrderMainServiceApi(store);
-  if (result) {
-    message.success(`已为 ${store.name} 生成订单`);
-  } else {
-    message.error(`生成订单失败`);
-  }
-};
-
 // 批量生成订单
 // const batchGenerateOrders = async () => {
 //   if (selectedStoresCount.value === 0) {
@@ -578,7 +608,7 @@ onMounted(() => {
               <Button
                 size="small"
                 class="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
-                @click="generateStoreOrder(storeIndex, store)"
+                @click="generateStoreOrder(store)"
               >
                 生成订单
               </Button>
@@ -708,7 +738,13 @@ onMounted(() => {
           </transition>
         </div>
       </div>
-
+      <!-- 选择收货地址 -->
+      <DynamicForm
+        ref="dynamicFormRef"
+        title="选择收货地址"
+        mode="modal"
+        @refresh="fetchStoreList"
+      />
       <!-- 底部操作栏 -->
       <div
         class="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between border-t bg-white px-6 py-4 shadow-md"
