@@ -1007,29 +1007,33 @@ const handleAddClick = () => {
       </template>
 
       <template #tag="{ column, row }">
-        <Tag
-          :color="
-            getEnumColor(
-              `${column.params.enumName}|${column.field}`,
-              row[column.field],
-            ) || 'default'
-          "
-        >
+        <div>
+          <Tag
+            :color="
+              getEnumColor(
+                `${column.params.enumName}|${column.field}`,
+                row[column.field],
+              ) || 'default'
+            "
+          >
+            {{
+              getEnumLabel(
+                `${column.params.enumName}|${column.field}`,
+                row[column.field],
+              ) || row[column.field]
+            }}
+          </Tag>
+        </div>
+      </template>
+      <template #shiftLabel="{ column, row }">
+        <div>
           {{
             getEnumLabel(
               `${column.params.enumName}|${column.field}`,
               row[column.field],
             ) || row[column.field]
           }}
-        </Tag>
-      </template>
-      <template #shiftLabel="{ column, row }">
-        {{
-          getEnumLabel(
-            `${column.params.enumName}|${column.field}`,
-            row[column.field],
-          ) || row[column.field]
-        }}
+        </div>
       </template>
     </Grid>
   </Page>
