@@ -27,33 +27,45 @@ const routes: RouteRecordRaw[] = [
       },
       {
         meta: {
-          title: $t('page.my.fundAccount.voucherWaitPay'),
+          title: $t('page.my.fundAccount.paymentVoucherManage'),
           icon: 'mdi:cash-multiple',
           authority: ['my'],
+          pageParams: {
+            pageID: 'hobyMyPaymentBillPage',
+            isTabs: true,
+          },
         },
-        name: 'VoucherWaitPay',
-        path: '/my/fund/voucher-waitpay',
-        component: () => import('#/views/my/fund/voucher-waitpay.vue'),
+        name: 'PaymentVoucherManag',
+        path: '/my/fund/pay-bill',
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
-          title: $t('page.my.fundAccount.voucherWaitReceive'),
-          icon: 'mdi:wallet',
+          title: $t('page.my.fundAccount.receiptVoucherManage'),
+          icon: 'solar:hand-money-linear',
           authority: ['my'],
+          pageParams: {
+            pageID: 'hobyMyRecvBillPage',
+            isTabs: true,
+          },
         },
-        name: 'VoucherWaitReceive',
-        path: '/my/fund/voucher-waitrecv',
-        component: () => import('#/views/my/fund/voucher-waitrecv.vue'),
+        name: 'ReceiptVoucherManage',
+        path: '/my/fund/recv-bill',
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
-          title: $t('page.my.fundAccount.voucherWaitConfirm'),
+          title: $t('page.my.fundAccount.guaranteeVoucherManage'),
           icon: 'mdi:camera-metering-partial',
           authority: ['my'],
+          pageParams: {
+            pageID: 'hobyMyGuaranteeBillPage',
+            isTabs: true,
+          },
         },
-        name: 'VoucherWaitConfirm',
-        path: '/my/fund/voucher-waitconfirm',
-        component: () => import('#/views/my/fund/voucher-waitconfirm.vue'),
+        name: 'GuaranteeVoucherManage',
+        path: '/my/fund/guarant-bill',
+        component: () => import('#/views/_core/basic/BasicTablePage.vue'),
       },
       {
         meta: {
@@ -80,7 +92,7 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t('page.my.fundAccount.voucher.orderSettlement'),
-              icon: 'mdi:receipt',
+              icon: 'solar:clipboard-check-broken',
               authority: ['my'],
             },
             name: 'MyOrderSettlement',
@@ -102,7 +114,7 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t('page.my.fundAccount.voucher.receiptSettlement'),
-              icon: 'mdi:wallet',
+              icon: 'solar:hand-money-linear',
               authority: ['my'],
             },
             name: 'MyReceiptSettlement',
@@ -156,7 +168,7 @@ const routes: RouteRecordRaw[] = [
           {
             meta: {
               title: $t('page.my.fundAccount.config.defaultPayment'),
-              icon: 'mdi:wallet-outline',
+              icon: 'mdi:credit-card-marker-outline',
               authority: ['my'],
             },
             name: 'MyDefaultPayment',

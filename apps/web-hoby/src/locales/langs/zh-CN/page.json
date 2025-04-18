@@ -163,9 +163,9 @@
     "fundAccount": {
       "title": "资金管理",
       "settlement": "资金结算账户",
-      "voucherWaitPay": "待付款结算凭证",
-      "voucherWaitReceive": "待收款结算凭证",
-      "voucherWaitConfirm": "待确认担保凭证",
+      "paymentVoucherManage": "付款凭证管理",
+      "receiptVoucherManage": "收款凭证管理",
+      "guaranteeVoucherManage": "担保凭证管理",
       "OpenBankAccount": "开通银行结算账户",
       "voucher": {
         "title": "结算凭证",
