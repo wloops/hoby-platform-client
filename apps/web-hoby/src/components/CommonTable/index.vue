@@ -2,7 +2,7 @@
  * @Author: Loong wentloop@gmail.com
  * @Date: 2025-04-01 13:23:33
  * @LastEditors: Loong wentloop@gmail.com
- * @LastEditTime: 2025-04-18 15:02:26
+ * @LastEditTime: 2025-04-18 16:48:18
  * @FilePath: \hoby-platform-client\apps\web-hoby\src\components\CommonTable\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -178,9 +178,9 @@ onMounted(async () => {
   await tablePageLoadFunc();
 });
 
-const tablePageLoadFunc = async (pageID?: string) => {
+const tablePageLoadFunc = async (changeTab: boolean = false) => {
   // 判断是否为多标签页
-  if (props.params?.isTabs) {
+  if (!changeTab && props.params?.isTabs) {
     // 获取tabs列表和默认tab
     const { tabs, defaultTab } = await getTabsList(props.params.pageID);
     pageParams.value.pageID = defaultTab?.pageID;
@@ -205,9 +205,9 @@ const tablePageLoadFunc = async (pageID?: string) => {
     ...childTablesParams.value,
     ...childTables,
   };
-  if (!props.params?.isTabs && props.params?.childTabs) {
+  if (!changeTab && !props.params?.isTabs && props.params?.childTabs) {
     const { tabs, defaultTab } = props.params?.childTabs as any;
-    pageParams.value.pageID = pageID ?? defaultTab?.pageID;
+    pageParams.value.pageID = defaultTab?.pageID;
     pageParams.value.tabs = tabs;
   }
 
@@ -226,7 +226,7 @@ const loadKey = ref(0);
 const handleTabChange = async (value: string) => {
   // loading.value = true;
   pageParams.value.pageID = value;
-  await tablePageLoadFunc(value);
+  await tablePageLoadFunc(true);
   loadKey.value++;
 };
 </script>

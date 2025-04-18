@@ -514,6 +514,8 @@ const gridOptions: VxeTableGridOptions<TableRecord> = {
           showIcon: true,
           reserve: true,
           lazy: true,
+          mode: 'fixed',
+          padding: true,
           iconOpen: 'icon-[mdi--chevron-down]',
           iconClose: 'icon-[mdi--chevron-right]',
           loadMethod: async ({ row }) => {
@@ -657,12 +659,15 @@ if (
   !props.columns.some((col) => col.type === 'checkbox')
 ) {
   // 使用 unshift 将复选框列添加到前面
-  (gridOptions.columns as any[]).unshift({
-    fixed: 'left',
+  const checkbox: any = {
     field: 'checkbox',
     type: 'checkbox',
     width: 60,
-  });
+  };
+  if (!props.childTables) {
+    checkbox.fixed = 'left';
+  }
+  (gridOptions.columns as any[]).unshift(checkbox);
 }
 
 // 添加展开列
@@ -673,14 +678,17 @@ if (
   (props.childTables?.pageID || props.childTables?.loadChildTableData)
 ) {
   // 添加展开列（在复选框列之后）
-  const expandColumn = {
-    fixed: 'left',
+  const expandColumn: any = {
+    // fixed: 'left',
     field: 'expand',
     type: 'expand',
     width: 60,
     title: '',
     slots: { content: 'expand' },
   };
+  if (!props.childTables) {
+    expandColumn.fixed = 'left';
+  }
 
   // 如果有复选框列，在其后添加展开列
   if (props.showCheckbox) {
